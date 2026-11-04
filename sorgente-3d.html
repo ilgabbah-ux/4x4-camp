@@ -164,7 +164,7 @@ p{margin:0;line-height:1.5}
 .ghead .money{margin-left:auto;text-align:right}
 .ghead .money b{font-family:var(--fd);font-size:30px;font-variant-numeric:tabular-nums;color:var(--ok)}
 .ghead .money small{display:block;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--spento)}
-.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;position:sticky;top:0;z-index:2;background:var(--notte);padding:6px 0}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;position:sticky;top:0;z-index:2;background:var(--notte);padding:6px 0}
 .tabs button{min-height:44px;border-radius:10px;font-weight:700;font-size:14px;letter-spacing:.05em;text-transform:uppercase;background:rgba(239,230,210,.06);border:1px solid var(--linea)}
 .tabs button.on{background:var(--segnale);color:#1a1209;border-color:var(--segnale)}
 .item{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;padding:12px 14px;border-radius:14px;background:rgba(239,230,210,.05);border:1px solid var(--linea)}
@@ -255,7 +255,8 @@ p{margin:0;line-height:1.5}
 #gar{background:var(--grana),linear-gradient(180deg,rgba(13,14,15,0) 0,rgba(13,14,15,0) 28vh,rgba(13,14,15,.9) 40vh,#0d0e0f 58vh)}
 #gar .wrap{padding-top:calc(env(safe-area-inset-top,0px) + 32vh)}
 #gar .ghead{position:fixed;left:0;right:0;top:0;z-index:3;padding:calc(env(safe-area-inset-top,0px) + 10px) max(16px,env(safe-area-inset-left,0px)) 0;max-width:none;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent)}
-#gar .ghead img{width:84px}#gar .ghead h2{text-shadow:0 2px 10px rgba(0,0,0,.6)}
+#gar .ghead img{width:72px}#gar .tabs{top:calc(env(safe-area-inset-top,0px) + 84px)}#gar .tabs button{font-size:12px;padding:0 2px}
+#gar .wrap{position:relative;z-index:2;pointer-events:none}#gar .wrap>*{pointer-events:auto}#gar .ghead h2{text-shadow:0 2px 10px rgba(0,0,0,.6)}
 .show3d{position:fixed;left:0;right:0;top:0;height:29vh;z-index:1;touch-action:none}
 .show3d small{position:absolute;left:0;right:0;bottom:6px;text-align:center;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.7);text-shadow:0 1px 3px #000}
 .item{background:rgba(22,22,24,.92)!important;border-color:#3a3a3c!important}.item.sel{border-color:#d7262b!important;box-shadow:inset 0 0 0 1px #d7262b}
@@ -268,7 +269,7 @@ p{margin:0;line-height:1.5}
 @media (orientation:landscape) and (max-height:520px){
   #gar{background:var(--grana),linear-gradient(90deg,rgba(13,14,15,0) 0,rgba(13,14,15,0) 38vw,rgba(13,14,15,.92) 48vw,#0d0e0f 60vw)}
   #gar .wrap{padding-top:calc(env(safe-area-inset-top,0px) + 12px);margin-left:auto;margin-right:max(12px,env(safe-area-inset-right,0px));max-width:min(56vw,560px)}
-  #gar .ghead{right:auto;width:44vw;background:none}#gar .ghead .money{position:absolute;left:max(16px,env(safe-area-inset-left,0px));top:calc(env(safe-area-inset-top,0px) + 84px);margin:0;text-align:left}#gar .ghead .money b{font-size:24px}
+  #gar .ghead{right:auto;width:44vw;background:none}#gar .tabs{top:0}#gar .ghead .money{position:absolute;left:max(16px,env(safe-area-inset-left,0px));top:calc(env(safe-area-inset-top,0px) + 84px);margin:0;text-align:left}#gar .ghead .money b{font-size:24px}
   #garGo{padding:8px 14px;font-size:20px}#garGo small{font-size:12px}#gar .wrap{padding-bottom:90px}.show3d{right:auto;width:46vw;height:100vh}
   #garGo{left:auto;right:max(12px,env(safe-area-inset-right,0px));transform:skewX(-7deg);width:min(54vw,528px)}#garGo:active{transform:skewX(-7deg) translateY(3px)}
   #over{align-items:center;justify-items:end;background:var(--grana),linear-gradient(90deg,rgba(0,0,0,0) 0,rgba(0,0,0,0) 35%,rgba(8,8,9,.85) 55%,#0b0b0c 100%)}
@@ -344,7 +345,7 @@ p{margin:0;line-height:1.5}
     <div class="wrap">
       <div class="show3d" id="show3d"><small>↔ trascina per girare il mezzo</small></div>
       <div class="ghead"><img id="garLogo" alt="4x4 Camp · Ridotte inserite"><div><p class="eyebrow">Garage</p><h2 id="garTr">Il tuo 4x4</h2></div><div class="money"><b id="garM">0 €</b><small>in cassa</small></div></div>
-      <div class="tabs" role="tablist"><button data-t="mezzo" class="on">Mezzo</button><button data-t="campo">Campo</button><button data-t="officina">Officina</button><button data-t="tracciati">Uscita</button></div>
+      <div class="tabs" role="tablist"><button data-t="mezzo" class="on">Mezzo</button><button data-t="elabora">Elabora</button><button data-t="campo">Campo</button><button data-t="officina">Officina</button><button data-t="tracciati">Uscita</button></div>
       <div id="garList" style="display:flex;flex-direction:column;gap:10px"></div>
     </div>
     <button class="big" id="garGo">Parti<small id="garGoS"></small></button>
@@ -355,6 +356,7 @@ p{margin:0;line-height:1.5}
       <p id="ovTxt">Fuoristrada vero: fango, massi, guadi, neve e salite in pietraia fino alla vetta. Lassù monti il campo, accendi il fuoco e dormi sotto le stelle.</p>
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button>
       <button class="big" id="go" disabled>Caricamento…</button>
+      <button class="ghost" id="qcB">🎉 Vai subito al campo base a fare festa</button>
       <button class="ghost inst" id="instB">📲 Metti il gioco nella Home</button>
       <label class="inv"><input type="checkbox" id="invS"> Inverti lo sterzo col telefono</label>
       <div id="load"></div>
@@ -780,6 +782,12 @@ async function loadCar(){
   try{ const tb=Uint8Array.from(atob(TERRANO.split(',')[1]),c=>c.charCodeAt(0)).buffer; const tg=await new GLTFLoader().parseAsync(tb,''); const T=tg.scene;
     const body=T.getObjectByName('T_BODY'); const tr=new THREE.Group(); tr.rotation.y=Math.PI/2; car.add(tr); tr.add(body); body.position.set(0,0,0); tr.visible=false; terrRoot=tr;
     body.traverse(o=>{ if(o.isMesh){ o.castShadow=true; o.receiveShadow=true; if(o.material){ o.material.envMapIntensity=.9; } } });
+    // vetri: guscio trasparente scuro dentro i finestrini (il modello dalla foto li aveva vuoti)
+    { const yb=.34, yt=.78, P=[[.9,yb,-.85],[.9,yb,.76],[-1.67,yb,.76],[-1.67,yb,-.85],[.63,yt,-.81],[.63,yt,.68],[-1.62,yt,.68],[-1.62,yt,-.81]], F=[[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]], pos=[];
+      for(const f of F){ const [a,b,c,d]=f.map(i=>P[i]); pos.push(...a,...b,...c,...a,...c,...d); }
+      const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3)); g.computeVertexNormals();
+      const gm=new THREE.MeshPhysicalMaterial({color:0x16202a,roughness:.04,metalness:.1,transparent:true,opacity:.62,envMapIntensity:1.6,side:THREE.DoubleSide,depthWrite:false,clearcoat:1,clearcoatRoughness:.05});
+      const glass=new THREE.Mesh(g,gm); glass.renderOrder=2; tr.add(glass); }
     // le 4 ruote si fanno dalla ruota di scorta del modello (è l'unica intera e tonda): asse lungo X come le ruote del gioco
     const bm=body.isMesh?body:body.children.find(o=>o.isMesh); const sg=spareGeo(bm.geometry); const smat=bm.material.clone(); smat.side=THREE.DoubleSide;
     for(let i=0;i<4;i++){ const g=sg.clone(); if(i%2) g.rotateY(Math.PI); const mm=new THREE.Mesh(g,smat); mm.castShadow=true; mm.visible=false; wheels[i].userData.spin.add(mm); wheels[i].userData.terr=mm; }
@@ -1903,6 +1911,7 @@ function showMsg(eye,title,text,lines,btn){ $('#msgEye').textContent=eye; $('#ms
 function hideRunUI(){ for(const id of ['#hq','#sheet','#party','#bal','#stB','#hud','#hud2','#ctl','#obj','#actB','#goB','#tb','#mini']) $(id).hidden=true; }
 $('#msgBtn').addEventListener('click',()=>{ $('#msg').hidden=true; lastCp=null; toGarage(); });
 let lastCp=null;
+function quickCamp(){ auInit(); askSensors(); calibrate(); $('#over').hidden=true; $('#gar').hidden=true; resumeGame({camp:1,track:save.track,meteo:save.meteo,time:0,rescues:0,dmg:{...save.dmg},step:STEPS0.findIndex(x=>x.id==='menu'),drunk:0,rank:0,misses:0,cook:null}); }
 $('#msgCp').addEventListener('click',()=>{ const C=lastCp; if(!C) return; lastCp=null; $('#msg').hidden=true; save.track=C.track; startRun(); const d={...C.dmg}; for(const k in d) d[k]=Math.min(d[k],75); Object.assign(st,{time:C.time,rescues:C.rescues,dmg:d,chk:C}); reset(C.s); calibrate(); toast('Si riparte dal 🚩','riparazione alla buona: vai piano'); });
 function snapshot(){ try{ if(campMode&&cs&&cs.step>=0) save.resume={camp:1,track:TR.id,meteo:WX,time:st.time,rescues:st.rescues,dmg:{...st.dmg},step:cs.step,food:cs.food&&cs.food.id,drink:cs.drink&&cs.drink.id,drunk:cs.drunk||0,rank:cs.rank||0,misses:cs.misses,cook:cs.cook};
   else if(st.running&&!st.done) save.resume={track:TR.id,meteo:WX,s:st.s,time:st.time,rescues:st.rescues,dmg:{...st.dmg},gear:st.gear,awd:st.awd,pressure};
@@ -1910,7 +1919,7 @@ function snapshot(){ try{ if(campMode&&cs&&cs.step>=0) save.resume={camp:1,track
 window.__snap=snapshot;
 function clearResume(){ if(save.resume){ delete save.resume; persist(); } }
 setInterval(()=>{ if(!st.paused&&!helpOpen) snapshot(); },2500);
-function resumeGame(){ const R=save.resume; if(!R) return toGarage(); save.track=R.track; save.meteo=R.meteo||'sereno'; startRun(); Object.assign(st,{time:R.time,rescues:R.rescues,dmg:{...R.dmg}});
+function resumeGame(R0){ const R=R0||save.resume; if(!R) return toGarage(); save.track=R.track; save.meteo=R.meteo||'sereno'; startRun(); Object.assign(st,{time:R.time,rescues:R.rescues,dmg:{...R.dmg}});
   if(R.camp){ reset(LEN-2); for(let i=0;i<240;i++) physStep(1/240,{gas:0,brk:1,steer:0}); st.done=true; startCamp(); cs.resume=R; toast('Si riprende dal campo','dove eri rimasto'); }
   else { reset(R.s); st.gear=R.gear||'alta'; st.awd=R.awd!==false; pressure=R.pressure??pressure; toast('Si riprende',`da ${Math.round(R.s)} m`); } }
 function arrive(){ st.done=true; dropWinch(); const id=TR.id, t=st.time; const nb=!save.best[id]||t<save.best[id]; save.done[id]=true; if(nb) save.best[id]=t; persist();
@@ -2042,16 +2051,17 @@ function renderGarage(){
   $('#garM').textContent=eur(save.money); const T=TRACKS[save.track]; $('#garGoS').textContent=T.name+(T.night?' · notturna':'')+' · '+METEO[save.meteo].ic+' '+METEO[save.meteo].n+' · '+VEHS[save.veh].n;
   document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===garTab));
   const L=$('#garList'); L.innerHTML='';
-  if(garTab==='mezzo'||garTab==='campo'){
-    if(garTab==='mezzo'){ L.append(el('p','sec','Il tuo fuoristrada'));
+  if(garTab==='mezzo'||garTab==='campo'||garTab==='elabora'){
+    if(garTab==='mezzo'){ L.append(el('p','howto','Qui scegli il mezzo. Motore, snorkel, rialzo, gomme, verricello e gli altri pezzi sono nella scheda ⚙️ Elabora.')); L.append(el('p','sec','Il tuo fuoristrada'));
       for(const [k,v] of Object.entries(VEHS)){ const it=el('div','item'+(save.veh===k?' sel':'')); it.append(el('h3','',v.n)); const b=el('button','buy'); const o=save.vehOwn[k];
         if(save.veh===k){ b.textContent='In uso'; b.classList.add('own'); } else if(o){ b.textContent='Usa'; b.addEventListener('click',()=>{ save.veh=k; persist(); applyUpgrades(); renderGarage(); }); }
         else { b.textContent=eur(v.price); b.disabled=save.money<v.price; b.addEventListener('click',()=>{ if(save.money<v.price) return; save.money-=v.price; save.vehOwn[k]=true; save.veh=k; persist(); applyUpgrades(); auBurst(2400,.15,.2,'bandpass',4); renderGarage(); }); }
         it.append(b,el('p','',v.sub+'.'),el('span','fx',`${Math.round(v.mass)} kg · motore ×${v.p.toFixed(2).replace('.',',')}`)); L.append(it); }
-      L.append(el('p','howto',`Gomme montate: ${TYRE_NAME[tyreKey()]}. Gli accessori valgono per tutti i mezzi. Ogni pezzo cambia davvero come si guida.`)); }
+      const gb=el('button','big','⚙️ Elabora il mezzo: motore, snorkel, rialzo, gomme…'); gb.style.fontSize='17px'; gb.addEventListener('click',()=>{ garTab='elabora'; renderGarage(); $('#gar').scrollTop=0; }); L.append(gb); }
+    else if(garTab==='elabora') L.append(el('p','howto',`Gomme montate: ${TYRE_NAME[tyreKey()]}. I pezzi valgono per tutti i mezzi e cambiano davvero come si guida.`));
     else L.append(el('p','howto','Si parte col kit base: amaca, accetta, acciarino e brace. Gli attrezzi migliori allargano la zona buona delle barre al campo.'));
     let grp='';
-    for(const [k,u] of Object.entries(UPG)){ if(u.cat!==garTab) continue;
+    if(garTab!=='mezzo') for(const [k,u] of Object.entries(UPG)){ if(u.cat!==(garTab==='elabora'?'mezzo':garTab)) continue;
       if(u.g!==grp){ grp=u.g; L.append(el('p','sec',grp)); }
       const it=el('div','item'); it.append(el('h3','',u.name));
       const b=el('button','buy'); const o=own(k), lockd=u.req&&!own(u.req);
@@ -2078,6 +2088,7 @@ function renderGarage(){
     L.append(el('p','howto',own('comp')?'Col compressore cambi pressione anche sul tracciato, da fermo.':'Sul tracciato puoi solo sgonfiare, da fermo. Per rigonfiare serve il compressore.'));
   }
   if(garTab==='tracciati'){
+    { const qb=el('button','ghost','🎉 Vai subito al campo base a fare festa'); qb.addEventListener('click',quickCamp); L.append(qb, el('p','howto','Per provare il campo senza guidare: parti già in vetta sul tracciato scelto, con amaca e fuoco pronti, dalla cena in poi.')); }
     L.append(el('p','sec','Meteo della prossima uscita')); { const sg=el('div','seg'); sg.style.gridTemplateColumns='repeat(4,1fr)'; for(const [k,m] of Object.entries(METEO)){ const bt=el('button',save.meteo===k?'on':''); bt.append(m.ic+' '+m.n,el('small','',m.txt.split('·').pop().trim())); bt.addEventListener('click',()=>{ save.meteo=k; persist(); renderGarage(); }); sg.append(bt); } L.append(sg); L.append(el('p','howto',METEO[save.meteo].ic+' '+METEO[save.meteo].txt+'.')); }
     for(const T of Object.values(TRACKS)){ const lk=T.locked&&T.locked(); const it=el('div','item'+(save.track===T.id?' sel':'')); it.append(el('h3','',T.name+(T.night?' · notturna':'')));
       const b=el('button','buy'); if(lk){ b.textContent='Bloccato'; b.disabled=true; } else if(save.track===T.id){ b.textContent='Scelto'; b.classList.add('own'); } else { b.textContent='Scegli'; b.addEventListener('click',()=>{ save.track=T.id; persist(); renderGarage(); renderBoard(); }); }
@@ -2118,6 +2129,7 @@ $('#go').addEventListener('click',async()=>{
   auInit(); try{ if(typeof DeviceMotionEvent!=='undefined'&&DeviceMotionEvent.requestPermission) await DeviceMotionEvent.requestPermission(); }catch(e){} try{ if(typeof DeviceOrientationEvent!=='undefined'&&DeviceOrientationEvent.requestPermission) await DeviceOrientationEvent.requestPermission(); }catch(e){}
   calibrate(); $('#over').hidden=true; toGarage();
 });
+$('#qcB').addEventListener('click',()=>{ if($('#go').disabled) return; quickCamp(); });
 $('#goRes').addEventListener('click',async()=>{ auInit(); askSensors(); calibrate(); $('#over').hidden=true; resumeGame(); });
 { const touch=matchMedia('(pointer:coarse)').matches; $('#ovTxt').textContent+=touch?' Inclina il telefono per sterzare (o trascina il dito sullo schermo), pedali in basso.':' Frecce o WASD per guidare, R ridotte, V verricello, P gomme, C inquadratura.'; }
 /* ---------- Installa come app (icona nella Home) ---------- */
