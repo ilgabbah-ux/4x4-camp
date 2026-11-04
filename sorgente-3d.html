@@ -175,6 +175,35 @@ p{margin:0;line-height:1.5}
 #pause .wrap{padding-top:16vh}
 #pause .big{width:100%}
 .ghost{font-family:var(--fd);font-size:19px;padding:14px;border-radius:14px;border:1.5px solid rgba(239,230,210,.3);width:100%}
+
+/* telefono in orizzontale: HUD compatto su una sola riga in alto, pannelli più bassi */
+@media (orientation:landscape) and (max-height:520px){
+  #hud{right:50%;padding-top:calc(env(safe-area-inset-top,0px) + 4px);gap:4px}
+  #hud .pl{padding:3px 8px;border-radius:8px}
+  .spd b{font-size:22px}.spd br{display:none}.gear{margin:0 0 0 6px;font-size:10px}
+  .mid .t{font-size:13px}.mid .s{font-size:11px}
+  .top b{font-size:16px}.top small{font-size:9px}
+  #hud2{left:50%;top:calc(env(safe-area-inset-top,0px) + 4px);gap:3px}
+  .chip{font-size:9px;padding:2px 5px}.gauge{font-size:10px;padding:2px 8px}.gauge i{height:5px}
+  #tb{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 50%);flex-direction:row}
+  #tb button{width:40px;height:40px;font-size:11px}
+  #tb{right:max(12px,env(safe-area-inset-right,0px));left:auto;transform:none;top:calc(env(safe-area-inset-top,0px) + 34px);bottom:auto}
+  #ctl .cen{position:absolute;left:calc(max(12px,env(safe-area-inset-left,0px)) + clamp(86px,25vw,120px) + 12px);bottom:calc(env(safe-area-inset-bottom,0px) + 12px);width:160px;gap:5px}
+  .pedal{height:clamp(90px,30vh,130px)}
+  .cb{min-height:34px;font-size:12px;padding:4px}
+  #obj{width:min(60vw,440px);padding:4px 10px}#obj b{font-size:16px}#obj small{font-size:12px}
+  #mini,#party,#bal{width:min(calc(100vw - 280px),520px);padding:6px 10px 8px}
+  .mtop{margin-bottom:4px}#miniT{font-size:16px}.mbar{height:26px}.mgo{width:64px;height:64px;font-size:12px}
+  .bevi{width:60px;height:60px;font-size:12px}#ptBoard{margin-bottom:4px}.lane{height:32px;margin-bottom:4px}#ptNotes i{top:5px;width:22px;height:22px}.hitl{top:2px;bottom:2px;width:28px;margin-left:-14px}
+  .phint{font-size:11px}
+  #party{width:min(calc(100vw - 200px),500px)}#party .phint{display:none}#party .mrow{height:0}
+  #ptBoard{grid-template-columns:repeat(4,1fr);gap:2px 8px}.prow2{font-size:11px}.prow2 span{width:auto}
+  #ptBevi{position:absolute;left:-72px;bottom:4px}#ptBalla{position:absolute;right:-74px;bottom:2px;width:68px;height:68px}
+  #party .mtop{font-size:13px}
+  #actB{bottom:calc(env(safe-area-inset-bottom,0px) + 40%);font-size:18px;padding:10px 20px}
+  #toast{top:24%;font-size:20px}#toast small{font-size:13px}
+  #stB{bottom:calc(env(safe-area-inset-bottom,0px) + 34vh)}#stB button{height:50px}
+}
 </style>
 
 <div id="app">
