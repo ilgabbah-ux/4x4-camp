@@ -103,6 +103,7 @@ p{margin:0;line-height:1.5}
 .card p{margin:0;font-size:17px;line-height:1.45;color:var(--sabbia);font-family:system-ui,sans-serif;font-size:15px}
 .big{font-family:var(--fd);font-size:22px;padding:16px;border-radius:14px;background:var(--segnale);color:#1a1209;box-shadow:0 5px 0 #8a3f10}
 #load{font-size:14px;color:var(--spento)}
+.inv{display:flex;gap:8px;align-items:center;justify-content:center;font-size:15px;color:var(--sabbia)}.inv input{width:20px;height:20px}
 </style>
 
 <div id="app">
@@ -122,7 +123,7 @@ p{margin:0;line-height:1.5}
   <div id="ctl" hidden>
     <button class="pedal" id="brk">FRENO<small>tieni = retro</small></button>
     <div class="cen">
-      <button class="cb help" id="helpB" hidden>Rimettimi in pista</button>
+      <button class="cb help" id="helpB" hidden>Chiama Purcello<br><small>strop · cassa di birra</small></button>
       <button class="cb" id="lowB">Inserisci ridotte</button>
     </div>
     <button class="pedal" id="gas">GAS<small>acceleratore</small></button>
@@ -148,6 +149,7 @@ p{margin:0;line-height:1.5}
       <h1>4x4 Camp</h1>
       <p>Prova di guida 3D. Fango, massi da scavalcare, un guado e salite in pietraia fino alla vetta. Inclina il telefono o trascina il dito per sterzare, oppure usa le frecce da computer. R inserisce le ridotte.</p>
       <button class="big" id="go" disabled>Caricamento…</button>
+      <label class="inv"><input type="checkbox" id="invS"> Inverti lo sterzo col telefono</label>
       <div id="load"></div>
     </div>
   </div>
@@ -304,7 +306,7 @@ const COMY=.8, MOUNTY=.41-COMY+.22, LN=.42, RW=.41;
 async function loadCar(){
   const glb=Uint8Array.from(atob(TRUCK.split(',')[1]),c=>c.charCodeAt(0)).buffer;
   const gl=await new GLTFLoader().parseAsync(glb,'');
-  const root=gl.scene; root.position.y=-COMY; car.add(root);
+  const root=gl.scene; root.position.y=-COMY; car.add(root); makePurcello(gl.scene);
   root.traverse(o=>{ if(o.isMesh){ o.castShadow=true; o.receiveShadow=true; } });
   const byName={}; root.traverse(o=>byName[o.name]=o);
   const tags=['FL','FR','RL','RR'];
@@ -313,6 +315,10 @@ async function loadCar(){
     g.userData.spin=sp; wheels[i]=g; });
 }
 
+// fuoristrada blu di Purcello, copia di quello del giocatore
+const pur=new THREE.Group(); pur.visible=false; scene.add(pur);
+function makePurcello(src){ const c=src.clone(true); c.position.y=-COMY; c.traverse(o=>{ if(o.isMesh){ o.castShadow=true; if(o.material&&o.material.name==='MAT_body'){ o.material=o.material.clone(); o.material.color.set(0x1f4f6a); } } }); pur.add(c); }
+const strop=new THREE.Mesh(new THREE.TubeGeometry(new THREE.LineCurve3(new THREE.Vector3(),new THREE.Vector3(0,0,1)),1,.035,6),new THREE.MeshStandardMaterial({color:0xf2c12e,roughness:.6})); strop.visible=false; scene.add(strop);
 /* ---------- Fisica ---------- */
 const V=THREE.Vector3;
 let first=true; const camPos=new THREE.Vector3(), camLook=new THREE.Vector3();
@@ -338,7 +344,8 @@ function physStep(dt,inp){
   const q2=Math.max(0,thr>0?sp/vmax:-sp/(vmax*.45));
   const Fe=thr*Fmax*Math.max(0,1-q2*q2);
   const maxSt=.62/(1+Math.abs(sp)/9);
-  st.steer+=clamp(inp.steer*maxSt-st.steer,-2.6*dt,2.6*dt);
+  const yawRate=st.w.dot(up); const tgt=inp.steer*maxSt+clamp(yawRate*.12*Math.sign(sp||1),-.15,.15)*(Math.abs(inp.steer)<.6?1:.3);
+  st.steer+=clamp(tgt-st.steer,-2.2*dt,2.2*dt);
   let contacts=0, surf='erba';
   for(let i=0;i<4;i++){
     const W=WH[i];
@@ -425,16 +432,53 @@ function updParts(dt){ for(let k=0;k<PN;k++){ if(pl[k]<=0) continue; pl[k]-=dt*1
 
 /* ---------- Input ---------- */
 const keys=new Set(); addEventListener('keydown',e=>{ const k=e.key.toLowerCase(); keys.add(k); if(k==='r') toggleLow(); if(k==='h') rescue(); if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k)) e.preventDefault(); }); addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
-const tilt={ok:false,g:0}; addEventListener('deviceorientation',e=>{ if(e.gamma==null) return; tilt.ok=true; const a=(screen.orientation&&screen.orientation.angle)||0; tilt.g=a===90?e.beta:a===270||a===-90?-e.beta:e.gamma; });
+const tilt={ok:false,ang:0,sm:0,g0:null,gx:0,gy:0,motion:false};
+// angolo tra la gravità di adesso e quella al momento della taratura, nel piano dello schermo:
+// funziona uguale col telefono in verticale o in orizzontale, su Android e su iPhone
+addEventListener('devicemotion',e=>{ const g=e.accelerationIncludingGravity; if(!g||g.x==null) return; tilt.motion=true; tilt.gx=lerp(tilt.gx,g.x,.35); tilt.gy=lerp(tilt.gy,g.y,.35);
+  const L=Math.hypot(tilt.gx,tilt.gy); if(L<3) return; if(!tilt.g0) tilt.g0=[tilt.gx/L,tilt.gy/L];
+  const ax=tilt.g0[0], ay=tilt.g0[1], bx=tilt.gx/L, by=tilt.gy/L; tilt.ang=Math.atan2(ax*by-ay*bx,ax*bx+ay*by)*57.3*(tilt.inv?-1:1); tilt.ok=true; });
+addEventListener('deviceorientation',e=>{ if(tilt.motion||e.gamma==null) return; tilt.ok=true; const a=(screen.orientation&&screen.orientation.angle)||0; tilt.ang=(a===90?e.beta:a===270||a===-90?-e.beta:e.gamma)*(tilt.inv?-1:1); });
+function calibrate(){ tilt.g0=null; tilt.sm=0; }
+try{ tilt.inv=localStorage.getItem('camp3d-inv')==='1'; }catch(e){}
+$('#invS').checked=!!tilt.inv; $('#invS').addEventListener('change',e=>{ tilt.inv=e.target.checked; try{ localStorage.setItem('camp3d-inv',tilt.inv?'1':'0'); }catch(_){} });
+addEventListener('orientationchange',calibrate); if(screen.orientation) screen.orientation.addEventListener?.('change',calibrate);
 const pad={gas:false,brk:false}; function hold(el,k){ el.addEventListener('pointerdown',e=>{ e.preventDefault(); pad[k]=true; el.classList.add('down'); try{el.setPointerCapture(e.pointerId);}catch(_){} }); for(const t of ['pointerup','pointercancel','lostpointercapture']) el.addEventListener(t,()=>{ pad[k]=false; el.classList.remove('down'); }); }
 hold($('#gas'),'gas'); hold($('#brk'),'brk');
 let drag=null, dragS=0; cv.addEventListener('pointerdown',e=>{ drag={id:e.pointerId,x:e.clientX}; }); cv.addEventListener('pointermove',e=>{ if(drag&&drag.id===e.pointerId) dragS=clamp((e.clientX-drag.x)/80,-1,1); }); for(const t of ['pointerup','pointercancel']) cv.addEventListener(t,e=>{ if(drag&&drag.id===e.pointerId){ drag=null; dragS=0; } });
 function readInput(){ const kl=keys.has('arrowleft')||keys.has('a'), kr=keys.has('arrowright')||keys.has('d'); let s=0;
-  if(kl||kr) s=(kr?1:0)-(kl?1:0); else if(drag) s=dragS; else if(tilt.ok){ const g=tilt.g; s=Math.abs(g)<2.5?0:clamp((g-Math.sign(g)*2.5)/22,-1,1); }
+  if(kl||kr) s=(kr?1:0)-(kl?1:0); else if(drag) s=dragS; else if(tilt.ok){ tilt.sm=lerp(tilt.sm,tilt.ang,.25); const g=tilt.sm, a=Math.abs(g); s=a<3.5?0:Math.sign(g)*Math.pow(clamp((a-3.5)/26,0,1),1.35); }
   return {gas:(pad.gas||keys.has('arrowup')||keys.has('w'))?1:0, brk:(pad.brk||keys.has('arrowdown')||keys.has('s')||keys.has(' '))?1:0, steer:s}; }
 function toggleLow(){ if(st.vel.length()>1){ toast('Fermati prima','le ridotte si inseriscono da fermo'); return; } st.gear=st.gear==='alta'?'ridotte':'alta'; toast(st.gear==='ridotte'?'Ridotte inserite':'Marce alte',st.gear==='ridotte'?'tanta forza, fino a 25 km/h':'fino a 80 km/h'); }
 $('#lowB').addEventListener('click',toggleLow);
-function rescue(){ reset(st.s+3); st.rescues++; st.water=Math.min(st.water,.5); toast('Arriva Purcello','ti rimette in pista. Cassa di birra!'); }
+const PURC=['Aggancio la strop, tu metti in folle!','Ti tiro fuori io, come sempre.','Ancora piantato? Una cassa di birra, eh!','Tieni dritto e non frenare!','Lo sapevo, ero già qui dietro la curva.'];
+function rescue(){
+  if(st.rescue) return;
+  const flipped=up.y<.35;
+  if(flipped){ reset(st.s+2); toast('Ribaltato!','Purcello ti ha rimesso sulle ruote'); st.rescues++; return; }
+  const s0=clamp(st.s,2,LEN-2), sT=Math.min(LEN,s0+12), mirco=Math.random()<.3;
+  st.rescue={t:0,off:mirco?1.8:0,s0,sT,p0:st.pos.clone(),q0:st.q.clone(),line:PURC[Math.random()*PURC.length|0],said:false};
+  st.rescues++; $('#helpB').hidden=true;
+  if(mirco) toast('Chiami Mirco…','"Campa giù!" È in mutua. Chiami Purcello.'); else { toast('Arriva Purcello',st.rescue.line); st.rescue.said=true; }
+}
+function trailPose(s,lat){ const x=CX(s)+lat, z=-s; const dx=CX(s+2)-CX(s-2); const yaw=Math.atan2(-dx,4); return {p:new V(x,height(x,z)+COMY,z),q:new THREE.Quaternion().setFromEuler(new THREE.Euler(0,yaw,0))}; }
+function updRescue(dt){
+  const r=st.rescue; r.t+=dt; const t=r.t-r.off;
+  if(!r.said&&t>=0){ r.said=true; toast('Arriva Purcello',r.line); }
+  if(t<0) return;
+  const e=sstep(1.9,4.9,t);
+  // Purcello: arriva da davanti, si ferma, tira, poi riparte
+  let sp=t<1.6?lerp(r.s0+40,r.s0+9.8,sstep(0,1.6,t)):t<4.9?lerp(r.s0+9.8,r.sT+9.8,e):lerp(r.sT+9.8,r.sT+45,sstep(4.9,6.2,t));
+  const P=trailPose(sp,.3); pur.position.copy(P.p); pur.quaternion.copy(P.q); pur.visible=t<6.2;
+  // il nostro mezzo viene tirato lungo la traccia
+  if(t>1.9){ const T=trailPose(lerp(r.s0,r.sT,e),0); st.pos.lerpVectors(r.p0,T.p,e); st.q.copy(r.q0).slerp(T.q,e); st.vel.set(0,0,0); st.w.set(0,0,0); st.sink=Math.max(0,st.sink-dt*.6);
+    if(Math.random()<.6) emit(st.pos.clone().add(new V(0,-.6,0)),new V((Math.random()-.5)*2,1+Math.random()*2,0),isMud(st.surf)?[.22,.14,.08]:[.6,.55,.45]); }
+  // strop tra il nostro gancio davanti e il suo dietro
+  if(t>.8&&t<5.2){ const a=new V(0,-.25,-2.45).applyQuaternion(st.q).add(st.pos), b=new V(0,-.25,2.4).applyQuaternion(pur.quaternion).add(pur.position);
+    const mid=a.clone().lerp(b,.5); if(t<1.9) mid.y-=.6*(1-sstep(1.2,1.9,t));
+    strop.geometry.dispose(); strop.geometry=new THREE.TubeGeometry(new THREE.QuadraticBezierCurve3(a,mid,b),12,.035,6); strop.visible=true; } else strop.visible=false;
+  if(t>6.2){ st.rescue=null; pur.visible=false; strop.visible=false; st.sink=0; st.stuckT=0; st.vel.set(0,0,0); toast('Fuori!','una cassa di birra a Purcello'); }
+}
 $('#helpB').addEventListener('click',rescue);
 let toastT=0; function toast(a,b){ const el=$('#toast'); el.innerHTML=''; el.append(a); if(b){ const s=document.createElement('small'); s.textContent=b; el.append(s); } el.classList.add('show'); toastT=performance.now()+2200; }
 
@@ -718,7 +762,8 @@ function frame(now){
     if(performance.now()>toastT) $('#toast').classList.remove('show');
     ren.render(scene,cam); requestAnimationFrame(frame); return; }
   if(st.running){
-    const inp=st.done?{gas:0,brk:1,steer:0}:readInput(); const n=Math.ceil(dt/(1/240)); for(let k=0;k<n;k++) physStep(dt/n,inp);
+    const inp=st.done?{gas:0,brk:1,steer:0}:readInput(); const n=Math.ceil(dt/(1/240));
+    if(st.rescue){ updRescue(dt); up.set(0,1,0).applyQuaternion(st.q); fw.set(0,0,-1).applyQuaternion(st.q); } else for(let k=0;k<n;k++) physStep(dt/n,inp);
     st.time+=dt; st.s=-st.pos.z;
     const sp=st.vel.dot(fw);
     // fango e polvere
@@ -730,7 +775,7 @@ function frame(now){
     updParts(dt);
     // bloccato o ribaltato
     const flipped=up.y<.35; if((Math.abs(sp)<.4&&readInput().gas)||flipped) st.stuckT+=dt; else st.stuckT=Math.max(0,st.stuckT-dt);
-    $('#helpB').hidden=!(st.stuckT>2.5||flipped);
+    $('#helpB').hidden=!!st.rescue||!(st.stuckT>2.5||flipped||st.sink>.85);
     if(st.pos.y<height(st.pos.x,st.pos.z)-3||st.pos.y>height(st.pos.x,st.pos.z)+8) reset(st.s);
     if(flipped){ st.flipT=(st.flipT||0)+dt; if(st.flipT>2.5){ st.flipT=0; reset(st.s); toast('Ribaltato!','Purcello ti ha rimesso sulle ruote'); } } else st.flipT=0;
     for(const k in st.dmg) st.dmg[k]=Math.min(100,st.dmg[k]);
@@ -777,9 +822,10 @@ function showMsg(eye,title,text,lines,btn){ $('#msgEye').textContent=eye; $('#ms
   for(const [a,b,cl] of lines||[]){ const d=document.createElement('div'); if(cl==='tot') d.className='tot'; const x=document.createElement('span'); x.textContent=a; const y=document.createElement('span'); y.textContent=b; if(cl!=='tot') y.className=cl; d.append(x,y); l.append(d); }
   $('#msgBtn').textContent=btn||'Riparti'; $('#msg').hidden=false; $('#hud').hidden=$('#hud2').hidden=$('#ctl').hidden=true; $('#obj').hidden=true; $('#actB').hidden=true; }
 $('#msgBtn').addEventListener('click',()=>{ $('#msg').hidden=true; startRun(); });
-function startRun(){ if(cs) clearCamp(); $('#hud').hidden=false; $('#hud2').hidden=false; $('#ctl').hidden=false; Object.assign(st,{running:true,done:false,time:0,water:0,sink:0,rescues:0,dmg:{gomme:0,coppa:0,semiassi:0,carrozzeria:0}}); reset(4); campMode=false; setSky(0); }
+function startRun(){ if(cs) clearCamp(); $('#hud').hidden=false; $('#hud2').hidden=false; $('#ctl').hidden=false; Object.assign(st,{running:true,done:false,rescue:null,time:0,water:0,sink:0,rescues:0,dmg:{gomme:0,coppa:0,semiassi:0,carrozzeria:0}}); reset(4); campMode=false; setSky(0); }
 $('#go').addEventListener('click',async()=>{
-  auInit(); try{ if(typeof DeviceOrientationEvent!=='undefined'&&DeviceOrientationEvent.requestPermission) await DeviceOrientationEvent.requestPermission(); }catch(e){}
+  auInit(); try{ if(typeof DeviceMotionEvent!=='undefined'&&DeviceMotionEvent.requestPermission) await DeviceMotionEvent.requestPermission(); }catch(e){} try{ if(typeof DeviceOrientationEvent!=='undefined'&&DeviceOrientationEvent.requestPermission) await DeviceOrientationEvent.requestPermission(); }catch(e){}
+  calibrate();
   $('#over').hidden=true; startRun();
   toast('Si parte','gas col pulsante verde, sterzo inclinando');
 });
@@ -791,7 +837,7 @@ window.__st=st;
 // banco di prova: simula senza disegnare (usato solo per i test)
 window.__simulate=(secs,ctrl)=>{ const dt=1/240; for(let k=0;k<secs*240;k++){ const inp=ctrl(st); physStep(dt,inp); st.time+=dt; st.s=-st.pos.z; if(st.pos.y<height(st.pos.x,st.pos.z)-3) reset(st.s); } return {s:st.s,y:st.pos.y,v:st.vel.length(),surf:st.surf,up:up.y}; };
 window.__reset=reset; window.__low=()=>{ st.gear='ridotte'; };
-window.__cs=()=>cs; window.__man=man; window.__startCamp=startCamp;
+window.__rescue=rescue; window.__updR=updRescue; window.__cs=()=>cs; window.__man=man; window.__startCamp=startCamp;
 </script>
 
 </body>
