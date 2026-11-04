@@ -122,6 +122,12 @@ p{margin:0;line-height:1.5}
 .bsafe{position:absolute;left:30%;right:30%;top:0;bottom:0;border-left:2px solid rgba(0,0,0,.3);border-right:2px solid rgba(0,0,0,.3)}
 #balN{position:absolute;top:-5px;bottom:-5px;width:8px;margin-left:-4px;border-radius:4px;background:#fff;box-shadow:0 0 0 2px #111,0 0 12px rgba(255,255,255,.8);left:50%}
 #bal.warn .bbar{animation:miss .3s infinite}
+#hq{position:absolute;z-index:4;left:max(12px,env(safe-area-inset-left,0px));top:calc(env(safe-area-inset-top,0px) + 112px);width:46px;height:46px;border-radius:50%;background:#f2d24b;color:#1a1505;font-family:var(--fd);font-size:24px;box-shadow:0 4px 0 #8a7410}
+#help{position:absolute;inset:0;z-index:30;display:grid;place-items:center;background:rgba(6,10,7,.62);padding:16px;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.hcard{max-width:460px;width:100%;max-height:92vh;overflow-y:auto;box-sizing:border-box;background:linear-gradient(180deg,#1d2a20,#121914);border:1px solid rgba(239,230,210,.2);border-radius:20px;padding:18px 18px 16px;display:flex;flex-direction:column;gap:10px;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+.hic{font-size:44px;line-height:1}.hcard h2{font-size:28px}
+#hpL{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;font-family:system-ui,sans-serif;font-size:15px;line-height:1.45;color:var(--carta)}#hpL b{color:#f2d24b}
+@media (orientation:landscape) and (max-height:520px){ .hcard{padding:12px 16px;gap:6px}.hic{font-size:30px}.hcard h2{font-size:22px}#hpL{font-size:13px;gap:4px} #hq{top:calc(env(safe-area-inset-top,0px) + 34px);left:auto;right:calc(max(12px,env(safe-area-inset-right,0px)) + 96px);width:40px;height:40px;font-size:20px} }
 #toast{position:absolute;left:50%;top:30%;transform:translate(-50%,-50%);max-width:86vw;text-align:center;font-family:var(--fd);font-size:clamp(20px,5.5vw,28px);text-shadow:0 2px 0 #000,0 0 20px rgba(0,0,0,.7);pointer-events:none;opacity:0;transition:opacity .25s}
 #toast.show{opacity:1}
 #toast small{display:block;font-family:var(--fc);font-weight:600;font-size:16px;color:var(--sabbia);margin-top:4px}
@@ -248,6 +254,8 @@ p{margin:0;line-height:1.5}
     <div class="lane"><div class="hitl"></div><div id="ptNotes"></div></div>
     <div class="mrow"><button id="ptBevi" class="bevi">BEVI<small id="ptDr"></small></button><span class="phint">tocca la pista a tempo quando il cerchio è sulla linea gialla · BEVI: tanti punti, ma al ritorno barcolli</span></div><div class="gauge sb">Sbronza<i id="ptSbI" style="--c:#e8b13c"></i></div></div>
   <div id="bal" hidden><div class="mtop"><b>Equilibrio</b><span id="balS"></span></div><div class="bbar"><div class="bsafe"></div><div id="balN"></div></div><p class="phint">la lancetta va dove inclini il telefono (o con le frecce): tienila nel verde</p></div>
+  <button id="hq" hidden aria-label="Come si fa">?</button>
+  <div id="help" hidden><div class="hcard"><div class="hic" id="hpIc"></div><h2 id="hpT"></h2><ul id="hpL"></ul><button class="big" id="hpOk">Ho capito</button><label class="inv"><input type="checkbox" id="hpNo"> Non mostrare più i consigli (resta il pulsante ?)</label></div></div>
   <div id="toast"></div>
   <section id="msg" class="screen" hidden>
     <div class="wrap" style="padding-top:18vh">
@@ -1185,7 +1193,7 @@ function openMenu(){ sheet('Cena con gli amici','Purcello, Mirco e Costa sono gi
   cs.food=FOODS.find(f=>f.id===s.food); cs.drink=DRINKS.find(d=>d.id===s.drink); cs.drunk=cs.drink.alc*2; friendsDrink=true;
   const line=cs.food.id==='trote'?['Costa','«Finalmente qualcuno che apprezza il pesce!»']:cs.drink.id==='acqua'?['Purcello','«Acqua?! Ti sei perso la cassa di birra?»']:cs.drink.id==='grappa'?['Mirco','«Grappa? Domani campa giù…»']:['Purcello','«Ottima scelta. Paghi tu la prossima?»'];
   toast(line[0],line[1]); STEPS.find(x=>x.id==='cena').txt=`Cuoci ${cs.food.pl==='pancetta'?'la':'le'} ${cs.food.pl}`; setStep(cs.step+1); }); }
-function openMusic(){ sheet('Festa!','Si sfida chi fa più casino. Tocca la pista quando i cerchi passano sulla linea gialla, a tempo coi colpi della cassa. BEVI dà tanti punti ma ti ubriaca: al ritorno barcolli di più.',[{label:'Musica',key:'mus',items:MUSIC}],'Alza il volume!',s=>startParty(s.mus)); }
+function openMusic(){ sheet('Festa!','Si sfida chi fa più casino. Tocca la pista quando i cerchi passano sulla linea gialla, a tempo coi colpi della cassa. BEVI dà tanti punti ma ti ubriaca: al ritorno barcolli di più.',[{label:'Musica',key:'mus',items:MUSIC}],'Alza il volume!',s=>showHelp('festa',()=>startParty(s.mus))); }
 
 // gara di casino a ritmo
 let friendsDrink=false;
@@ -1381,12 +1389,13 @@ function setStep(i){
   cs.nightTo=Math.max(cs.nb,S.id==='festa'||S.id==='dormi'?.85:S.id==='cena'||S.id==='menu'?.55:Math.min(.45,.1+i*.06));
   const tg=S.target?cs.pos[S.target]:null; cs.obj.mk.visible=!!tg; if(tg) cs.obj.mk.position.copy(tg);
   auBurst(1200,.15,.12,'bandpass',3);
+  const hk={intro:'campo',porta:'porta',menu:'menu'}[S.id]; if(hk) setTimeout(()=>{ if(cs&&STEPS[cs.step]===S) showHelp(hk); },hk==='campo'?300:900);
 }
 $('#goB').addEventListener('click',()=>{ if(!cs) return; const S=STEPS[cs.step]; if(!S||!S.target) return; const p=cs.pos[S.target]; cs.dest={x:p.x,z:p.z,auto:true,near:1.6}; });
 function nearTarget(){ const S=STEPS[cs.step]; if(!S||!S.target) return false; const p=cs.pos[S.target]; return Math.hypot(man.position.x-p.x,man.position.z-p.z)<(S.target==='fire'?2.3:2.6); }
 $('#actB').addEventListener('click',()=>{ if(!cs||cs.mini||!nearTarget()) return; const S=STEPS[cs.step]; faceTo(cs.pos[S.target]);
   if(S.id==='porta'){ man.userData.logs.visible=false; cs.obj.fireLogs.visible=true; cs.logsAtFire=true; auThud(.5); toast('Legna nel fuoco','adesso accendiamolo'); setStep(cs.step+1); return; }
-  if(S.id==='dormi'){ startWalk(); return; }
+  if(S.id==='dormi'){ showHelp('nanna',startWalk); return; }
   if(S.id==='menu'){ openMenu(); return; }
   if(S.id==='festa'){ openMusic(); return; }
   openMini(S); });
@@ -1399,7 +1408,7 @@ function openMini(S){
   $('#mini').hidden=false; $('#actB').hidden=true; $('#ctl').hidden=true;
   $('#miniT').textContent=cook?((cs.food?cs.food.ic+' '+cs.food.n:'Salsicce')+(KIT.cena==='fornelletto'?' in padella':' sulla brace')):`${t.verbo}`; $('#miniB').textContent=t.verbo;
   $('#miniS').textContent=(cook?'tocca la barra quando la lancetta è nel verde':`tocca la barra nel verde · ${t.nome} ${t.diff} · ${t.need} colpi`);
-  $('#miniL').hidden=!cook; $('#mini').classList.toggle('cook',cook); drawMini();
+  $('#miniL').hidden=!cook; $('#mini').classList.toggle('cook',cook); drawMini(); showHelp(cook?'cena':'barra');
 }
 function drawMini(){ const m=cs.mini; if(!m) return; const z=$('#miniZ'); z.style.left=((m.zc-m.t.zone/2)*100)+'%'; z.style.width=(m.t.zone*100)+'%'; $('#miniM').style.left=(m.x*100)+'%';
   const d=$('#miniD'); d.innerHTML=''; if(!m.cook) for(let i=0;i<m.t.need;i++){ const s=document.createElement('i'); if(i<m.n) s.className='ok'; d.append(s); } }
@@ -1559,6 +1568,7 @@ function worldAnim(dt){ skyU.time.value+=dt; if(world.userData.sails) world.user
     p.needsUpdate=true; } }
 function frame(now){
   const dt=Math.min(.05,(now-last)/1000); last=now;
+  if(helpOpen){ ren.render(scene,cam); requestAnimationFrame(frame); return; }
   worldAnim(dt); lightsUpd();
   if(campMode&&cs){ updCamp(dt); auCamp(dt); campCamera(dt);
     car.position.copy(st.pos); car.quaternion.copy(st.q);
@@ -1612,6 +1622,8 @@ function frame(now){
     const fail=st.dmg.gomme>=100?['Gomma squarciata','Hai preso i sassi troppo forte: la gomma si è tagliata.']:st.dmg.coppa>=100?['Coppa dell\'olio spaccata','Un sasso ha bucato la coppa: olio a terra.']:st.dmg.semiassi>=100?['Semiasse rotto','Troppe botte sui massi: il semiasse ha ceduto.']:st.water>=1?['Motore annegato','Hai fatto l\'onda nel guado: l\'acqua è entrata dalla presa d\'aria.']:null;
     if(fail) failRun(fail);
     if(!st.done&&st.s>LEN) arrive();
+    if(!st.rescue) helpAhead();
+    if(!$('#helpB').hidden) showHelp('bloccato');
     auUpd(inp,sp,dt);
     hudT+=dt; if(hudT>.1){ hudT=0; hud(sp); }
     if(matchMedia('(pointer:coarse)').matches&&st.time>3&&!tilt.seen&&$('#stB').hidden&&!st.done){ $('#stB').hidden=false; toast('Inclinazione non disponibile qui','sterza con le frecce, oppure apri il gioco da ilgabbah-ux.github.io/4x4-camp'); }
@@ -1658,7 +1670,7 @@ const fmtT1=t=>`${Math.floor(t/60)}:${(t%60).toFixed(1).padStart(4,'0')}`;
 function showMsg(eye,title,text,lines,btn){ $('#msgEye').textContent=eye; $('#msgTitle').textContent=title; $('#msgText').textContent=text; const l=$('#msgLines'); l.innerHTML=''; l.hidden=!lines;
   for(const [a,b,cl] of lines||[]){ const d=document.createElement('div'); if(cl==='tot') d.className='tot'; const x=document.createElement('span'); x.textContent=a; const y=document.createElement('span'); y.textContent=b; if(cl&&cl!=='tot') y.className=cl; d.append(x,y); l.append(d); }
   $('#msgBtn').textContent=btn||'Torna al garage'; $('#msg').hidden=false; hideRunUI(); }
-function hideRunUI(){ for(const id of ['#sheet','#party','#bal','#stB','#hud','#hud2','#ctl','#obj','#actB','#goB','#tb','#mini']) $(id).hidden=true; }
+function hideRunUI(){ for(const id of ['#hq','#sheet','#party','#bal','#stB','#hud','#hud2','#ctl','#obj','#actB','#goB','#tb','#mini']) $(id).hidden=true; }
 $('#msgBtn').addEventListener('click',()=>{ $('#msg').hidden=true; toGarage(); });
 function arrive(){ st.done=true; dropWinch(); const id=TR.id, t=st.time; const nb=!save.best[id]||t<save.best[id]; save.done[id]=true; if(nb) save.best[id]=t; persist();
   toast(nb?'Vetta! Record':'Vetta!',`in ${fmtT1(t)} · si monta il campo`); submitScore(id,t,st.rescues); setTimeout(()=>{ if(st.done&&st.running) startCamp(); },2200); }
@@ -1666,7 +1678,7 @@ function failRun(f){ st.running=false; dropWinch(); const tow=150, resc=st.rescu
   showMsg('Mezzo fermo',f[0],f[1]+' Il carro attrezzi ti riporta a valle: in officina si ripara.',[['Carro attrezzi','−'+eur(tow),'neg'],...(resc?[[`Birre a Purcello (${st.rescues})`,'−'+eur(resc),'neg']]:[]),['In cassa',eur(save.money),'']],'Torna al garage'); }
 function startRun(){ if(cs) clearCamp(); if(builtTrack!==save.track) buildWorld(save.track); applyUpgrades(); pressure=save.pressure;
   $('#hud').hidden=false; $('#hud2').hidden=false; $('#ctl').hidden=false; $('#tb').hidden=false; $('#lowB').hidden=false;
-  clearSplats(); placeFriendCars(); Object.assign(st,{dirt:0,progS:0,progT:0,running:true,done:false,rescue:null,time:0,water:0,sink:0,rescues:0,paused:false,gear:'alta',dmg:{...save.dmg}}); reset(4); campMode=false; clearRuts(); skyNow=-1; setSky(TR.night?1:0); lightsUpd(); }
+  clearSplats(); placeFriendCars(); Object.assign(st,{dirt:0,progS:0,progT:0,running:true,done:false,rescue:null,time:0,water:0,sink:0,rescues:0,paused:false,gear:'alta',dmg:{...save.dmg}}); reset(4); campMode=false; clearRuts(); skyNow=-1; setSky(TR.night?1:0); lightsUpd(); $('#hq').hidden=false; setTimeout(()=>showHelp('guida'),400); }
 // pausa
 function pause(){ if(!st.running||st.done||campMode) return; st.paused=true; $('#invS2').checked=!!tilt.inv; $('#pause').hidden=false; }
 $('#pauB').addEventListener('click',pause);
@@ -1675,6 +1687,44 @@ $('#pRst').addEventListener('click',()=>{ $('#pause').hidden=true; startRun(); c
 $('#pGar').addEventListener('click',()=>{ $('#pause').hidden=true; st.running=false; st.paused=false; save.dmg={...st.dmg}; save.money=Math.max(0,save.money-st.rescues*40); persist(); dropWinch(); toGarage(); });
 $('#invS2').addEventListener('change',e=>{ tilt.inv=e.target.checked; $('#invS').checked=tilt.inv; try{ localStorage.setItem('camp3d-inv',tilt.inv?'1':'0'); }catch(_){} });
 document.addEventListener('visibilitychange',()=>{ if(document.hidden) pause(); });
+
+/* ---------- Consigli: una scheda chiara la prima volta che serve, e il pulsante ? per rivederla ---------- */
+const TOUCH=matchMedia('(pointer:coarse)').matches;
+const HELP={
+ guida:{ic:'🚙',t:'Come si guida',l:TOUCH?['<b>Sterzo:</b> inclina il telefono a destra e a sinistra (oppure trascina il dito sullo schermo).','<b>GAS</b> verde per andare, <b>FRENO</b> rosso per frenare. Tienilo premuto da fermo e vai in <b>retromarcia</b>.','<b>Ridotte:</b> inseriscile da fermo prima di salite, pietraie e fango. Più forza, meno velocità.','Arriva in vetta senza rompere il mezzo: in alto vedi i danni di gomme, coppa, semiassi e carrozzeria.']
+   :['<b>Frecce o WASD:</b> su gas, giù freno (tieni giù da fermo = retromarcia), destra e sinistra sterzo.','<b>R</b> ridotte (da fermo) · <b>V</b> verricello · <b>P</b> pressione gomme · <b>C</b> inquadratura.','Arriva in vetta senza rompere il mezzo: in alto vedi i danni.']},
+ fango:{ic:'🟫',t:'Fango',l:['Entra con un po\' di slancio e tieni il gas <b>costante</b>.','Se le ruote girano a vuoto sale la barra <b>Affondamento</b>: molla il gas, un po\' di retro e riparti.','Gomme basse (1,0 bar) e gomme M/T aiutano tanto.']},
+ fangoProf:{ic:'🕳️',t:'Fango profondo',l:['Qui ci si pianta facile: <b>ridotte inserite</b> e slancio prima di entrare.','Se resti fermo compare <b>Chiama Purcello</b>: ti tira fuori con la strop.','Col verricello (garage) ti tiri fuori da solo.']},
+ roccia:{ic:'🪨',t:'Pietraia',l:['<b>Piano!</b> Sopra i 15 km/h i sassi rompono gomme, coppa e semiassi.','Metti le <b>ridotte</b> e sali sui massi a passo d\'uomo.','Paracoppa e rialzo (garage) riducono i danni.']},
+ acqua:{ic:'🌊',t:'Guado',l:['Entra piano, <b>sotto i 10 km/h</b>.','Se vai forte fai l\'onda: sale la barra <b>Acqua al filtro</b> e quando è piena il motore si annega.','Con lo snorkel passi tranquillo.']},
+ neve:{ic:'❄️',t:'Neve',l:['Come il fango: slancio, gas dolce, niente ruote che girano a vuoto.','Le <b>catene</b> (garage) aumentano molto la presa.']},
+ ghiaccio:{ic:'🧊',t:'Ghiaccio',l:['Si frena pochissimo e si sterza poco: <b>vai piano</b> e anticipa le curve.','In discesa metti le <b>ridotte</b>: frenano col motore.','Con le catene cambia tutto.']},
+ sabbia:{ic:'🏜️',t:'Sabbia',l:['Se ti fermi affondi: tieni una velocità <b>costante</b>.','Gomme sgonfie (1,0 bar) galleggiano meglio.']},
+ dossi:{ic:'〰️',t:'Dossi',l:['Prendili <b>piano e dritti</b>.','Se arrivi forte il mezzo salta e quando atterra rompi i semiassi.']},
+ galleria:{ic:'🔦',t:'Galleria',l:['È buia: i fari si accendono da soli.','È stretta e piena di pozze: vai piano e stai al centro.']},
+ ghiaia:{ic:'⛰️',t:'Ghiaione',l:['Il fondo scivola: niente frenate brusche e gas dolce in salita.']},
+ bloccato:{ic:'🍺',t:'Sei piantato',l:['Prima prova a <b>dondolare</b>: un po\' di retro e di nuovo avanti.','Premi <b>Chiama Purcello</b>: arriva col suo 4x4 e ti tira fuori con la strop. Costa una cassa di birra (40 €).','Col <b>verricello</b> (garage): premi Verricello per agganciare un albero davanti, poi <b>tienilo premuto</b> per tirare il cavo.']},
+ campo:{ic:'⛺',t:'Il campo base',l:TOUCH?['<b>Tocca il terreno</b> per far camminare l\'omino lì, oppure premi <b>Vai al segno giallo</b>.','Il riquadro in alto ti dice cosa fare adesso.','Quando arrivi sul segno giallo compare il <b>pulsante giallo</b> dell\'azione: toccalo.']
+   :['Clicca sul terreno per camminare lì, oppure <b>Vai al segno giallo</b>. Con le frecce cammini a mano.','Il riquadro in alto ti dice cosa fare adesso.','Sul segno giallo compare il <b>pulsante giallo</b> dell\'azione: cliccalo.']},
+ barra:{ic:'🎯',t:'Le barre delle azioni',l:['La lancetta bianca corre avanti e indietro.','<b>Tocca la barra</b> quando la lancetta è dentro la <b>zona verde</b>: ogni colpo buono accende un pallino.','Fuori dal verde è un colpo mancato. Gli attrezzi migliori (garage, scheda Campo) allargano il verde.']},
+ porta:{ic:'🪵',t:'Porta la legna',l:['Hai la legna in braccio: cammina fino al cerchio di pietre del fuoco (segno giallo).','Premi <b>Posa la legna</b>.']},
+ menu:{ic:'🧊',t:'La cena',l:['Vai al <b>frigo blu</b> (segno giallo) e aprilo.','Scegli cosa mangiare e cosa bere.','Il bere conta alla festa: più alcol = <b>più punti</b>, ma dopo <b>barcolli</b> tornando a letto.']},
+ cena:{ic:'🍖',t:'Cottura',l:['La lancetta va da <b>cruda</b> a <b>bruciata</b>.','Tocca la barra quando è nel <b>verde</b>: cotta al punto giusto.','Se aspetti troppo arriva in fondo e si brucia.']},
+ festa:{ic:'🎉',t:'La festa',l:['Gara di 26 secondi contro Purcello, Mirco e Costa a chi fa più casino.','I cerchi arrivano da destra: <b>tocca la pista</b> quando un cerchio è sulla <b>linea gialla</b>, a tempo con la cassa. Più colpi di fila = combo.','<b>BEVI</b>: tanti punti subito, ma riempie la barra <b>Sbronza</b> e dopo barcolli.']},
+ nanna:{ic:'😴',t:'A letto',l:['L\'omino va da solo verso il letto, ma <b>barcolla</b>.','Guarda la lancetta in basso: <b>inclina il telefono</b> (o premi le frecce) <b>dalla parte opposta</b> a dove scappa e tienila nel verde.','Se esce dalla barra cadi. Alla terza caduta ti porta a letto Purcello.']}
+};
+let helpOpen=false, helpCb=null;
+function showHelp(k,cb,force){ const H=HELP[k]; save.seen=save.seen||{};
+  if(!H||(!force&&(save.seen[k]||save.noHelp))){ if(cb) cb(); return false; }
+  helpOpen=true; helpCb=cb||null; $('#hpIc').textContent=H.ic; $('#hpT').textContent=H.t; const L=$('#hpL'); L.innerHTML=''; for(const x of H.l){ const li=document.createElement('li'); li.innerHTML=x; L.append(li); }
+  $('#hpNo').checked=!!save.noHelp; $('#help').hidden=false; auBurst(1500,.12,.12,'bandpass',3); return true; }
+$('#hpOk').addEventListener('click',()=>{ const k=$('#hpT').textContent; for(const [key,H] of Object.entries(HELP)) if(H.t===k){ save.seen=save.seen||{}; save.seen[key]=true; }
+  save.noHelp=$('#hpNo').checked; persist(); $('#help').hidden=true; helpOpen=false; last=performance.now(); calibrate(); const cb=helpCb; helpCb=null; if(cb) cb(); });
+const zoneKey=z=>z.humps?'dossi':(z.t==='terra'?null:z.t);
+function helpAhead(){ for(const z of ZONES){ if(z.a<=st.s-2||z.a>st.s+9) continue; const k=zoneKey(z); if(k&&!(save.seen||{})[k]&&!save.noHelp){ st.vel.multiplyScalar(.3); showHelp(k); return; } } }
+function helpNow(){ if(campMode&&cs){ if(cs.walk) return 'nanna'; if(cs.party) return 'festa'; if(cs.mini) return cs.mini.cook?'cena':'barra'; const S=STEPS[cs.step]; return S?({porta:'porta',menu:'menu',cena:'cena',festa:'festa',dormi:'nanna'}[S.id]||(S.tool?'barra':'campo')):'campo'; }
+  const z=zoneAt(st.s), k=zoneKey(z); return k||'guida'; }
+$('#hq').addEventListener('click',()=>showHelp(helpNow(),null,true));
 
 /* ---------- Garage ---------- */
 const UPG={
