@@ -142,7 +142,7 @@ p{margin:0;line-height:1.5}
 .hic{font-size:44px;line-height:1}.hcard h2{font-size:28px}
 #hpL{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;font-family:system-ui,sans-serif;font-size:15px;line-height:1.45;color:var(--carta)}#hpL b{color:#f2d24b}
 @media (orientation:landscape) and (max-height:520px){ .hcard{padding:12px 16px;gap:6px}.hic{font-size:30px}.hcard h2{font-size:22px}#hpL{font-size:13px;gap:4px} #hq{top:calc(env(safe-area-inset-top,0px) + 34px);left:auto;right:calc(max(12px,env(safe-area-inset-right,0px)) + 96px);width:40px;height:40px;font-size:20px} }
-#toast{position:absolute;left:50%;top:30%;transform:translate(-50%,-50%);max-width:86vw;text-align:center;font-family:var(--fd);font-size:clamp(20px,5.5vw,28px);text-shadow:0 2px 0 #000,0 0 20px rgba(0,0,0,.7);pointer-events:none;opacity:0;transition:opacity .25s}
+#toast{z-index:40;position:absolute;left:50%;top:30%;transform:translate(-50%,-50%);max-width:86vw;text-align:center;font-family:var(--fd);font-size:clamp(20px,5.5vw,28px);text-shadow:0 2px 0 #000,0 0 20px rgba(0,0,0,.7);pointer-events:none;opacity:0;transition:opacity .25s}
 #toast.show{opacity:1}
 #toast small{display:block;font-family:var(--fc);font-weight:600;font-size:16px;color:var(--sabbia);margin-top:4px}
 #over{position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(120% 80% at 50% 30%,rgba(30,45,32,.85),rgba(8,12,9,.95));z-index:5;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
@@ -1868,9 +1868,12 @@ function renderGarage(){
     const br=broken(); L.append(el('p','howto',br.length?'Prima di ripartire devi riparare quello che è rotto.':'I danni restano da un\'uscita all\'altra: un mezzo malconcio si rompe prima.'));
     let totC=0;
     for(const [k,[nm,eu]] of Object.entries(DMGN)){ const v=Math.round(save.dmg[k]||0), c=v*eu; totC+=c;
-      const it=el('div','item'); it.append(el('h3','',`${nm} · ${v}%`)); const b=el('button','buy'); b.textContent=v?`Ripara ${eur(c)}`:'A posto'; b.disabled=!v||save.money<c; if(!v) b.classList.add('own');
-      b.addEventListener('click',()=>{ if(save.money<c) return; save.money-=c; save.dmg[k]=0; persist(); auThud(.4); renderGarage(); });
+      const it=el('div','item'); it.append(el('h3','',`${nm} · ${v}%`)); const b=el('button','buy'); const part=save.money<c&&save.money>=eu; b.textContent=v?(part?`Ripara ${Math.floor(save.money/eu)}% · ${eur(Math.floor(save.money/eu)*eu)}`:`Ripara ${eur(c)}`):'A posto'; b.disabled=!v||save.money<eu; if(!v) b.classList.add('own');
+      b.addEventListener('click',()=>{ const pts=Math.min(v,Math.floor(save.money/eu)); if(pts<=0) return; save.money-=pts*eu; save.dmg[k]=Math.max(0,v-pts); persist(); auThud(.4); renderGarage(); });
       const bar=el('div','dbar'); const i=el('i'); i.style.setProperty('--v',v+'%'); i.style.setProperty('--c',v>70?'var(--rosso)':v>40?'#e8b13c':'var(--ok)'); bar.append(i); it.append(b,bar); L.append(it); }
+    const brk=broken(); if(brk.length&&save.money<brk.reduce((a,k)=>a+Math.round(save.dmg[k])*DMGN[k][1],0)){
+      const b=el('button','big','Riparazione alla buona · gratis'); b.style.background='#f2d24b'; b.addEventListener('click',()=>{ for(const k of brk) save.dmg[k]=70; persist(); auThud(.5); toast('Sistemato con fil di ferro','i pezzi rotti tornano al 70%: guida piano!'); renderGarage(); });
+      L.append(el('p','howto','Non hai abbastanza soldi per riparare: Purcello ti sistema i pezzi rotti alla buona, gratis. Tornano al 70%.')); L.append(b); }
     if(totC){ const b=el('button','big',`Ripara tutto · ${eur(totC)}`); b.disabled=save.money<totC; b.style.opacity=b.disabled?.5:1; b.addEventListener('click',()=>{ if(save.money<totC) return; save.money-=totC; for(const k in DMGN) save.dmg[k]=0; persist(); auThud(.5); renderGarage(); }); L.append(b); }
     L.append(el('p','sec','Pressione gomme alla partenza'));
     const sg=el('div','seg'); [['2,4 bar','sterrato veloce'],['1,6 bar','il giusto'],['1,0 bar','fango e sassi']].forEach(([a,b2],i)=>{ const bt=el('button',save.pressure===i?'on':''); bt.append(a,el('small','',b2)); bt.addEventListener('click',()=>{ save.pressure=i; persist(); renderGarage(); }); sg.append(bt); }); L.append(sg);
@@ -1891,7 +1894,7 @@ function renderGarage(){
   }
 }
 document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{ garTab=b.dataset.t; renderGarage(); $('#gar').scrollTop=0; }));
-$('#garGo').addEventListener('click',()=>{ auInit(); askSensors(); tilt.seen=0; const br=broken(); if(br.length){ garTab='officina'; renderGarage(); toast('Mezzo rotto','ripara '+br.map(k=>DMGN[k][0].toLowerCase()).join(', ')+' in officina'); return; }
+$('#garGo').addEventListener('click',()=>{ auInit(); askSensors(); tilt.seen=0; const br=broken(); if(br.length){ garTab='officina'; renderGarage(); $('#gar').scrollTop=0; toast('Mezzo rotto: '+br.map(k=>DMGN[k][0].toLowerCase()).join(', '),'riparalo qui in officina (se non hai soldi c\'è la riparazione alla buona)'); return; }
   const T=TRACKS[save.track]; if(T.locked&&T.locked()){ save.track='colle'; }
   $('#gar').hidden=true; $('#load').textContent=''; startRun(); calibrate(); toast(TRACKS[save.track].name,TRACKS[save.track].night?'notturna: accendi i fari, piano sul ghiaccio':'gas col pulsante verde, sterzo inclinando'); });
 
