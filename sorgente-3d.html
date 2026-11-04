@@ -25,7 +25,8 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-
 .pedal{pointer-events:auto;width:clamp(86px,25vw,120px);height:clamp(110px,19vh,150px);border-radius:16px;font-family:var(--fd);font-size:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;touch-action:none;box-shadow:0 6px 0 rgba(0,0,0,.45)}
 .pedal small{font-family:var(--fc);font-size:12px;opacity:.8}
 .pedal.down{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.45)}
-#gas{background:rgba(40,60,40,.85);border:2px solid var(--ok)}
+#gas{background:linear-gradient(0deg,rgba(147,196,109,.55) var(--gv,0%),rgba(40,60,40,.85) var(--gv,0%));border:2px solid var(--ok)}
+#gas.down{--gv:60%}
 #brk{background:rgba(70,40,38,.85);border:2px solid var(--rosso)}
 .cen{flex:1;min-width:0;max-width:200px;display:flex;flex-direction:column;gap:7px}
 .cb{pointer-events:auto;min-height:44px;border-radius:12px;font-weight:700;font-size:15px;letter-spacing:.06em;text-transform:uppercase;background:rgba(12,18,13,.85);border:1.5px solid rgba(239,230,210,.25);padding:6px}
@@ -239,7 +240,7 @@ p{margin:0;line-height:1.5}
       <button class="cb" id="awdB">4x4 inserita</button>
       <button class="cb" id="lowB">Inserisci ridotte</button>
     </div>
-    <button class="pedal" id="gas">GAS<small>acceleratore</small></button>
+    <button class="pedal" id="gas">GAS<small>in basso piano · in alto tutto</small></button>
   </div>
   <div id="stB" hidden><button id="stL" aria-label="Sterza a sinistra">◀</button><button id="stR" aria-label="Sterza a destra">▶</button></div>
   <div id="tb" hidden><button id="camB" aria-label="Cambia inquadratura">CAM</button><button id="pauB" aria-label="Pausa">II</button><button id="recB" aria-label="Registra il giro">REC</button></div>
@@ -288,6 +289,7 @@ p{margin:0;line-height:1.5}
     <div class="card">
       <img class="logo" id="ovLogo" alt="4x4 Camp · Ridotte inserite"><h1>4x4 Camp</h1>
       <p id="ovTxt">Fuoristrada vero: fango, massi, guadi, neve e salite in pietraia fino alla vetta. Lassù monti il campo, accendi il fuoco e dormi sotto le stelle.</p>
+      <button class="big" id="goRes" hidden>Riprendi da dove eri</button>
       <button class="big" id="go" disabled>Caricamento…</button>
       <label class="inv"><input type="checkbox" id="invS"> Inverti lo sterzo col telefono</label>
       <div id="load"></div>
@@ -500,12 +502,12 @@ function signMesh(t1,t2){ const c=document.createElement('canvas'); c.width=512;
 // punti di riferimento in vetta e galleria
 function summitFrame(){ const s0=LEN+16, O=new V(CX(s0),0,-s0); const fh=new V((CX(s0+1)-CX(s0-1))/2,0,-1).normalize(), rtv=new V(-fh.z,0,fh.x);
   return {fh,rtv,at:(d,ds)=>{ const p=O.clone().addScaledVector(rtv,d).addScaledVector(fh,ds); p.y=baseH(p.x,p.z); return p; }}; }
-function addLandmarks(){ const W=world, F=summitFrame(), at=F.at, yaw=Math.atan2(-F.fh.x,-F.fh.z), mk=TR.camp.mark;
+function addLandmarks(){ LMK.length=0; const W=world, F=summitFrame(), at=F.at, yaw=Math.atan2(-F.fh.x,-F.fh.z), mk=TR.camp.mark;
   { let ps=LEN*.55; for(const z of ZONES){ if(z.t==='terra'&&z.a>LEN*.4&&z.b<LEN-10){ ps=(z.a+z.b)/2; break; } } TR.panoS=ps; const x=CX(ps)+5.2, p=new V(x,baseH(x,-ps),-ps);
     const sg=signMesh('Punto panoramico',PANO[TR.id]||''); sg.scale.setScalar(.8); sg.position.copy(p); sg.rotation.y=Math.PI*.5; W.add(sg);
     const wood=new THREE.MeshStandardMaterial({color:0x6b4a2a,roughness:.9}); const bench=new THREE.Group(); const seat=new THREE.Mesh(new THREE.BoxGeometry(1.8,.08,.45),wood); seat.position.y=.45; const back=new THREE.Mesh(new THREE.BoxGeometry(1.8,.4,.06),wood); back.position.set(0,.75,.2); bench.add(seat,back);
     for(const bx of [-.75,.75]){ const l=new THREE.Mesh(new THREE.BoxGeometry(.08,.45,.4),wood); l.position.set(bx,.22,0); bench.add(l); } bench.position.set(x+1.5,baseH(x+1.5,-ps-2),-ps-2); bench.rotation.y=-Math.PI/2; bench.traverse(m=>{ if(m.isMesh) m.castShadow=true; }); W.add(bench); }
-  const stone=new THREE.MeshStandardMaterial({color:0x8c867c,roughness:.95,flatShading:true,map:groundMap}), put=(o,p,ry=0)=>{ o.position.copy(p); o.rotation.y=yaw+ry; o.traverse(m=>{ if(m.isMesh){ m.castShadow=true; m.receiveShadow=true; } }); W.add(o); return o; };
+  const stone=new THREE.MeshStandardMaterial({color:0x8c867c,roughness:.95,flatShading:true,map:groundMap}), put=(o,p,ry=0)=>{ o.position.copy(p); o.rotation.y=yaw+ry; o.traverse(m=>{ if(m.isMesh){ m.castShadow=true; m.receiveShadow=true; } }); W.add(o); LMK.push(o); if(o.userData.col!==false){ o.updateMatrixWorld(true); const bb=new THREE.Box3().setFromObject(o), sz=bb.getSize(new V()); const r=Math.min(4,Math.max(sz.x,sz.z)*.42); if(r>.8){ const t={x:o.position.x,z:o.position.z,r,lm:true}; const k=Math.floor(-t.z/4); if(!TREEB.has(k)) TREEB.set(k,[]); TREEB.get(k).push(t); } } return o; };
   const sign=(a,b,p,ry)=>put(signMesh(a,b),p,ry);
   if(mk==='mulino'){ const g=new THREE.Group(); const wall=new THREE.MeshStandardMaterial({color:0xe9e2d2,roughness:.9}), brick=new THREE.MeshStandardMaterial({color:0x8a4a32,roughness:.9}), dark=new THREE.MeshStandardMaterial({color:0x3a2c24,roughness:.8});
     const base=new THREE.Mesh(new THREE.CylinderGeometry(2.6,2.9,1.4,8),stone); base.position.y=.7; const tw=new THREE.Mesh(new THREE.CylinderGeometry(1.5,2.4,8,8),wall); tw.position.y=5.4; const cap=new THREE.Mesh(new THREE.ConeGeometry(2,2.4,8),brick); cap.position.y=10.6;
@@ -921,8 +923,10 @@ function askSensors(){ try{ if(typeof DeviceMotionEvent!=='undefined'&&DeviceMot
 try{ tilt.inv=localStorage.getItem('camp3d-inv')==='1'; }catch(e){}
 $('#invS').checked=!!tilt.inv; $('#invS').addEventListener('change',e=>{ tilt.inv=e.target.checked; try{ localStorage.setItem('camp3d-inv',tilt.inv?'1':'0'); }catch(_){} });
 addEventListener('orientationchange',calibrate); if(screen.orientation) screen.orientation.addEventListener?.('change',calibrate);
-const pad={gas:false,brk:false}; function hold(el,k){ el.addEventListener('pointerdown',e=>{ e.preventDefault(); pad[k]=true; el.classList.add('down'); try{el.setPointerCapture(e.pointerId);}catch(_){} }); for(const t of ['pointerup','pointercancel','lostpointercapture']) el.addEventListener(t,()=>{ pad[k]=false; el.classList.remove('down'); }); }
-hold($('#gas'),'gas'); hold($('#brk'),'brk'); hold($('#stL'),'l'); hold($('#stR'),'r');
+const pad={gas:false,brk:false}; function hold(el,k){ el.addEventListener('pointerdown',e=>{ e.preventDefault(); pad[k]=true; el.classList.add('down'); try{el.setPointerCapture(e.pointerId);}catch(_){} }); for(const t of ['pointerup','pointercancel','lostpointercapture']) el.addEventListener(t,()=>{ pad[k]=false; el.classList.remove('down'); if(k==='gas') el.style.setProperty('--gv','0%'); }); }
+hold($('#gas'),'gas'); hold($('#brk'),'brk');
+{ const g=$('#gas'); const upd=e=>{ const r=g.getBoundingClientRect(); pad.gasV=clamp(1.15-(e.clientY-r.top)/r.height*.95,.25,1); g.style.setProperty('--gv',(pad.gasV*100)+'%'); };
+  g.addEventListener('pointerdown',upd); g.addEventListener('pointermove',e=>{ if(pad.gas) upd(e); }); } hold($('#stL'),'l'); hold($('#stR'),'r');
 let drag=null, dragS=0; cv.addEventListener('pointerdown',e=>{ drag={id:e.pointerId,x:e.clientX,y:e.clientY,t:performance.now()}; try{ cv.setPointerCapture(e.pointerId); }catch(_){} });
 addEventListener('pointerup',e=>{ if(drag&&drag.id===e.pointerId) setTimeout(()=>{ if(drag&&drag.id===e.pointerId){ drag=null; dragS=0; } },0); },true); addEventListener('pointercancel',e=>{ if(drag&&drag.id===e.pointerId){ drag=null; dragS=0; } },true);
 cv.addEventListener('pointerup',e=>{ if(!campMode||!cs||cs.mini||cs.sleeping||!drag) return; if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>12||performance.now()-drag.t>350) return;
@@ -930,7 +934,7 @@ cv.addEventListener('pointerup',e=>{ if(!campMode||!cs||cs.mini||cs.sleeping||!d
   if(hit){ cs.dest={x:hit.point.x,z:hit.point.z}; tapFx(hit.point); } }); cv.addEventListener('pointermove',e=>{ if(drag&&drag.id===e.pointerId) dragS=clamp((e.clientX-drag.x)/55,-1,1); }); for(const t of ['pointerup','pointercancel']) cv.addEventListener(t,e=>{ if(drag&&drag.id===e.pointerId){ drag=null; dragS=0; } });
 function readInput(){ const kl=keys.has('arrowleft')||keys.has('a'), kr=keys.has('arrowright')||keys.has('d'); let s=0;
   if(kl||kr||pad.l||pad.r) s=((kr||pad.r)?1:0)-((kl||pad.l)?1:0); else if(drag&&Math.abs(dragS)>.02) s=dragS; else if(tilt.ok){ tilt.sm=lerp(tilt.sm,tilt.ang,.4); const g=tilt.sm, a=Math.abs(g); s=a<1.5?0:Math.sign(g)*Math.pow(clamp((a-1.5)/16,0,1),1.15); }
-  return {gas:(pad.gas||keys.has('arrowup')||keys.has('w'))?1:0, brk:(pad.brk||keys.has('arrowdown')||keys.has('s')||keys.has(' '))?1:0, steer:s}; }
+  return {gas:pad.gas?(pad.gasV||1):(keys.has('arrowup')||keys.has('w'))?(keys.has('shift')?.45:1):0, brk:(pad.brk||keys.has('arrowdown')||keys.has('s')||keys.has(' '))?1:0, steer:s}; }
 function toggleAwd(){ if(st.gear==='ridotte'&&st.awd){ toast('Prima togli le ridotte','in ridotte si va sempre a 4 ruote motrici'); return; } st.awd=!st.awd; toast(st.awd?'4x4 inserita':'Solo trazione posteriore',st.awd?'tirano tutte e quattro le ruote':'più veloce sullo sterrato, ma niente presa nel fango'); auBurst(500,.15,.25,'lowpass'); }
 $('#awdB').addEventListener('click',toggleAwd);
 function toggleLow(){ if(st.vel.length()>1){ toast('Fermati prima','le ridotte si inseriscono da fermo'); return; } st.gear=st.gear==='alta'?'ridotte':'alta'; if(st.gear==='ridotte') st.awd=true; toast(st.gear==='ridotte'?'Ridotte inserite':'Marce alte',st.gear==='ridotte'?'tanta forza, fino a 25 km/h':'fino a 80 km/h'); }
@@ -1288,7 +1292,9 @@ function placeFriendCars(){ while(fcars.children.length) fcars.remove(fcars.chil
   const s0=LEN+16, O=new V(CX(s0),0,-s0), fh=new V((CX(s0+1)-CX(s0-1))/2,0,-1).normalize(), rtv=new V(-fh.z,0,fh.x);
   const at=(d,ds)=>{ const p=O.clone().addScaledVector(rtv,d).addScaledVector(fh,ds); p.y=height(p.x,p.z); return p; };
   [[FRIENDS[0].car,at(-6.5,-4),.35],[FRIENDS[1].car,at(12.8,-9.5),-.5]].forEach(([col,p,rot])=>{ const c=src.clone(true); c.traverse(o=>{ if(o.isMesh&&o.material&&o.material.name==='MAT_body'){ o.material=o.material.clone(); o.material.color.set(col); } });
-    const g=new THREE.Group(); g.add(c); g.position.copy(p); g.position.y=height(p.x,p.z)+RW+LN-.198-MOUNTY; g.rotation.y=Math.atan2(-fh.x,-fh.z)+rot; fcars.add(g);
+    const g=new THREE.Group(); g.add(c); g.position.copy(p); const ry=Math.atan2(-fh.x,-fh.z)+rot, ff=new V(-Math.sin(ry),0,-Math.cos(ry)), rr=new V(-ff.z,0,ff.x);
+    const hw=(a,b)=>{ const q=p.clone().addScaledVector(ff,a).addScaledVector(rr,b); return baseH(q.x,q.z); }, hFL=hw(1.3,-.8), hFR=hw(1.3,.8), hRL=hw(-1.2,-.8), hRR=hw(-1.2,.8);
+    g.position.y=(hFL+hFR+hRL+hRR)/4+RW+LN-.198-MOUNTY; g.rotation.order='YXZ'; g.rotation.y=ry; g.rotation.x=Math.atan2((hFL+hFR)-(hRL+hRR),2*2.5); g.rotation.z=Math.atan2((hFR+hRR)-(hFL+hRL),2*1.6); fcars.add(g);
     const f=new V(0,0,-1).applyAxisAngle(new V(0,1,0),g.rotation.y);
     for(const o of [-1.5,0,1.5]){ const t={x:p.x+f.x*o,z:p.z+f.z*o,r:.75,car:true}; const k=Math.floor(-t.z/4); if(!TREEB.has(k)) TREEB.set(k,[]); TREEB.get(k).push(t); } }); }
 function addFriends(at,C,chairs){ cs.fr=[];
@@ -1411,7 +1417,12 @@ function updPark(dt){ if(!cs.park) return; const P=cs.park; P.t+=dt; const k=sst
 function parkDone(){ const P=cs.park; cs.park=null; st.pos.copy(P.p1); st.q.copy(P.q1); st.comp=[.198,.198,.198,.198];
   up.set(0,1,0).applyQuaternion(st.q); fw.set(0,0,-1).applyQuaternion(st.q); rt.set(1,0,0).applyQuaternion(st.q);
   man.position.copy(st.pos).addScaledVector(cs.rt,2.8).addScaledVector(cs.fh,1.2); man.position.y=height(man.position.x,man.position.z); man.rotation.set(0,Math.atan2(-(cs.C.x-man.position.x),-(cs.C.z-man.position.z)),0); man.visible=true;
-  auThud(.4); $('#ctl').hidden=false; first=true; setStep(0); }
+  auThud(.4); $('#ctl').hidden=false; first=true;
+  const R=cs.resume; if(R&&R.step>0){ cs.resume=null; const sh=STEPS.findIndex(x=>x.id==='amaca'), le=STEPS.findIndex(x=>x.id==='legna'), po=STEPS.findIndex(x=>x.id==='porta'), fu=STEPS.findIndex(x=>x.id==='fuoco');
+    if(R.step>sh){ cs.ham=9; if(KIT.riparo==='amaca'){ cs.obj.ropeA.visible=cs.obj.ropeB.visible=cs.obj.hm.visible=true; } else if(KIT.riparo==='tenda'){ const u=cs.obj.tent.userData; u.stakes.visible=u.poles.visible=u.fab.visible=u.door.visible=true; } else cs.rttT=1; }
+    if(R.step>le){ cs.obj.pile.visible=false; cs.obj.tr.scale.y=.25; } if(R.step===po) man.userData.logs.visible=true; if(R.step>po) cs.obj.fireLogs.visible=true; if(R.step>fu){ cs.lit=true; cs.fire=1; }
+    cs.food=FOODS.find(f=>f.id===R.food)||null; cs.drink=DRINKS.find(d=>d.id===R.drink)||null; cs.drunk=R.drunk||0; cs.rank=R.rank||0; cs.misses=R.misses||0; cs.cook=R.cook||null; setStep(R.step); }
+  else setStep(0); }
 function setStep(i){
   cs.step=i; cs.stepT=0; const S=STEPS[i]; if(!S){ endCamp(); return; }
   let sub=S.sub; if(S.tool){ const t=tool(S.tool); sub=(sub?sub+' · ':'')+`con ${({fornelletto:'il '})[t.nome]||(/^[aeiou]/.test(t.nome)?"l'":'la ')}${t.nome}: ${t.diff}`; }
@@ -1480,7 +1491,7 @@ function goSleep(){ cs.sleeping=true; cs.obj.mk.visible=false; $('#actB').hidden
   else { const ctr=new V(0,1.55,.5).applyQuaternion(st.q).add(st.pos); lie(ctr,fw.clone().negate(),.1); }
   cs.nightTo=1; toast('Buonanotte','il fuoco scoppietta');
   setTimeout(endCamp,5200); }
-function endCamp(){
+function endCamp(){ clearResume();
   const camB={perfetta:30,buona:20,cruda:8,bruciata:5}[cs.cook]||0, sleepB={amaca:10,tenda:25,maggiolina:40}[KIT.riparo];
   const festaB=[0,60,30,15,0][cs.rank||4], falls=cs.falls||0;
   const bonus=Math.max(0,Math.round(30+camB+sleepB+festaB-cs.misses*2-falls*8));
@@ -1563,6 +1574,7 @@ function updCamp(dt){
   // fuoristrada fermo col freno a mano
   updPark(dt);
 }
+const camRay=new THREE.Raycaster(), LMK=[];
 function campCamera(dt){
   if(cs.step<0){ const f=new V(fw.x,0,fw.z).normalize(); const M=cs.markP||st.pos; const want=st.pos.clone().addScaledVector(f,-7).addScaledVector(cs.rt,6).add(new V(0,4,0)); const look=st.pos.clone().lerp(M,.55).add(new V(0,1.5,0)); if(first){ camPos.copy(want); camLook.copy(look); first=false; } camPos.lerp(want,1-Math.pow(.05,dt)); camLook.lerp(look,1-Math.pow(.01,dt)); cam.position.copy(camPos); cam.lookAt(camLook); return; }
   const yaw=man.rotation.y, back=new V(Math.sin(yaw),0,Math.cos(yaw));
@@ -1570,6 +1582,8 @@ function campCamera(dt){
   const sa=KIT.riparo==='maggiolina'?st.pos.clone().add(new V(0,.6,0)):cs.pos.ham;
   const want=cs.sleeping?sa.clone().addScaledVector(cs.rt,-4.6).addScaledVector(cs.fh,-2.2).add(new V(0,2.3,0)):cs.mini?man.position.clone().addScaledVector(side,3.8).addScaledVector(back,2.4).add(new V(0,2.1,0)):man.position.clone().addScaledVector(back,6).add(new V(0,3.6,0));
   const gh=height(want.x,want.z)+1.2; if(want.y<gh) want.y=gh;
+  { const lk=man.position.clone().add(new V(0,1.2,0)), d=want.clone().sub(lk), L=d.length(); camRay.set(lk,d.divideScalar(L)); camRay.far=L; const hit=camRay.intersectObjects(LMK.concat(fcars.children),true).find(h=>h.object.visible!==false&&!(h.object.material&&h.object.material.transparent));
+    if(hit){ want.copy(lk).addScaledVector(d,Math.max(1.4,hit.distance-.5)); want.y+=.6; } }
   const look=cs.sleeping?sa.clone().add(new V(0,.9,0)):cs.mini?man.position.clone().add(new V(0,.35,0)):man.position.clone().add(new V(0,.9,0)).addScaledVector(back,-2.5);
   if(first){ camPos.copy(want); camLook.copy(look); first=false; }
   const fast=cs.mini?.004:.02; camPos.lerp(want,1-Math.pow(fast,dt)); camLook.lerp(look,1-Math.pow(cs.mini?.001:.005,dt)); cam.position.copy(camPos); cam.lookAt(camLook);
@@ -1603,7 +1617,7 @@ function frame(now){
   const dt=Math.min(.05,(now-last)/1000); last=now;
   if(helpOpen){ ren.render(scene,cam); requestAnimationFrame(frame); return; }
   worldAnim(dt); lightsUpd(); if(TR) weatherUpd(dt);
-  if(campMode&&cs){ updCamp(dt); auCamp(dt); campCamera(dt);
+  if(campMode&&cs){ if(!st.paused){ updCamp(dt); auCamp(dt); } campCamera(dt);
     car.position.copy(st.pos); car.quaternion.copy(st.q);
     for(let i=0;i<4;i++){ const g=wheels[i]; if(!g) continue; const W=WH[i]; g.position.set(W.x,MOUNTY-(LN-st.comp[i]),W.z); g.rotation.set(0,0,0); g.userData.spin.rotation.x=-st.spin[i]; }
     sun.position.copy(man.position).addScaledVector(SUNDIR,50); sun.target.position.copy(man.position);
@@ -1708,26 +1722,35 @@ function showMsg(eye,title,text,lines,btn){ $('#msgEye').textContent=eye; $('#ms
   $('#msgBtn').textContent=btn||'Torna al garage'; $('#msg').hidden=false; hideRunUI(); }
 function hideRunUI(){ for(const id of ['#hq','#sheet','#party','#bal','#stB','#hud','#hud2','#ctl','#obj','#actB','#goB','#tb','#mini']) $(id).hidden=true; }
 $('#msgBtn').addEventListener('click',()=>{ $('#msg').hidden=true; toGarage(); });
+function snapshot(){ try{ if(campMode&&cs&&cs.step>=0) save.resume={camp:1,track:TR.id,meteo:WX,time:st.time,rescues:st.rescues,dmg:{...st.dmg},step:cs.step,food:cs.food&&cs.food.id,drink:cs.drink&&cs.drink.id,drunk:cs.drunk||0,rank:cs.rank||0,misses:cs.misses,cook:cs.cook};
+  else if(st.running&&!st.done) save.resume={track:TR.id,meteo:WX,s:st.s,time:st.time,rescues:st.rescues,dmg:{...st.dmg},gear:st.gear,awd:st.awd,pressure};
+  persist(); }catch(e){ console.warn("snap",e); } }
+window.__snap=snapshot;
+function clearResume(){ if(save.resume){ delete save.resume; persist(); } }
+setInterval(()=>{ if(!st.paused&&!helpOpen) snapshot(); },2500);
+function resumeGame(){ const R=save.resume; if(!R) return toGarage(); save.track=R.track; save.meteo=R.meteo||'sereno'; startRun(); Object.assign(st,{time:R.time,rescues:R.rescues,dmg:{...R.dmg}});
+  if(R.camp){ reset(LEN-2); for(let i=0;i<240;i++) physStep(1/240,{gas:0,brk:1,steer:0}); st.done=true; startCamp(); cs.resume=R; toast('Si riprende dal campo','dove eri rimasto'); }
+  else { reset(R.s); st.gear=R.gear||'alta'; st.awd=R.awd!==false; pressure=R.pressure??pressure; toast('Si riprende',`da ${Math.round(R.s)} m`); } }
 function arrive(){ st.done=true; dropWinch(); const id=TR.id, t=st.time; const nb=!save.best[id]||t<save.best[id]; save.done[id]=true; if(nb) save.best[id]=t; persist();
   toast(nb?'Vetta! Record':'Vetta!',`in ${fmtT1(t)} · si monta il campo`); gabbah('g_si',0); setTimeout(()=>say('Purcello','','p_vetta'),1900); submitScore(id,t,st.rescues); setTimeout(()=>{ if(st.done&&st.running) startCamp(); },2200); }
-function failRun(f){ st.running=false; gabbah('g_dopo',0); dropWinch(); const tow=150, resc=st.rescues*40; save.money=Math.max(0,save.money-tow-resc); save.dmg={...st.dmg}; persist();
+function failRun(f){ st.running=false; clearResume(); gabbah('g_dopo',0); dropWinch(); const tow=150, resc=st.rescues*40; save.money=Math.max(0,save.money-tow-resc); save.dmg={...st.dmg}; persist();
   showMsg('Mezzo fermo',f[0],f[1]+' Il carro attrezzi ti riporta a valle: in officina si ripara.',[['Carro attrezzi','−'+eur(tow),'neg'],...(resc?[[`Birre a Purcello (${st.rescues})`,'−'+eur(resc),'neg']]:[]),['In cassa',eur(save.money),'']],'Torna al garage'); }
 function startRun(){ if(cs) clearCamp(); WX=save.meteo; if(builtTrack!==save.track) buildWorld(save.track); else { scene.fog.near=TR.theme==='neve'?25:60; scene.fog.far=TR.theme==='neve'?150:TR.theme==='alpino'?320:250; } applyUpgrades(); pressure=save.pressure;
   $('#hud').hidden=false; $('#hud2').hidden=false; $('#ctl').hidden=false; $('#tb').hidden=false; $('#lowB').hidden=false;
   clearSplats(); placeFriendCars(); Object.assign(st,{panoSaid:false,awd:true,dirt:0,progS:0,progT:0,running:true,done:false,rescue:null,time:0,water:0,sink:0,rescues:0,paused:false,gear:'alta',dmg:{...save.dmg}}); reset(4); campMode=false; clearRuts(); skyNow=-1; setSky(TR.night?1:0); lightsUpd(); $('#hq').hidden=false; setTimeout(()=>showHelp('guida'),400); }
 // pausa
-function pause(){ if(!st.running||st.done||campMode) return; st.paused=true; $('#invS2').checked=!!tilt.inv; $('#pause').hidden=false; }
+function pause(){ if(!(st.running&&!st.done)&&!(campMode&&cs&&!cs.sleeping)) return; if(!$('#msg').hidden||!$('#gar').hidden) return; st.paused=true; snapshot(); $('#invS2').checked=!!tilt.inv; $('#pause').hidden=false; }
 $('#pauB').addEventListener('click',pause);
-$('#pRes').addEventListener('click',()=>{ $('#pause').hidden=true; st.paused=false; last=performance.now(); calibrate(); });
+$('#pRes').addEventListener('click',()=>{ auInit(); $('#pause').hidden=true; st.paused=false; last=performance.now(); calibrate(); });
 $('#pRst').addEventListener('click',()=>{ $('#pause').hidden=true; startRun(); calibrate(); });
-$('#pGar').addEventListener('click',()=>{ $('#pause').hidden=true; st.running=false; st.paused=false; save.dmg={...st.dmg}; save.money=Math.max(0,save.money-st.rescues*40); persist(); dropWinch(); toGarage(); });
+$('#pGar').addEventListener('click',()=>{ clearResume(); $('#pause').hidden=true; st.running=false; st.paused=false; save.dmg={...st.dmg}; save.money=Math.max(0,save.money-st.rescues*40); persist(); dropWinch(); toGarage(); });
 $('#invS2').addEventListener('change',e=>{ tilt.inv=e.target.checked; $('#invS').checked=tilt.inv; try{ localStorage.setItem('camp3d-inv',tilt.inv?'1':'0'); }catch(_){} });
-document.addEventListener('visibilitychange',()=>{ if(document.hidden) pause(); });
+document.addEventListener('visibilitychange',()=>{ if(document.hidden){ pause(); snapshot(); } }); addEventListener('pagehide',snapshot);
 
 /* ---------- Consigli: una scheda chiara la prima volta che serve, e il pulsante ? per rivederla ---------- */
 const TOUCH=matchMedia('(pointer:coarse)').matches;
 const HELP={
- guida:{ic:'🚙',t:'Come si guida',l:TOUCH?['<b>Sterzo:</b> inclina il telefono a destra e a sinistra (oppure trascina il dito sullo schermo).','<b>GAS</b> verde per andare, <b>FRENO</b> rosso per frenare. Tienilo premuto da fermo e vai in <b>retromarcia</b>.','<b>Ridotte:</b> inseriscile da fermo prima di salite, pietraie e fango. Più forza, meno velocità.','<b>4x4 inserita / Solo posteriore:</b> a due ruote motrici vai più svelto sullo sterrato, ma nel fango ti pianti.','<b>REC</b> in alto a destra registra il giro: alla fine lo condividi o lo salvi.','Arriva in vetta senza rompere il mezzo: in alto vedi i danni di gomme, coppa, semiassi e carrozzeria.']
+ guida:{ic:'🚙',t:'Come si guida',l:TOUCH?['<b>Sterzo:</b> inclina il telefono a destra e a sinistra (oppure trascina il dito sullo schermo).','<b>GAS</b> verde per andare: <b>premi in basso sul pedale per andare piano</b> (sassi, guadi), in alto per il gas pieno.','<b>GAS</b> verde per andare, <b>FRENO</b> rosso per frenare. Tienilo premuto da fermo e vai in <b>retromarcia</b>.','<b>Ridotte:</b> inseriscile da fermo prima di salite, pietraie e fango. Più forza, meno velocità.','<b>4x4 inserita / Solo posteriore:</b> a due ruote motrici vai più svelto sullo sterrato, ma nel fango ti pianti.','<b>REC</b> in alto a destra registra il giro: alla fine lo condividi o lo salvi.','Arriva in vetta senza rompere il mezzo: in alto vedi i danni di gomme, coppa, semiassi e carrozzeria.']
    :['<b>Frecce o WASD:</b> su gas, giù freno (tieni giù da fermo = retromarcia), destra e sinistra sterzo.','<b>R</b> ridotte (da fermo) · <b>V</b> verricello · <b>P</b> pressione gomme · <b>C</b> inquadratura.','Arriva in vetta senza rompere il mezzo: in alto vedi i danni.']},
  fango:{ic:'🟫',t:'Fango',l:['Entra con un po\' di slancio e tieni il gas <b>costante</b>.','Se le ruote girano a vuoto sale la barra <b>Affondamento</b>: molla il gas, un po\' di retro e riparti.','Gomme basse (1,0 bar) e gomme M/T aiutano tanto.']},
  fangoProf:{ic:'🕳️',t:'Fango profondo',l:['Qui ci si pianta facile: <b>ridotte inserite</b> e slancio prima di entrare.','Se resti fermo compare <b>Chiama Purcello</b>: ti tira fuori con la strop.','Col verricello (garage) ti tiri fuori da solo.']},
@@ -1908,13 +1931,14 @@ $('#go').addEventListener('click',async()=>{
   auInit(); try{ if(typeof DeviceMotionEvent!=='undefined'&&DeviceMotionEvent.requestPermission) await DeviceMotionEvent.requestPermission(); }catch(e){} try{ if(typeof DeviceOrientationEvent!=='undefined'&&DeviceOrientationEvent.requestPermission) await DeviceOrientationEvent.requestPermission(); }catch(e){}
   calibrate(); $('#over').hidden=true; toGarage();
 });
+$('#goRes').addEventListener('click',async()=>{ auInit(); askSensors(); calibrate(); $('#over').hidden=true; resumeGame(); });
 { const touch=matchMedia('(pointer:coarse)').matches; $('#ovTxt').textContent+=touch?' Inclina il telefono per sterzare (o trascina il dito sullo schermo), pedali in basso.':' Frecce o WASD per guidare, R ridotte, V verricello, P gomme, C inquadratura.'; }
 const TRUCK='__TRUCK__', LOGO='__LOGO__';
 if(window.top!==window&&!/github\.io$/.test(location.hostname)) $('#olk').hidden=false;
 $('#ovLogo').src=LOGO; $('#garLogo').src=LOGO;
 buildWorld(TRACKS[save.track]&&!(TRACKS[save.track].locked&&TRACKS[save.track].locked())?save.track:'colle'); setSky(TR.night?1:0);
 reset(4);
-loadCar().then(()=>{ applyUpgrades(); $('#go').disabled=false; $('#go').textContent='Entra in garage'; }).catch(e=>{ $('#load').textContent='Errore nel caricare il fuoristrada: '+e.message; });
+loadCar().then(()=>{ applyUpgrades(); $('#go').disabled=false; $('#go').textContent='Entra in garage'; if(save.resume){ $('#goRes').hidden=false; $('#go').classList.add('ghost'); $('#go').classList.remove('big'); } }).catch(e=>{ $('#load').textContent='Errore nel caricare il fuoristrada: '+e.message; });
 requestAnimationFrame(frame);
 window.__st=st;
 // banco di prova: simula senza disegnare (usato solo per i test)
