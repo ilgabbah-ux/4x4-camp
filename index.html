@@ -715,10 +715,26 @@ async function loadCar(){
     const body=T.getObjectByName('T_BODY'); const tr=new THREE.Group(); tr.rotation.y=Math.PI/2; car.add(tr); tr.add(body); body.position.set(0,0,0); tr.visible=false; terrRoot=tr;
     body.traverse(o=>{ if(o.isMesh){ o.castShadow=true; o.receiveShadow=true; if(o.material){ o.material.envMapIntensity=.9; } } });
     for(const n of ['T_FL','T_FR','T_RL','T_RR']){ const w=T.getObjectByName(n); if(!w) continue; const p=w.position.clone().applyAxisAngle(new V(0,1,0),Math.PI/2); // posizione nel telaio dell'auto
-      const i=(p.z<0?0:2)+(p.x>0?1:0); const m=w.isMesh?w:w.children[0]; const geo=m.geometry.clone(); geo.rotateY(Math.PI/2); const mm=new THREE.Mesh(geo,m.material); mm.castShadow=true; mm.visible=false; wheels[i].userData.spin.add(mm); wheels[i].userData.terr=mm; }
+      const i=(p.z<0?0:2)+(p.x>0?1:0); const m=w.isMesh?w:w.children[0]; let geo=m.geometry.clone(); geo.rotateY(Math.PI/2); geo=fixWheel(geo); const mm=new THREE.Mesh(geo,m.material); mm.castShadow=true; mm.visible=false; wheels[i].userData.spin.add(mm); wheels[i].userData.terr=mm; }
   }catch(e){ console.warn('terrano',e); }
 }
 let terrRoot=null, heroWY=null;
+// ruota ricavata dal modello: trova l'asse vero (cerchio sul battistrada), tiene la metà bassa intera e la duplica girata di 180°, così gira tonda senza sfarfallare
+function fixWheel(g){ g=g.index?g.toNonIndexed():g; const P=g.attributes.position, n=P.count;
+  let ys=[],zs=[]; for(let i=0;i<n;i++){ ys.push(P.getY(i)); zs.push(P.getZ(i)); }
+  let cy=(Math.min(...ys)+Math.max(...ys))/2, cz=(Math.min(...zs)+Math.max(...zs))/2, r=0;
+  for(let it=0;it<3;it++){ const d=ys.map((y,i)=>Math.hypot(y-cy,zs[i]-cz)); const dm=Math.max(...d); const sel=[]; for(let i=0;i<n;i++) if(d[i]>dm*.86&&ys[i]<cy+dm*.2) sel.push(i);
+    // cerchio ai minimi quadrati (Kasa)
+    let Sx=0,Sy=0,Sxx=0,Syy=0,Sxy=0,Sxxx=0,Syyy=0,Sxyy=0,Sxxy=0; const N=sel.length; for(const i of sel){ const x=zs[i],y=ys[i]; Sx+=x;Sy+=y;Sxx+=x*x;Syy+=y*y;Sxy+=x*y;Sxxx+=x*x*x;Syyy+=y*y*y;Sxyy+=x*y*y;Sxxy+=x*x*y; }
+    const A=N*Sxx-Sx*Sx, B=N*Sxy-Sx*Sy, C=N*Syy-Sy*Sy, D=.5*(N*Sxyy-Sx*Syy+N*Sxxx-Sx*Sxx), E=.5*(N*Sxxy-Sy*Sxx+N*Syyy-Sy*Syy), den=A*C-B*B; if(!N||Math.abs(den)<1e-12) break;
+    cz=(D*C-B*E)/den; cy=(A*E-B*D)/den; r=Math.sqrt((Sxx-2*cz*Sx+N*cz*cz+Syy-2*cy*Sy+N*cy*cy)/N); }
+  const cx=(()=>{ let a=1e9,b=-1e9; for(let i=0;i<n;i++){ const x=P.getX(i); a=Math.min(a,x); b=Math.max(b,x); } return (a+b)/2; })();
+  g.translate(-cx,-cy,-cz);
+  const keep=[]; const pos=g.attributes.position; for(let t=0;t<n;t+=3){ if(pos.getY(t)<=.01&&pos.getY(t+1)<=.01&&pos.getY(t+2)<=.01) keep.push(t); }
+  const out=new THREE.BufferGeometry(); for(const name of Object.keys(g.attributes)){ const a=g.attributes[name], k=a.itemSize, arr=new Float32Array(keep.length*3*k*2); let o=0;
+    for(const pass of [0,1]) for(const t of keep) for(let j=0;j<3;j++){ for(let c=0;c<k;c++){ let v=a.array[(t+j)*k+c]; if(pass&&(name==='position'||name==='normal')&&c>0) v=-v; arr[o++]=v; } }
+    out.setAttribute(name,new THREE.BufferAttribute(arr,k)); }
+  out.userData.r=r; return out; }
 // fari: due spot davanti, più la barra LED sul tetto se montata; alone visibile sui fanali
 const lights={L:[],glow:[]};
 for(const sx of [-.62,.62]){ const s=new THREE.SpotLight(0xfff1d6,0,70,.42,.55,1.2); s.position.set(sx*1.06,.2,-2.36); s.target.position.set(sx*1.6,-1.2,-24); car.add(s,s.target); lights.L.push(s);
@@ -763,7 +779,7 @@ function applyVehicle(){ VEH=VEHS[save.veh]||VEHS.base; VS=VEH.sc; MASS=VEH.mass
   WH.forEach((w,i)=>{ w.x=WH0[i].x*VS[0]; w.z=WH0[i].z*VS[2]; delete w.vx; delete w.vz; });
   if(VEH.mw&&terrRoot){ const k=VEH.ms||1, M=VEH.mw, dz=-.015-(M.zf+M.zr)/2*k; terrRoot.scale.setScalar(k); terrRoot.position.z=dz; WH.forEach((w,i)=>{ w.vx=(i%2?1:-1)*M.x*k; w.vz=(i<2?M.zf:M.zr)*k+dz; }); } HOOK.set(0,-.25,-2.45*VS[2]);
   const isT=VEH.model==='terrano'&&terrRoot; if(carRoot) carRoot.visible=!isT; if(terrRoot){ terrRoot.visible=!!isT; }
-  for(const g of wheels){ if(!g) continue; for(const o of g.userData.hero||[]) o.visible=!isT; if(g.userData.terr) g.userData.terr.visible=!!isT; }
+  for(const g of wheels){ if(!g) continue; for(const o of g.userData.hero||[]){ o.visible=true; o.traverse(m=>{ if(m.isMesh&&/rim/i.test(m.name+(m.material&&m.material.name))){ if(!m.userData.m0){ m.userData.m0=m.material; m.userData.mT=m.material.clone(); m.userData.mT.color.set(0x161616); m.userData.mT.metalness=.4; m.userData.mT.roughness=.45; } m.material=isT?m.userData.mT:m.userData.m0; } }); } if(g.userData.terr) g.userData.terr.visible=false; }
   if(carRoot) carRoot.scale.set(...VS); for(const m of bodyMats){ if(m.name==='MAT_body'&&m.userData.base){ m.userData.base.set(VEH.col==null?bodyMat0:VEH.col); m.color.copy(m.userData.base); } } }
 let ENG={fa:8200,va:22,fl:17000,vl:7,eb:2600};
 function applyUpgrades(){
