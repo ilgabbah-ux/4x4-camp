@@ -184,6 +184,8 @@ p{margin:0;line-height:1.5}
 .howto{font-size:14px;color:var(--sabbia);line-height:1.45;padding:10px 12px;border-radius:12px;border:1px dashed var(--linea)}
 #pause .wrap{padding-top:16vh}
 #pause .big{width:100%}
+.ghost.inst{margin-top:10px;border-color:var(--ok);color:#cfe8b8}
+#instH{position:fixed;inset:0;z-index:60;background:rgba(8,12,9,.88);display:flex;align-items:center;justify-content:center;padding:20px}#instH .card{max-width:420px;background:#1b241d;border-radius:18px;padding:20px;border:1px solid rgba(239,230,210,.2)}#instH ol{padding-left:22px;line-height:1.55}#instH b{color:#f2d24b}
 .ghost{font-family:var(--fd);font-size:19px;padding:14px;border-radius:14px;border:1.5px solid rgba(239,230,210,.3);width:100%}
 
 .cen{display:grid!important;grid-template-columns:1fr 1fr;gap:5px!important;align-content:end}.cen .cb{min-height:36px;font-size:12px;padding:4px 3px;letter-spacing:.02em}.cen .help,.cen .win{grid-column:1/-1}
@@ -274,6 +276,7 @@ p{margin:0;line-height:1.5}
       <button class="big" id="pRes">Riprendi</button>
       <button class="ghost" id="pRst">Ricomincia il tracciato</button>
       <button class="ghost" id="pGar">Torna al garage</button>
+      <button class="ghost inst" id="instB2">📲 Metti il gioco nella Home</button>
       <label class="inv"><input type="checkbox" id="invS2"> Inverti lo sterzo col telefono</label>
     </div>
   </section>
@@ -291,6 +294,7 @@ p{margin:0;line-height:1.5}
       <p id="ovTxt">Fuoristrada vero: fango, massi, guadi, neve e salite in pietraia fino alla vetta. Lassù monti il campo, accendi il fuoco e dormi sotto le stelle.</p>
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button>
       <button class="big" id="go" disabled>Caricamento…</button>
+      <button class="ghost inst" id="instB">📲 Metti il gioco nella Home</button>
       <label class="inv"><input type="checkbox" id="invS"> Inverti lo sterzo col telefono</label>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
@@ -317,7 +321,7 @@ let save={money:400,own:{},dmg:{gomme:0,coppa:0,semiassi:0,carrozzeria:0},pressu
 try{ const r=localStorage.getItem(KEY); if(r) save=Object.assign(save,JSON.parse(r)); }catch(e){}
 function persist(){ try{ localStorage.setItem(KEY,JSON.stringify(save)); }catch(e){} }
 const own=k=>!!save.own[k];
-save.vehOwn=save.vehOwn||{base:true}; save.veh=save.veh||'base'; save.meteo=save.meteo||'sereno'; if(save.voci==null) save.voci=true; if(!save.q) save.q=matchMedia('(pointer:coarse)').matches?'media':'alta';
+save.vehOwn=save.vehOwn||{base:true}; save.vehOwn.terrano=true; if(!save.terr1){ save.terr1=1; save.veh='terrano'; } save.veh=save.veh||'terrano'; save.meteo=save.meteo||'sereno'; if(save.voci==null) save.voci=true; if(!save.q) save.q=matchMedia('(pointer:coarse)').matches?'media':'alta';
 const QS={alta:{n:'Alta',pr:2,sh:2048,grass:9000,trees:2400},media:{n:'Media',pr:1.5,sh:1024,grass:5000,trees:1700},bassa:{n:'Bassa',pr:1,sh:0,grass:0,trees:1000}};
 const METEO={sereno:{n:'Sereno',ic:'☀️',k:1,txt:'compenso normale'},pioggia:{n:'Pioggia',ic:'🌧️',k:1.2,txt:'tutto più scivoloso · compenso +20%'},nebbia:{n:'Nebbia',ic:'🌫️',k:1.15,txt:'vedi poco lontano · +15%'},temporale:{n:'Temporale',ic:'⛈️',k:1.4,txt:'buio, pioggia e fulmini · +40%'}};
 let WX='sereno';
@@ -690,9 +694,16 @@ async function loadCar(){
   root.traverse(o=>{ if(o.isMesh&&o.material&&/body|flare|bumper/i.test(o.material.name+o.name)&&!bodyMats.includes(o.material)){ o.material.userData.base=o.material.color.clone(); bodyMats.push(o.material); } });
   const tags=['FL','FR','RL','RR'];
   tags.forEach((t,i)=>{ const w=byName['HERO_wheel_'+t], rim=byName['HERO_wheel_'+t+'_rim']; const g=new THREE.Group(); const sp=new THREE.Group(); g.add(sp); car.add(g);
-    for(const o of [w,rim]){ if(!o) continue; o.position.set(0,0,0); sp.add(o); }
-    g.userData.spin=sp; wheels[i]=g; });
+    for(const o of [w,rim]){ if(!o) continue; o.userData.y0=o.getWorldPosition(new V()).y-car.position.y; o.position.set(0,0,0); sp.add(o); }
+    g.userData.spin=sp; g.userData.hero=[w,rim].filter(Boolean); wheels[i]=g; if(i===0&&w) heroWY=w.userData.y0; });
+  try{ const tb=Uint8Array.from(atob(TERRANO.split(',')[1]),c=>c.charCodeAt(0)).buffer; const tg=await new GLTFLoader().parseAsync(tb,''); const T=tg.scene;
+    const body=T.getObjectByName('T_BODY'); const tr=new THREE.Group(); tr.rotation.y=Math.PI/2; car.add(tr); tr.add(body); body.position.set(0,0,0); tr.visible=false; terrRoot=tr;
+    body.traverse(o=>{ if(o.isMesh){ o.castShadow=true; o.receiveShadow=true; if(o.material){ o.material.envMapIntensity=.9; } } });
+    for(const n of ['T_FL','T_FR','T_RL','T_RR']){ const w=T.getObjectByName(n); if(!w) continue; const p=w.position.clone().applyAxisAngle(new V(0,1,0),Math.PI/2); // posizione nel telaio dell'auto
+      const i=(p.z<0?0:2)+(p.x>0?1:0); const m=w.isMesh?w:w.children[0]; const geo=m.geometry.clone(); geo.rotateY(Math.PI/2); const mm=new THREE.Mesh(geo,m.material); mm.castShadow=true; mm.visible=false; wheels[i].userData.spin.add(mm); wheels[i].userData.terr=mm; }
+  }catch(e){ console.warn('terrano',e); }
 }
+let terrRoot=null, heroWY=null;
 // fari: due spot davanti, più la barra LED sul tetto se montata; alone visibile sui fanali
 const lights={L:[],glow:[]};
 for(const sx of [-.62,.62]){ const s=new THREE.SpotLight(0xfff1d6,0,70,.42,.55,1.2); s.position.set(sx*1.06,.2,-2.36); s.target.position.set(sx*1.6,-1.2,-24); car.add(s,s.target); lights.L.push(s);
@@ -727,13 +738,16 @@ const V=THREE.Vector3;
 let first=true; const camPos=new THREE.Vector3(), camLook=new THREE.Vector3();
 const st={pos:new V(),vel:new V(),q:new THREE.Quaternion(),w:new V(),steer:0,gear:'alta',spin:[0,0,0,0],comp:[0,0,0,0],contact:[0,0,0,0],slip:[0,0,0,0],dspin:[0,0,0,0],cp:[new V(),new V(),new V(),new V()],cn:[new V(),new V(),new V(),new V()],surf:'terra',time:0,running:false,s:0,done:false,stuckT:0,sink:0,water:0,dmg:{gomme:0,coppa:0,semiassi:0,carrozzeria:0},wsurf:['terra','terra','terra','terra'],bumpT:[0,0,0,0],rescues:0,mode:'drive',winch:null,paused:false};
 let MASS=2100; const I=new V(4300,4400,2200), I0=I.clone(), K=26000, CD=2900;
-const VEHS={base:{n:'Ranger 2.5 TD',sub:'il tuo 4x4 di serie: onesto e robusto',price:0,sc:[1,1,1],mass:2100,p:1,col:null},
+const VEHS={terrano:{n:'Terrano II del Gabbah',sub:'il tuo: nero, alzato, snorkel, barra LED e gomme tassellate · modello 3D vero',price:0,sc:[1,1,1],mass:2000,p:1.08,col:null,model:'terrano',rw:.45,wh:{x:.8,zf:-1.34,zr:1.11}},
+ base:{n:'Ranger 2.5 TD',sub:'il tuo 4x4 di serie: onesto e robusto',price:0,sc:[1,1,1],mass:2100,p:1,col:null},
  grillo:{n:'Grillo 1.3',sub:'piccolo e leggero (in stile Jimny): stretto, galleggia nel fango, poco motore',price:1800,sc:[.88,.96,.82],mass:1200,p:.64,col:0xd8c23a},
  bisonte:{n:'Bisonte 110',sub:'squadrato all\'inglese (in stile Defender): più alto e più forte',price:3500,sc:[1.02,1.04,1.06],mass:2250,p:1.25,col:0x3d5a3a,lift:.03},
  orso:{n:'Orso 200',sub:'giapponese indistruttibile (in stile Land Cruiser): pesante, potente, bloccaggio dietro di serie',price:5500,sc:[1.08,1.06,1.1],mass:2500,p:1.5,col:0xe9e7e0,lockR:true,tough:.7}};
 let VEH=VEHS.base, VS=[1,1,1]; const WH0=[ {x:-.82,z:-1.38},{x:.82,z:-1.38},{x:-.82,z:1.35},{x:.82,z:1.35} ]; let carRoot=null, bodyMat0=null;
 function applyVehicle(){ VEH=VEHS[save.veh]||VEHS.base; VS=VEH.sc; MASS=VEH.mass; I.copy(I0).multiplyScalar(MASS/2100);
-  WH.forEach((w,i)=>{ w.x=WH0[i].x*VS[0]; w.z=WH0[i].z*VS[2]; }); HOOK.set(0,-.25,-2.45*VS[2]);
+  if(VEH.wh) WH.forEach((w,i)=>{ w.x=(i%2?1:-1)*VEH.wh.x; w.z=i<2?VEH.wh.zf:VEH.wh.zr; }); else WH.forEach((w,i)=>{ w.x=WH0[i].x*VS[0]; w.z=WH0[i].z*VS[2]; }); HOOK.set(0,-.25,-2.45*VS[2]);
+  const isT=VEH.model==='terrano'&&terrRoot; if(carRoot) carRoot.visible=!isT; if(terrRoot){ terrRoot.visible=!!isT; }
+  for(const g of wheels){ if(!g) continue; for(const o of g.userData.hero||[]) o.visible=!isT; if(g.userData.terr) g.userData.terr.visible=!!isT; }
   if(carRoot) carRoot.scale.set(...VS); for(const m of bodyMats){ if(m.name==='MAT_body'&&m.userData.base){ m.userData.base.set(VEH.col==null?bodyMat0:VEH.col); m.color.copy(m.userData.base); } } }
 let ENG={fa:8200,va:22,fl:17000,vl:7,eb:2600};
 function applyUpgrades(){
@@ -743,9 +757,10 @@ function applyUpgrades(){
   if(own('v6')){ fa*=1.22; fl*=1.18; va*=1.08; }
   if(own('shortlow')){ fl*=1.3; vl=5.5; eb=3800; }
   applyVehicle(); fa*=VEH.p; fl*=VEH.p; if(!VEH.p) fa=8200; ENG={fa,va,fl,vl,eb};
-  RW=own('g33')?.445:.41; LN=(own('lift')?.47:.42)+(VEH.lift||0);
-  for(const g of wheels) if(g) g.userData.spin.scale.setScalar(RW/.41);
-  rtt.visible=own('maggiolina'); ledMesh.visible=own('led'); winchMesh.visible=own('winch'); snorkMesh.visible=own('snorkel'); winchMesh.position.z=-2.44*VS[2]; snorkMesh.scale.set(...VS);
+  RW=VEH.rw?(own('g33')?VEH.rw+.03:VEH.rw):(own('g33')?.445:.41); LN=(own('lift')?.47:.42)+(VEH.lift||0);
+  for(const g of wheels) if(g){ for(const o of g.userData.hero||[]) o.scale.setScalar(RW/.41); if(g.userData.terr) g.userData.terr.scale.setScalar(RW/.45); }
+  if(terrRoot) terrRoot.position.y=(heroWY??(MOUNTY-LN+.12))+.69+(RW-.45)*0;
+  const isT2=VEH.model==='terrano'; rtt.visible=own('maggiolina'); ledMesh.visible=own('led')&&!isT2; winchMesh.visible=own('winch'); snorkMesh.visible=own('snorkel')&&!isT2; winchMesh.position.z=-2.44*VS[2]; snorkMesh.scale.set(...VS);
 }
 function reset(s){
   s=clamp(s,2,LEN); const x=CX(s), z=-s, y=height(x,z)+1.3;
@@ -1938,7 +1953,20 @@ $('#go').addEventListener('click',async()=>{
 });
 $('#goRes').addEventListener('click',async()=>{ auInit(); askSensors(); calibrate(); $('#over').hidden=true; resumeGame(); });
 { const touch=matchMedia('(pointer:coarse)').matches; $('#ovTxt').textContent+=touch?' Inclina il telefono per sterzare (o trascina il dito sullo schermo), pedali in basso.':' Frecce o WASD per guidare, R ridotte, V verricello, P gomme, C inquadratura.'; }
-const TRUCK='__TRUCK__', LOGO='__LOGO__';
+/* ---------- Installa come app (icona nella Home) ---------- */
+let instEv=null; const standalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); instEv=e; });
+addEventListener('appinstalled',()=>{ instEv=null; toast('Fatto!','trovi 4x4 Camp nella schermata Home'); instUI(); });
+function instUI(){ for(const b of [$('#instB'),$('#instB2')]) if(b) b.hidden=standalone(); }
+function instHelp(html){ const d=document.createElement('div'); d.id='instH'; d.innerHTML='<div class="card"><h2>Metti 4x4 Camp nella Home</h2>'+html+'<button class="big" style="margin-top:14px">Ho capito</button></div>'; d.querySelector('button').onclick=()=>d.remove(); document.body.append(d); }
+async function doInstall(){ const inFrame=self!==top, ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  if(inFrame||!/github\.io$/.test(location.hostname)) return instHelp('<p>Da qui dentro non si può installare. Apri il gioco nel browser:</p><p><a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p><p>e lì premi di nuovo <b>Metti il gioco nella Home</b>.</p>');
+  if(instEv){ instEv.prompt(); const r=await instEv.userChoice.catch(()=>null); instEv=null; if(r&&r.outcome==='accepted') toast('Fatto!','trovi 4x4 Camp nella schermata Home'); return; }
+  if(ios) return instHelp('<ol><li>Apri il gioco con <b>Safari</b></li><li>Tocca il tasto <b>Condividi</b> (il quadrato con la freccia in su)</li><li>Scegli <b>Aggiungi alla schermata Home</b></li><li>Premi <b>Aggiungi</b>: l\'icona 4x4 Camp compare tra le app</li></ol>');
+  instHelp('<ol><li>Tocca i <b>tre puntini ⋮</b> in alto a destra di Chrome</li><li>Scegli <b>Aggiungi a schermata Home</b> (o <b>Installa app</b>)</li><li>Conferma con <b>Installa</b>: l\'icona 4x4 Camp compare tra le app e il gioco parte a schermo intero</li></ol>'); }
+$('#instB').addEventListener('click',doInstall); $('#instB2').addEventListener('click',doInstall); instUI();
+if('serviceWorker' in navigator&&/github\.io$/.test(location.hostname)) navigator.serviceWorker.register('sw.js').catch(()=>{});
+const TRUCK='__TRUCK__', LOGO='__LOGO__', TERRANO='__TERRANO__';
 if(window.top!==window&&!/github\.io$/.test(location.hostname)) $('#olk').hidden=false;
 $('#ovLogo').src=LOGO; $('#garLogo').src=LOGO;
 buildWorld(TRACKS[save.track]&&!(TRACKS[save.track].locked&&TRACKS[save.track].locked())?save.track:'colle'); setSky(TR.night?1:0);
