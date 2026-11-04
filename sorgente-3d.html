@@ -1,4 +1,4 @@
-<title>4x4 Camp 3D</title>
+<title>4x4 Off Road Piemonte</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Stencil+One&family=Barlow+Condensed:wght@600;700&display=swap">
 <style>
@@ -221,13 +221,58 @@ p{margin:0;line-height:1.5}
   #ptBoard{grid-template-columns:repeat(4,1fr);gap:2px 8px}.prow2{font-size:11px}.prow2 span{width:auto}
   #ptBevi{position:absolute;left:-76px;bottom:4px;width:68px;height:68px}
   body>#jdPads{position:absolute;z-index:6;left:calc(max(10px,env(safe-area-inset-left,0px)));right:calc(max(10px,env(safe-area-inset-right,0px)));bottom:calc(env(safe-area-inset-bottom,0px) + 10px);display:flex;gap:10px;margin:0;pointer-events:none}
-  body>#jdPads .jp{pointer-events:auto;width:clamp(76px,11vw,100px);height:clamp(76px,22vh,100px);border-radius:22px;font-size:30px}body>#jdPads .jp[data-k="2"]{margin-left:auto}body>#jdPads .jp small{font-size:11px}
-  #party.split{width:min(calc(100vw - 2*(2*clamp(76px,11vw,100px) + 30px)),560px);left:50%}
+  body>#jdPads{--pw:clamp(68px,10vw,92px)}body>#jdPads .jp{pointer-events:auto;width:var(--pw);height:clamp(70px,24vh,96px);border-radius:22px;font-size:30px}body>#jdPads .jp[data-k="2"]{margin-left:auto}body>#jdPads .jp small{font-size:11px}
+  #party.split{width:min(calc(100vw - 4*clamp(68px,10vw,92px) - 92px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px)),560px);left:50%}
+  #party.split #ptBoard{grid-template-columns:repeat(2,1fr)}
   #party.split #ptBevi{left:auto;right:0;top:-76px;bottom:auto}.lane{height:36px!important}#ptNotes i{top:5px!important;width:26px!important;height:26px!important;font-size:14px}
   #party .mtop{font-size:13px}
+  /* guida in orizzontale: pedali grandi sotto i pollici, tasti secondari in alto a sinistra (niente tocchi per sbaglio) */
+  .pedal{width:clamp(100px,15vw,140px);height:clamp(120px,44vh,180px)}
+  #ctl .cen{position:fixed;left:max(12px,env(safe-area-inset-left,0px));top:calc(env(safe-area-inset-top,0px) + 58px);bottom:auto;width:auto;max-width:none;display:flex!important;flex-direction:row;flex-wrap:wrap;gap:6px!important;align-content:start}
+  #ctl .cen .cb{min-height:34px;padding:4px 10px;font-size:12px;white-space:nowrap}
   #actB{bottom:calc(env(safe-area-inset-bottom,0px) + 40%);font-size:18px;padding:10px 20px}
   #toast{top:24%;font-size:20px}#toast small{font-size:13px}
   #stB{bottom:calc(env(safe-area-inset-bottom,0px) + 34vh)}#stB button{height:50px}
+}
+
+/* ===== Tema 4x4 OFF ROAD PIEMONTE ===== */
+.sens{display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap}.sens span{width:100%;text-align:center;font-size:14px;color:var(--sabbia);letter-spacing:.06em;text-transform:uppercase}.sens button{flex:1;min-height:44px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid #3a3a3c;font-weight:700;transform:skewX(-7deg)}.sens button.on{background:#d7262b;border-color:#ff5a5f;color:#fff}
+:root{--notte:#0d0e0f;--carta:#f3f1ec;--sabbia:#d6d1c6;--spento:#9a9893;--segnale:#d7262b;--rosso:#d7262b;--linea:#3a3a3c;--ok:#8fc35d;
+ --grana:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.big{background:linear-gradient(180deg,#e8363b,#b81d22);color:#fff;box-shadow:0 5px 0 #5e0c0f,0 10px 24px rgba(215,38,43,.25);text-shadow:0 2px 0 rgba(0,0,0,.35);transform:skewX(-7deg);border:0;letter-spacing:.05em;text-transform:uppercase}
+.big:active{transform:skewX(-7deg) translateY(3px);box-shadow:0 2px 0 #5e0c0f}
+#garGo{transform:translateX(-50%) skewX(-7deg)}#garGo:active{transform:translateX(-50%) skewX(-7deg) translateY(3px)}
+.ghost{transform:skewX(-7deg);border-color:rgba(243,241,236,.28);background:rgba(255,255,255,.04)}
+.ghost.inst{border-color:#d7262b;color:#fff}
+.eyebrow{color:#ff5a5f}
+.tabs{background:transparent;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}.tabs button{transform:skewX(-7deg);background:rgba(20,20,22,.75)}.tabs button.on{background:#d7262b;color:#fff;border-color:#ff5a5f}
+.pl{background:linear-gradient(180deg,rgba(20,20,22,.78),rgba(10,10,11,.78));border:1px solid rgba(255,255,255,.1);border-left:3px solid #d7262b;border-radius:8px}
+.cb{background:rgba(14,14,15,.86);border-color:rgba(255,255,255,.2)}.cb.on{background:#d7262b;color:#fff;border-color:#ff5a5f}
+.gear.low{background:#d7262b;color:#fff}
+#tb button{background:rgba(14,14,15,.78)}
+/* schermate sopra il garage 3D: in alto si vede il mezzo, sotto il pannello */
+.screen{background:var(--grana),radial-gradient(120% 70% at 50% 0%,#232325,#0d0e0f)}
+#gar{background:var(--grana),linear-gradient(180deg,rgba(13,14,15,0) 0,rgba(13,14,15,0) 28vh,rgba(13,14,15,.9) 40vh,#0d0e0f 58vh)}
+#gar .wrap{padding-top:calc(env(safe-area-inset-top,0px) + 32vh)}
+#gar .ghead{position:fixed;left:0;right:0;top:0;z-index:3;padding:calc(env(safe-area-inset-top,0px) + 10px) max(16px,env(safe-area-inset-left,0px)) 0;max-width:none;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent)}
+#gar .ghead img{width:84px}#gar .ghead h2{text-shadow:0 2px 10px rgba(0,0,0,.6)}
+.show3d{position:fixed;left:0;right:0;top:0;height:29vh;z-index:1;touch-action:none}
+.show3d small{position:absolute;left:0;right:0;bottom:6px;text-align:center;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.7);text-shadow:0 1px 3px #000}
+.item{background:rgba(22,22,24,.92)!important;border-color:#3a3a3c!important}.item.sel{border-color:#d7262b!important;box-shadow:inset 0 0 0 1px #d7262b}
+#over{background:var(--grana),linear-gradient(180deg,rgba(0,0,0,.25) 0,rgba(0,0,0,0) 30%,rgba(8,8,9,.82) 62%,#0b0b0c 100%);align-items:end;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 18px)}
+#over .card{gap:12px}
+.brand{display:flex;flex-direction:column;align-items:center;gap:0;margin-bottom:4px}
+.brand img{width:min(70vw,300px);filter:drop-shadow(0 10px 22px rgba(0,0,0,.7))}
+.brand .pie{margin-top:-10px;font-family:var(--fd);font-size:clamp(22px,6.5vw,30px);letter-spacing:.22em;color:#fff;background:#d7262b;padding:4px 18px 3px 22px;transform:skewX(-10deg);box-shadow:0 4px 0 #5e0c0f;text-shadow:0 2px 0 rgba(0,0,0,.4)}
+.brand .sub{margin-top:10px;font-weight:700;font-size:14px;letter-spacing:.3em;text-transform:uppercase;color:#cfcac0}
+@media (orientation:landscape) and (max-height:520px){
+  #gar{background:var(--grana),linear-gradient(90deg,rgba(13,14,15,0) 0,rgba(13,14,15,0) 38vw,rgba(13,14,15,.92) 48vw,#0d0e0f 60vw)}
+  #gar .wrap{padding-top:calc(env(safe-area-inset-top,0px) + 12px);margin-left:auto;margin-right:max(12px,env(safe-area-inset-right,0px));max-width:min(56vw,560px)}
+  #gar .ghead{right:auto;width:44vw;background:none}#gar .ghead .money{position:absolute;left:max(16px,env(safe-area-inset-left,0px));top:calc(env(safe-area-inset-top,0px) + 84px);margin:0;text-align:left}#gar .ghead .money b{font-size:24px}
+  #garGo{padding:8px 14px;font-size:20px}#garGo small{font-size:12px}#gar .wrap{padding-bottom:90px}.show3d{right:auto;width:46vw;height:100vh}
+  #garGo{left:auto;right:max(12px,env(safe-area-inset-right,0px));transform:skewX(-7deg);width:min(54vw,528px)}#garGo:active{transform:skewX(-7deg) translateY(3px)}
+  #over{align-items:center;justify-items:end;background:var(--grana),linear-gradient(90deg,rgba(0,0,0,0) 0,rgba(0,0,0,0) 35%,rgba(8,8,9,.85) 55%,#0b0b0c 100%)}
+  #over .card{max-width:min(52vw,440px);gap:8px}.brand img{width:min(30vw,200px)}.brand .pie{font-size:20px}.brand .sub{margin-top:6px;font-size:11px}#over .card p#ovTxt{display:none}
 }
 </style>
 
@@ -279,6 +324,7 @@ p{margin:0;line-height:1.5}
   <section id="msg" class="screen" hidden>
     <div class="wrap" style="padding-top:18vh">
       <p class="eyebrow" id="msgEye"></p><h2 id="msgTitle"></h2><p class="muted" id="msgText"></p><div class="lines" id="msgLines"></div>
+      <button class="big" id="msgCp" hidden>Riparti dal 🚩 punto di controllo</button>
       <button class="big" id="msgBtn">Torna al garage</button>
     </div>
   </section>
@@ -290,11 +336,13 @@ p{margin:0;line-height:1.5}
       <button class="ghost" id="pRst">Ricomincia il tracciato</button>
       <button class="ghost" id="pGar">Torna al garage</button>
       <button class="ghost inst" id="instB2">📲 Metti il gioco nella Home</button>
+      <div class="sens"><span>Sterzo col telefono</span><button data-v=".7">Morbido</button><button data-v="1">Normale</button><button data-v="1.45">Pronto</button></div>
       <label class="inv"><input type="checkbox" id="invS2"> Inverti lo sterzo col telefono</label>
     </div>
   </section>
   <section id="gar" class="screen" hidden>
     <div class="wrap">
+      <div class="show3d" id="show3d"><small>↔ trascina per girare il mezzo</small></div>
       <div class="ghead"><img id="garLogo" alt="4x4 Camp · Ridotte inserite"><div><p class="eyebrow">Garage</p><h2 id="garTr">Il tuo 4x4</h2></div><div class="money"><b id="garM">0 €</b><small>in cassa</small></div></div>
       <div class="tabs" role="tablist"><button data-t="mezzo" class="on">Mezzo</button><button data-t="campo">Campo</button><button data-t="officina">Officina</button><button data-t="tracciati">Uscita</button></div>
       <div id="garList" style="display:flex;flex-direction:column;gap:10px"></div>
@@ -303,7 +351,7 @@ p{margin:0;line-height:1.5}
   </section>
   <div id="over">
     <div class="card">
-      <img class="logo" id="ovLogo" alt="4x4 Camp · Ridotte inserite"><h1>4x4 Camp</h1>
+      <div class="brand"><img id="ovLogo" alt="4x4 Off-Road"><span class="pie">PIEMONTE</span><span class="sub">il gioco · ridotte inserite</span></div>
       <p id="ovTxt">Fuoristrada vero: fango, massi, guadi, neve e salite in pietraia fino alla vetta. Lassù monti il campo, accendi il fuoco e dormi sotto le stelle.</p>
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button>
       <button class="big" id="go" disabled>Caricamento…</button>
@@ -500,9 +548,14 @@ function pineGeometry(neve){
   // pino in unità: alto 1, largo 1; colori per vertice (sotto scuro, punte chiare, neve sopra)
   const parts=[]; const col=(g,f)=>{ const p=g.attributes.position, n=g.attributes.normal, c=new Float32Array(p.count*3); for(let i=0;i<p.count;i++){ const v=f(p.getY(i),n.getY(i)); c[i*3]=v[0]; c[i*3+1]=v[1]; c[i*3+2]=v[2]; } g.setAttribute('color',new THREE.BufferAttribute(c,3)); return g; };
   const tr=new THREE.CylinderGeometry(.05,.09,.32,5,1,true); tr.translate(0,.16,0); parts.push(col(tr,()=>[.36,.25,.16]));
-  const L=[[1,.36,.16],[.8,.32,.34],[.6,.27,.52],[.36,.22,.7]];
-  for(const [r,h,y0] of L){ const g=new THREE.ConeGeometry(r,h,7,1); g.translate(0,y0+h/2,0);
-    parts.push(col(g,(y,ny)=>{ const k=(y-y0)/h; if(ny<-.5) return neve?[.18,.26,.2]:[.08,.16,.08]; if(neve) return k>.15?[.92,.95,1]:[.3,.42,.32]; return [lerp(.1,.26,k),lerp(.2,.4,k),lerp(.09,.16,k)]; })); }
+  // abete più vero: 7 palchi di rami con il bordo frastagliato e cadente, punte chiare, interno scuro
+  const L=[[1,.24,.14],[.9,.22,.25],[.78,.21,.36],[.66,.2,.47],[.53,.18,.58],[.4,.17,.69],[.26,.16,.8],[.12,.12,.9]];
+  L.forEach(([r,h,y0],li)=>{ const seg=11, g=new THREE.ConeGeometry(r,h,seg,2,true); g.translate(0,y0+h/2,0); const p=g.attributes.position;
+    for(let i=0;i<p.count;i++){ const y=p.getY(i), x=p.getX(i), z=p.getZ(i), rr=Math.hypot(x,z); if(rr<1e-4) continue; const ang=Math.atan2(z,x), k=(y-y0)/h;
+      const j=1+.22*Math.sin(ang*seg+li*1.7)+.1*Math.sin(ang*3+li), drop=k<.05?(.05+.04*Math.sin(ang*seg))*(1-li*.08):0; p.setX(i,x*(k<.5?j:1)); p.setZ(i,z*(k<.5?j:1)); p.setY(i,y-drop); }
+    g.computeVertexNormals();
+    parts.push(col(g,(y,ny)=>{ const k=(y-y0)/h, t=li/L.length; if(neve) return k>.25?[.9,.93,.98]:[.22,.33,.25]; const b=[lerp(.06,.2,k)+t*.03,lerp(.15,.33,k)+t*.04,lerp(.07,.13,k)]; return b; }));
+    const u=new THREE.ConeGeometry(r*.92,h*.35,seg,1,true); u.rotateX(Math.PI); u.translate(0,y0+h*.12,0); parts.push(col(u,()=>neve?[.15,.2,.17]:[.05,.09,.05])); });
   return mergeGeometries(parts.map(g=>g.toNonIndexed()));
 }
 // latifoglia (castagno, pioppo): tronco e chioma a palle, colori per vertice
@@ -732,7 +785,7 @@ async function loadCar(){
     for(let i=0;i<4;i++){ const g=sg.clone(); if(i%2) g.rotateY(Math.PI); const mm=new THREE.Mesh(g,smat); mm.castShadow=true; mm.visible=false; wheels[i].userData.spin.add(mm); wheels[i].userData.terr=mm; }
   }catch(e){ console.warn('terrano',e); }
 }
-let terrRoot=null, heroWY=null; const SPARE_R=.385;
+let terrRoot=null, heroWY=null, terrMat=null; const SPARE_R=.385;
 function spareGeo(src){ const C=new V(0,.15,.04), P=src.attributes.position, I=src.index, keep=[]; const nT=I?I.count/3:P.count/3, id=t=>I?I.getX(t):t;
   const ok=j=>{ const x=P.getX(j), y=P.getY(j), z=P.getZ(j); return x<-1.84&&Math.hypot(y-C.y,z-C.z)<.41; };
   for(let t=0;t<nT;t++){ const a=id(t*3),b=id(t*3+1),c=id(t*3+2); if(ok(a)&&ok(b)&&ok(c)) keep.push(a,b,c); }
@@ -1000,7 +1053,7 @@ cv.addEventListener('pointerup',e=>{ if(!campMode||!cs||cs.mini||cs.sleeping||!d
   const r=cv.getBoundingClientRect(); const ndc=new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1); const rc=new THREE.Raycaster(); rc.setFromCamera(ndc,cam); const hit=rc.intersectObject(window.__terrain,false)[0];
   if(hit){ cs.dest={x:hit.point.x,z:hit.point.z}; tapFx(hit.point); } }); cv.addEventListener('pointermove',e=>{ if(drag&&drag.id===e.pointerId) dragS=clamp((e.clientX-drag.x)/55,-1,1); }); for(const t of ['pointerup','pointercancel']) cv.addEventListener(t,e=>{ if(drag&&drag.id===e.pointerId){ drag=null; dragS=0; } });
 function readInput(){ const kl=keys.has('arrowleft')||keys.has('a'), kr=keys.has('arrowright')||keys.has('d'); let s=0;
-  if(kl||kr||pad.l||pad.r) s=((kr||pad.r)?1:0)-((kl||pad.l)?1:0); else if(drag&&Math.abs(dragS)>.15&&!campMode) s=dragS; else if(drag&&campMode&&Math.abs(dragS)>.02) s=dragS; else if(tilt.ok){ tilt.sm=lerp(tilt.sm,tilt.ang,.4); const g=tilt.sm, a=Math.abs(g); s=a<1.5?0:Math.sign(g)*Math.pow(clamp((a-1.5)/16,0,1),1.15); }
+  if(kl||kr||pad.l||pad.r) s=((kr||pad.r)?1:0)-((kl||pad.l)?1:0); else if(drag&&Math.abs(dragS)>.15&&!campMode) s=dragS; else if(drag&&campMode&&Math.abs(dragS)>.02) s=dragS; else if(tilt.ok){ tilt.sm=lerp(tilt.sm,tilt.ang,.4); const g=tilt.sm, a=Math.abs(g); const k=save.sens||1, dz=1.8/Math.sqrt(k); s=a<dz?0:Math.sign(g)*Math.pow(clamp((a-dz)/(16/k),0,1),1.15); }
   return {gas:pad.gas?(pad.gasV||1):(keys.has('arrowup')||keys.has('w'))?(keys.has('shift')?.45:1):0, brk:(pad.brk||keys.has('arrowdown')||keys.has('s')||keys.has(' '))?1:0, steer:s}; }
 function toggleAwd(){ if(st.gear==='ridotte'&&st.awd){ toast('Prima togli le ridotte','in ridotte si va sempre a 4 ruote motrici'); return; } st.awd=!st.awd; toast(st.awd?'4x4 inserita':'Solo trazione posteriore',st.awd?'tirano tutte e quattro le ruote':'più veloce sullo sterrato, ma niente presa nel fango'); auBurst(500,.15,.25,'lowpass'); }
 $('#awdB').addEventListener('click',toggleAwd);
@@ -1300,7 +1353,7 @@ function openMusic(){ sheet('Festa!','Si sfida chi fa più casino. Come Just Dan
 let friendsDrink=false;
 function startParty(id){ musicStart(id); const G=MUSIC.find(m=>m.id===id);
   cs.party={t:0,dur:26,score:[0,0,0,0],next:0,hit:new Set(),cd:0,notes:[],dance:0,drinks:0,id};
-  $('#party').hidden=false; $('#ctl').hidden=true; $('#obj').hidden=true;
+  $('#party').hidden=false; $('#ctl').hidden=true; $('#obj').hidden=true; if(cs.obj.mk) cs.obj.mk.visible=false;
   const B=$('#ptBoard'); B.innerHTML=''; ['Tu',...FRIENDS.map(f=>f.n)].forEach((n,i)=>{ const r=el('div','prow2'+(i?'':' me')); r.append(el('span','',n)); const b=el('i'); b.append(el('u')); r.append(b); B.append(r); });
   // coreografia: frasi di 8 mosse ripetute due volte, come in Just Dance; ogni tanto la mossa d'oro
   const beat=MUS.beat, every=G&&SONGS[id]&&SONGS[id].bpm>118?2:1, ch=[]; let phrase=[];
@@ -1401,7 +1454,7 @@ function updFriends(dt){ if(!cs.fr) return; const P=cs.party, now=clk();
     man.position.y=height(man.position.x,man.position.z)+a*.1; }
   else if(P&&P.dance>0){ const U=man.userData; U.AL.rotation.x=U.AR.rotation.x=2.8*P.dance+.4; man.position.y=height(man.position.x,man.position.z)+P.dance*.12; } }
 
-function startCamp(){
+function startCamp(){ cam.clearViewOffset();
   KIT=kitNow(); const SH=SHELTER[KIT.riparo];
   STEPS=STEPS0.map(x=>({...x}));
   Object.assign(STEPS[1],{txt:SH.txt,sub:SH.sub,target:SH.target,action:SH.action});
@@ -1706,7 +1759,7 @@ function updRuts(){ const M=new THREE.Matrix4(), Q=new THREE.Quaternion(), S=new
   if(ch){ rutM.instanceMatrix.needsUpdate=true; if(rutM.instanceColor) rutM.instanceColor.needsUpdate=true; } }
 
 /* ---------- Ciclo ---------- */
-let shake=0, last=performance.now(), hudT=0, campMode=false;
+const fpsA={n:0,t:0}; let shake=0, last=performance.now(), hudT=0, campMode=false;
 function resize(){ const w=innerWidth,h=innerHeight; ren.setSize(w,h,false); cam.aspect=w/h; cam.fov=w<h?68:58; cam.updateProjectionMatrix(); partU.scale.value=h*ren.getPixelRatio()/(2*Math.tan(cam.fov*Math.PI/360)); }
 addEventListener('resize',resize); resize();
 let tun=0, sunBase=2.2, hemiBase=.35;
@@ -1728,13 +1781,19 @@ function frame(now){
     sun.position.copy(man.position).addScaledVector(SUNDIR,50); sun.target.position.copy(man.position);
     if(performance.now()>toastT) $('#toast').classList.remove('show');
     ren.render(scene,cam); requestAnimationFrame(frame); return; }
+  if(!st.running&&!campMode&&(!$('#gar').hidden||!$('#over').hidden)&&carRoot){ showroom(dt); requestAnimationFrame(frame); return; }
   if(st.running&&!st.paused){
     const inp=st.done?{gas:0,brk:1,steer:0}:readInput(); const n=Math.ceil(dt/(1/240)); st.brkOn=!!inp.brk;
-    if(st.rescue){ updRescue(dt); up.set(0,1,0).applyQuaternion(st.q); fw.set(0,0,-1).applyQuaternion(st.q); } else for(let k=0;k<n;k++) physStep(dt/n,inp);
+    if(st.uprig){ const U=st.uprig; U.t+=dt; const k=sstep(0,1.8,U.t), lift=Math.sin(Math.min(1,U.t/1.8)*Math.PI)*.9; st.pos.lerpVectors(U.p0,U.p1,k); st.pos.y+=lift; st.q.copy(U.q0).slerp(U.q1,k); st.vel.set(0,0,0); st.w.set(0,0,0);
+      up.set(0,1,0).applyQuaternion(st.q); fw.set(0,0,-1).applyQuaternion(st.q); rt.set(1,0,0).applyQuaternion(st.q); if(U.t>1.9){ st.uprig=null; st.stuckT=0; auThud(.5); } }
+    else if(st.rescue){ updRescue(dt); up.set(0,1,0).applyQuaternion(st.q); fw.set(0,0,-1).applyQuaternion(st.q); } else for(let k=0;k<n;k++) physStep(dt/n,inp);
     updWinch(dt);
     { const z=zoneAt(st.s), inT=z.t==='galleria'&&st.s>z.a+3&&st.s<z.b-3; tun=lerp(tun,inT?1:0,1-Math.pow(.05,dt)); sun.intensity=sunBase*(1-.97*tun); hemi.intensity=hemiBase*(1-.9*tun); scene.environment=tun>.6?null:(envRT&&envRT.texture);
       if(tun>.3&&Math.random()<dt*8){ const p=st.pos.clone().add(new V((Math.random()-.5)*5,2.6,(Math.random()-.5)*8)); emit(p,new V(0,-1,0),[.8,.85,.9],{k:2,s:.05,a:.8,life:1.5}); } }
     st.time+=dt; st.s=-st.pos.z;
+    // qualità automatica: se il telefono fatica, alleggerisce la grafica (si può rimettere in garage)
+    if(!save.qManual){ fpsA.n++; fpsA.t+=dt; if(fpsA.t>6){ const fps=fpsA.n/fpsA.t; fpsA.n=0; fpsA.t=0; if(fps<26&&save.q!=='bassa'){ save.q=save.q==='alta'?'media':'bassa'; persist(); applyQuality(); builtTrack=null; toast('Grafica alleggerita','per andare più fluido · la cambi in garage'); } } }
+    if(!st.chk&&st.s>LEN*.5&&!st.done){ const z=zoneAt(st.s).t; if(z==='terra'||z==='erba'||z==='ghiaia'||z==='neve'){ st.chk={s:st.s,time:st.time,rescues:st.rescues,dmg:{...st.dmg}}; toast('🚩 Punto di controllo','se rompi il mezzo puoi ripartire da qui'); auBurst(1800,.15,.15,'bandpass',3); } }
     const sp=st.vel.dot(fw);
     // fango, neve, acqua e polvere: zolle lanciate dal battistrada, gocce, nebbia, cerchi sull'acqua
     { const asp=Math.abs(sp), dir=asp>.8?Math.sign(sp):(revMode?-1:1), R=Math.random; st.ea=st.ea||[0,0,0,0,0];
@@ -1761,7 +1820,7 @@ function frame(now){
         for(let q=0;q<Math.floor(n);q++){ const p=new V(b.x,wy+.08,b.z).addScaledVector(rt,(R()-.5)*1.8); const v=fw.clone().multiplyScalar(dir*asp*(.5+R()*.5)).addScaledVector(up,1+R()*asp*.6).addScaledVector(rt,(R()-.5)*3);
           emit(p,v,[.95,.98,1],{k:2,s:.16+R()*.26,a:.85,life:1.5}); }
         if(R()<dt*4) addRing(b.x,wy+.03,b.z,.8+asp*.1); }
-      if(bodyMats.length){ const d=st.dirt||0; for(const m of bodyMats) m.color.copy(m.userData.base).lerp(MUDC,d*.75); } }
+      if(bodyMats.length){ const d=st.dirt||0; for(const m of bodyMats) m.color.copy(m.userData.base).lerp(MUDC,d*.75); if(terrRoot&&terrRoot.visible){ const mm=terrMat||(terrMat=(()=>{ let f=null; terrRoot.traverse(o=>{ if(o.isMesh&&!f) f=o.material; }); return f; })()); if(mm){ mm.color.setRGB(1,1,1).lerp(new THREE.Color(.62,.48,.34),d*.8); mm.roughness=lerp(.5,1,d); } } } }
     updParts(dt); updRuts();
     // bloccato o ribaltato
     const flipped=up.y<.35; if((Math.abs(sp)<.4&&inp.gas)||flipped) st.stuckT+=dt; else st.stuckT=Math.max(0,st.stuckT-dt);
@@ -1769,7 +1828,7 @@ function frame(now){
     $('#helpB').hidden=!!st.rescue||!!st.winch||!(st.stuckT>2.5||flipped||st.sink>.85);
     const wv0=0; const wv=own('winch')&&!st.done&&!st.rescue&&(Math.abs(sp)<1.5||st.winch); $('#winB').hidden=!wv; if(wv){ $('#winB').textContent=st.winch?(st.winch.pull?'Tiro…':'Tieni: tira il cavo'):'Verricello'; $('#winB').classList.toggle('on',!!(st.winch&&st.winch.pull)); }
     if(st.pos.y<height(st.pos.x,st.pos.z)-3||st.pos.y>height(st.pos.x,st.pos.z)+8) reset(st.s);
-    if(flipped){ st.flipT=(st.flipT||0)+dt; if(st.flipT>2.5){ st.flipT=0; reset(st.s); st.rescues++; toast('Ribaltato!','Purcello ti ha rimesso sulle ruote'); } } else st.flipT=0;
+    if(flipped){ st.flipT=(st.flipT||0)+dt; if(st.flipT>2.2&&!st.uprig){ st.flipT=0; st.rescues++; const e=new THREE.Euler().setFromQuaternion(st.q,'YXZ'); const x=CX(st.s), dx=CX(st.s+2)-CX(st.s-2), p1=new V(st.pos.x+(x-st.pos.x)*.6,0,st.pos.z); p1.y=height(p1.x,p1.z)+RW+LN-.198-MOUNTY+.05; st.uprig={t:0,p0:st.pos.clone(),q0:st.q.clone(),p1,q1:new THREE.Quaternion().setFromEuler(new THREE.Euler(0,Math.atan2(-dx,4),0))}; toast('Ribaltato!','Purcello e Mirco ti rimettono sulle ruote'); say('Purcello','','p_strop',4); } } else st.flipT=0;
     for(const k in st.dmg) st.dmg[k]=Math.min(100,st.dmg[k]);
     const fail=st.dmg.gomme>=100?['Gomma squarciata','Hai preso i sassi troppo forte: la gomma si è tagliata.']:st.dmg.coppa>=100?['Coppa dell\'olio spaccata','Un sasso ha bucato la coppa: olio a terra.']:st.dmg.semiassi>=100?['Semiasse rotto','Troppe botte sui massi: il semiasse ha ceduto.']:st.water>=1?['Motore annegato','Hai fatto l\'onda nel guado: l\'acqua è entrata dalla presa d\'aria.']:null;
     if(fail) failRun(fail);
@@ -1803,6 +1862,22 @@ function frame(now){
   ren.render(scene,cam);
   requestAnimationFrame(frame);
 }
+let shA=.6, shDrag=null, shT=0, shS=-1;
+function showroom(dt){ if(builtTrack!==save.track){ buildWorld(save.track); shS=-1; } if(TR.night!==undefined&&skyNow<0) setSky(TR.night?1:0);
+  if(shS<0){ shS=Math.min(14,LEN*.05); const s=shS, x=CX(s), z=-s, dx=CX(s+2)-CX(s-2); st.pos.set(x,height(x,z)+RW+LN-.198-MOUNTY,z); st.q.setFromEuler(new THREE.Euler(0,Math.atan2(-dx,4),0)); st.comp=[.198,.198,.198,.198]; st.steer=0; fw.set(0,0,-1).applyQuaternion(st.q); }
+  shT+=dt; if(!shDrag) shA+=dt*.22;
+  car.position.copy(st.pos); car.quaternion.copy(st.q); car.visible=true;
+  for(let i=0;i<4;i++){ const g=wheels[i]; if(!g) continue; const W=WH[i]; g.position.set(W.vx??W.x,MOUNTY-(LN-.198),W.vz??W.z); g.rotation.set(0,W.f?.25*Math.sin(shT*.5):0,0); }
+  const land=innerWidth>innerHeight, R=land?6.4:7.2, c=st.pos.clone().add(new V(0,.55,0));
+  const off=land?new V(Math.cos(shA+1.6),0,-Math.sin(shA+1.6)).multiplyScalar(0):new V();
+  const want=c.clone().add(new V(Math.sin(shA)*R,2.1+Math.sin(shT*.3)*.25,Math.cos(shA)*R)); const gh=height(want.x,want.z)+.8; if(want.y<gh) want.y=gh;
+  cam.position.lerp(want,1-Math.pow(.02,dt)); cam.lookAt(c.clone().add(off));
+  // il mezzo sta nella parte libera dello schermo (sopra in verticale, a sinistra in orizzontale)
+  cam.setViewOffset(innerWidth,innerHeight,land?innerWidth*.23:0,land?0:innerHeight*.28,innerWidth,innerHeight);
+  sun.position.copy(st.pos).addScaledVector(SUNDIR,50); sun.target.position.copy(st.pos);
+  if(performance.now()>toastT) $('#toast').classList.remove('show');
+  ren.render(scene,cam); }
+{ const el=$('#show3d'); el.addEventListener('pointerdown',e=>{ shDrag={x:e.clientX,a:shA}; try{el.setPointerCapture(e.pointerId);}catch(_){} }); el.addEventListener('pointermove',e=>{ if(shDrag) shA=shDrag.a-(e.clientX-shDrag.x)/120; }); for(const t of ['pointerup','pointercancel']) el.addEventListener(t,()=>{ shDrag=null; }); }
 function hud(sp){
   const e=new THREE.Euler().setFromQuaternion(st.q,'YXZ');
   $('#hS').textContent=Math.round(Math.abs(sp)*3.6);
@@ -1824,9 +1899,11 @@ const fmtTime=t=>`${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')
 const fmtT1=t=>`${Math.floor(t/60)}:${(t%60).toFixed(1).padStart(4,'0')}`;
 function showMsg(eye,title,text,lines,btn){ $('#msgEye').textContent=eye; $('#msgTitle').textContent=title; $('#msgText').textContent=text; const l=$('#msgLines'); l.innerHTML=''; l.hidden=!lines;
   for(const [a,b,cl] of lines||[]){ const d=document.createElement('div'); if(cl==='tot') d.className='tot'; const x=document.createElement('span'); x.textContent=a; const y=document.createElement('span'); y.textContent=b; if(cl&&cl!=='tot') y.className=cl; d.append(x,y); l.append(d); }
-  $('#msgBtn').textContent=btn||'Torna al garage'; $('#msg').hidden=false; hideRunUI(); }
+  $('#msgBtn').textContent=btn||'Torna al garage'; $('#msgCp').hidden=!lastCp; $('#msg').hidden=false; hideRunUI(); }
 function hideRunUI(){ for(const id of ['#hq','#sheet','#party','#bal','#stB','#hud','#hud2','#ctl','#obj','#actB','#goB','#tb','#mini']) $(id).hidden=true; }
-$('#msgBtn').addEventListener('click',()=>{ $('#msg').hidden=true; toGarage(); });
+$('#msgBtn').addEventListener('click',()=>{ $('#msg').hidden=true; lastCp=null; toGarage(); });
+let lastCp=null;
+$('#msgCp').addEventListener('click',()=>{ const C=lastCp; if(!C) return; lastCp=null; $('#msg').hidden=true; save.track=C.track; startRun(); const d={...C.dmg}; for(const k in d) d[k]=Math.min(d[k],75); Object.assign(st,{time:C.time,rescues:C.rescues,dmg:d,chk:C}); reset(C.s); calibrate(); toast('Si riparte dal 🚩','riparazione alla buona: vai piano'); });
 function snapshot(){ try{ if(campMode&&cs&&cs.step>=0) save.resume={camp:1,track:TR.id,meteo:WX,time:st.time,rescues:st.rescues,dmg:{...st.dmg},step:cs.step,food:cs.food&&cs.food.id,drink:cs.drink&&cs.drink.id,drunk:cs.drunk||0,rank:cs.rank||0,misses:cs.misses,cook:cs.cook};
   else if(st.running&&!st.done) save.resume={track:TR.id,meteo:WX,s:st.s,time:st.time,rescues:st.rescues,dmg:{...st.dmg},gear:st.gear,awd:st.awd,pressure};
   persist(); }catch(e){ console.warn("snap",e); } }
@@ -1839,11 +1916,14 @@ function resumeGame(){ const R=save.resume; if(!R) return toGarage(); save.track
 function arrive(){ st.done=true; dropWinch(); const id=TR.id, t=st.time; const nb=!save.best[id]||t<save.best[id]; save.done[id]=true; if(nb) save.best[id]=t; persist();
   toast(nb?'Vetta! Record':'Vetta!',`in ${fmtT1(t)} · si monta il campo`); gabbah('g_si',0); setTimeout(()=>say('Purcello','','p_vetta'),1900); submitScore(id,t,st.rescues); setTimeout(()=>{ if(st.done&&st.running) startCamp(); },2200); }
 function failRun(f){ st.running=false; clearResume(); gabbah('g_dopo',0); dropWinch(); const tow=150, resc=st.rescues*40; save.money=Math.max(0,save.money-tow-resc); save.dmg={...st.dmg}; persist();
-  showMsg('Mezzo fermo',f[0],f[1]+' Il carro attrezzi ti riporta a valle: in officina si ripara.',[['Carro attrezzi','−'+eur(tow),'neg'],...(resc?[[`Birre a Purcello (${st.rescues})`,'−'+eur(resc),'neg']]:[]),['In cassa',eur(save.money),'']],'Torna al garage'); }
-function startRun(){ if(cs) clearCamp(); WX=save.meteo; if(builtTrack!==save.track) buildWorld(save.track); else { scene.fog.near=TR.theme==='neve'?25:60; scene.fog.far=TR.theme==='neve'?150:TR.theme==='alpino'?320:250; } applyUpgrades(); pressure=save.pressure;
+  lastCp=st.chk?{...st.chk,track:TR.id}:null;
+  showMsg('Mezzo fermo',f[0],f[1]+' Il carro attrezzi ti riporta a valle: in officina si ripara.'+(lastCp?' Oppure riparti dal punto di controllo con una riparazione alla buona.':''),[['Carro attrezzi','−'+eur(tow),'neg'],...(resc?[[`Birre a Purcello (${st.rescues})`,'−'+eur(resc),'neg']]:[]),['In cassa',eur(save.money),'']],'Torna al garage'); }
+function startRun(){ cam.clearViewOffset(); shS=-1; if(cs) clearCamp(); WX=save.meteo; if(builtTrack!==save.track) buildWorld(save.track); else { scene.fog.near=TR.theme==='neve'?25:60; scene.fog.far=TR.theme==='neve'?150:TR.theme==='alpino'?320:250; } applyUpgrades(); pressure=save.pressure;
   $('#hud').hidden=false; $('#hud2').hidden=false; $('#ctl').hidden=false; $('#tb').hidden=false; $('#lowB').hidden=false;
-  clearSplats(); placeFriendCars(); Object.assign(st,{panoSaid:false,awd:true,dirt:0,progS:0,progT:0,running:true,done:false,rescue:null,time:0,water:0,sink:0,rescues:0,paused:false,gear:'alta',dmg:{...save.dmg}}); reset(4); campMode=false; clearRuts(); skyNow=-1; setSky(TR.night?1:0); lightsUpd(); $('#hq').hidden=false; setTimeout(()=>showHelp('guida'),400); }
+  clearSplats(); placeFriendCars(); Object.assign(st,{chk:null,uprig:null,panoSaid:false,awd:true,dirt:0,progS:0,progT:0,running:true,done:false,rescue:null,time:0,water:0,sink:0,rescues:0,paused:false,gear:'alta',dmg:{...save.dmg}}); reset(4); campMode=false; clearRuts(); skyNow=-1; setSky(TR.night?1:0); lightsUpd(); $('#hq').hidden=false; setTimeout(()=>showHelp('guida'),400); }
 // pausa
+function sensUI(){ document.querySelectorAll('.sens button').forEach(b=>b.classList.toggle('on',+b.dataset.v===(save.sens||1))); }
+document.querySelectorAll('.sens button').forEach(b=>b.addEventListener('click',()=>{ save.sens=+b.dataset.v; persist(); sensUI(); toast('Sterzo '+b.textContent.toLowerCase(),'vale anche per le prossime uscite'); })); sensUI();
 function clearTouches(){ drag=null; dragS=0; for(const k of ['gas','brk','l','r']) pad[k]=false; document.querySelectorAll('.down').forEach(e=>e.classList.remove('down')); $('#gas').style.setProperty('--gv','0%'); }
 addEventListener('blur',()=>clearTouches());
 function pause(){ clearTouches(); try{ if(AC&&AC.state==='running') AC.suspend(); }catch(_){}  if(!(st.running&&!st.done)&&!(campMode&&cs&&!cs.sleeping)) return; if(!$('#msg').hidden||!$('#gar').hidden) return; st.paused=true; snapshot(); $('#invS2').checked=!!tilt.inv; $('#pause').hidden=false; }
@@ -1857,7 +1937,7 @@ document.addEventListener('visibilitychange',()=>{ if(document.hidden){ pause();
 /* ---------- Consigli: una scheda chiara la prima volta che serve, e il pulsante ? per rivederla ---------- */
 const TOUCH=matchMedia('(pointer:coarse)').matches;
 const HELP={
- guida:{ic:'🚙',t:'Come si guida',l:TOUCH?['<b>Sterzo:</b> inclina il telefono a destra e a sinistra (oppure trascina il dito sullo schermo).','<b>GAS</b> verde per andare: <b>premi in basso sul pedale per andare piano</b> (sassi, guadi), in alto per il gas pieno.','<b>GAS</b> verde per andare, <b>FRENO</b> rosso per frenare. Tienilo premuto da fermo e vai in <b>retromarcia</b>.','<b>Ridotte:</b> inseriscile da fermo prima di salite, pietraie e fango. Più forza, meno velocità.','<b>4x4 inserita / Solo posteriore:</b> a due ruote motrici vai più svelto sullo sterrato, ma nel fango ti pianti.','<b>REC</b> in alto a destra registra il giro: alla fine lo condividi o lo salvi.','Arriva in vetta senza rompere il mezzo: in alto vedi i danni di gomme, coppa, semiassi e carrozzeria.']
+ guida:{ic:'🚙',t:'Come si guida',l:TOUCH?['<b>Sterzo:</b> inclina il telefono a destra e a sinistra (oppure trascina il dito sullo schermo).','<b>GAS</b> verde per andare: <b>premi in basso sul pedale per andare piano</b> (sassi, guadi), in alto per il gas pieno.','<b>GAS</b> verde per andare, <b>FRENO</b> rosso per frenare. Tienilo premuto da fermo e vai in <b>retromarcia</b>.','<b>Ridotte:</b> inseriscile da fermo prima di salite, pietraie e fango. Più forza, meno velocità.','A metà percorso c\'è il 🚩 <b>punto di controllo</b>: se rompi il mezzo puoi ripartire da lì. Sterzo troppo duro o troppo nervoso? In <b>pausa (II)</b> scegli Morbido, Normale o Pronto.','<b>4x4 inserita / Solo posteriore:</b> a due ruote motrici vai più svelto sullo sterrato, ma nel fango ti pianti.','<b>REC</b> in alto a destra registra il giro: alla fine lo condividi o lo salvi.','Arriva in vetta senza rompere il mezzo: in alto vedi i danni di gomme, coppa, semiassi e carrozzeria.']
    :['<b>Frecce o WASD:</b> su gas, giù freno (tieni giù da fermo = retromarcia), destra e sinistra sterzo.','<b>R</b> ridotte (da fermo) · <b>V</b> verricello · <b>P</b> pressione gomme · <b>C</b> inquadratura.','Arriva in vetta senza rompere il mezzo: in alto vedi i danni.']},
  fango:{ic:'🟫',t:'Fango',l:['Entra con un po\' di slancio e tieni il gas <b>costante</b>.','Se le ruote girano a vuoto sale la barra <b>Affondamento</b>: molla il gas, un po\' di retro e riparti.','Gomme basse (1,0 bar) e gomme M/T aiutano tanto.']},
  fangoProf:{ic:'🕳️',t:'Fango profondo',l:['Qui ci si pianta facile: <b>ridotte inserite</b> e slancio prima di entrare.','Se resti fermo compare <b>Chiama Purcello</b>: ti tira fuori con la strop.','Col verricello (garage) ti tiri fuori da solo.']},
@@ -1955,7 +2035,7 @@ const UPG={
 const DMGN={gomme:['Gomme',3],coppa:['Coppa dell\'olio',4],semiassi:['Semiassi',5],carrozzeria:['Carrozzeria',2]};
 let garTab='mezzo';
 const el=(t,cls,txt)=>{ const e=document.createElement(t); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; };
-function toGarage(){ if(rec) rec.r.stop(); WX='sereno'; if(cs) clearCamp(); st.running=false; hideRunUI(); $('#gar').hidden=false; renderGarage(); auSilence(); }
+function toGarage(){ shS=-1; if(rec) rec.r.stop(); WX='sereno'; if(cs) clearCamp(); st.running=false; hideRunUI(); $('#gar').hidden=false; renderGarage(); auSilence(); }
 function auSilence(){ if(!AC) return; for(const n of [eng,turbo,rush,suck,AC.gravel,AC.sizz,AC.win]) if(n) auSet(n,0,.05); if(eng) eng.g2.gain.setTargetAtTime(0,AC.currentTime,.05); musicStop(); }
 function broken(){ return Object.keys(DMGN).filter(k=>save.dmg[k]>=100); }
 function renderGarage(){
@@ -1993,7 +2073,7 @@ function renderGarage(){
     if(totC){ const b=el('button','big',`Ripara tutto · ${eur(totC)}`); b.disabled=save.money<totC; b.style.opacity=b.disabled?.5:1; b.addEventListener('click',()=>{ if(save.money<totC) return; save.money-=totC; for(const k in DMGN) save.dmg[k]=0; persist(); auThud(.5); renderGarage(); }); L.append(b); }
     L.append(el('p','sec','Pressione gomme alla partenza'));
     const sg=el('div','seg'); [['2,4 bar','sterrato veloce'],['1,6 bar','il giusto'],['1,0 bar','fango e sassi']].forEach(([a,b2],i)=>{ const bt=el('button',save.pressure===i?'on':''); bt.append(a,el('small','',b2)); bt.addEventListener('click',()=>{ save.pressure=i; persist(); renderGarage(); }); sg.append(bt); }); L.append(sg);
-    L.append(el('p','sec','Qualità grafica')); { const sg=el('div','seg'); for(const [k,q] of Object.entries(QS)){ const bt=el('button',save.q===k?'on':''); bt.append(q.n,el('small','',k==='alta'?'telefoni recenti':k==='media'?'quasi tutti':'telefoni vecchi')); bt.addEventListener('click',()=>{ save.q=k; persist(); applyQuality(); renderGarage(); }); sg.append(bt); } L.append(sg); }
+    L.append(el('p','sec','Qualità grafica')); { const sg=el('div','seg'); for(const [k,q] of Object.entries(QS)){ const bt=el('button',save.q===k?'on':''); bt.append(q.n,el('small','',k==='alta'?'telefoni recenti':k==='media'?'quasi tutti':'telefoni vecchi')); bt.addEventListener('click',()=>{ save.q=k; save.qManual=true; persist(); applyQuality(); renderGarage(); }); sg.append(bt); } L.append(sg); }
     L.append(el('p','sec','Voci (Purcello, Mirco, Costa e il Gabbah)')); { const sg=el('div','seg'); sg.style.gridTemplateColumns='1fr 1fr'; for(const [v,n] of [[true,'Sì'],[false,'No']]){ const bt=el('button',save.voci===v?'on':''); bt.append(n); bt.addEventListener('click',()=>{ save.voci=v; persist(); renderGarage(); if(v){ auInit(); say('Purcello','','p_vetta'); } }); sg.append(bt); } L.append(sg); }
     L.append(el('p','howto',own('comp')?'Col compressore cambi pressione anche sul tracciato, da fermo.':'Sul tracciato puoi solo sgonfiare, da fermo. Per rigonfiare serve il compressore.'));
   }
@@ -2053,9 +2133,9 @@ async function doInstall(){ const inFrame=self!==top, ios=/iphone|ipad|ipod/i.te
   instHelp('<ol><li>Tocca i <b>tre puntini ⋮</b> in alto a destra di Chrome</li><li>Scegli <b>Aggiungi a schermata Home</b> (o <b>Installa app</b>)</li><li>Conferma con <b>Installa</b>: l\'icona 4x4 Camp compare tra le app e il gioco parte a schermo intero</li></ol>'); }
 $('#instB').addEventListener('click',doInstall); $('#instB2').addEventListener('click',doInstall); instUI();
 if('serviceWorker' in navigator&&/github\.io$/.test(location.hostname)) navigator.serviceWorker.register('sw.js').catch(()=>{});
-const TRUCK='__TRUCK__', LOGO='__LOGO__', TERRANO='__TERRANO__';
+const TRUCK='__TRUCK__', LOGO='__LOGO__', LOGO4='__LOGO4__', TERRANO='__TERRANO__';
 if(window.top!==window&&!/github\.io$/.test(location.hostname)) $('#olk').hidden=false;
-$('#ovLogo').src=LOGO; $('#garLogo').src=LOGO;
+$('#ovLogo').src=LOGO4; $('#garLogo').src=LOGO4;
 buildWorld(TRACKS[save.track]&&!(TRACKS[save.track].locked&&TRACKS[save.track].locked())?save.track:'colle'); setSky(TR.night?1:0);
 reset(4);
 loadCar().then(()=>{ applyUpgrades(); $('#go').disabled=false; $('#go').textContent='Entra in garage'; if(save.resume){ $('#goRes').hidden=false; $('#go').classList.add('ghost'); $('#go').classList.remove('big'); } }).catch(e=>{ $('#load').textContent='Errore nel caricare il fuoristrada: '+e.message; });
