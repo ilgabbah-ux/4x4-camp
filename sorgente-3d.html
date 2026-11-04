@@ -99,6 +99,10 @@ p{margin:0;line-height:1.5}
 #load{font-size:14px;color:var(--spento)}
 .inv{display:flex;gap:8px;align-items:center;justify-content:center;font-size:15px;color:var(--sabbia)}.inv input{width:20px;height:20px}
 /* barra in alto a destra: camera e pausa */
+#stB{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + clamp(130px,22vh,170px));display:flex;justify-content:space-between;padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));pointer-events:none}
+#stB button{pointer-events:auto;width:clamp(86px,25vw,120px);height:64px;border-radius:14px;background:rgba(12,18,13,.8);border:1.5px solid rgba(239,230,210,.35);font-size:30px;touch-action:none}
+#stB button.down{background:var(--segnale);color:#1a1209}
+.olink{color:var(--segnale);font-weight:700;font-size:16px}
 #tb{position:absolute;right:max(12px,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 112px);display:flex;flex-direction:column;gap:6px;z-index:3}
 #tb button{pointer-events:auto;width:46px;height:46px;border-radius:12px;background:rgba(12,18,13,.72);border:1px solid rgba(239,230,210,.2);font-weight:700;font-size:12px;letter-spacing:.04em}
 .cb{min-height:40px;font-size:14px}
@@ -165,6 +169,7 @@ p{margin:0;line-height:1.5}
     </div>
     <button class="pedal" id="gas">GAS<small>acceleratore</small></button>
   </div>
+  <div id="stB" hidden><button id="stL" aria-label="Sterza a sinistra">◀</button><button id="stR" aria-label="Sterza a destra">▶</button></div>
   <div id="tb" hidden><button id="camB" aria-label="Cambia inquadratura">CAM</button><button id="pauB" aria-label="Pausa">II</button></div>
   <div id="obj" class="pl" hidden><div class="on"><b id="objT"></b><span id="objN"></span></div><small id="objS"></small></div>
   <button id="actB" hidden></button>
@@ -208,6 +213,7 @@ p{margin:0;line-height:1.5}
       <button class="big" id="go" disabled>Caricamento…</button>
       <label class="inv"><input type="checkbox" id="invS"> Inverti lo sterzo col telefono</label>
       <div id="load"></div>
+      <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
   </div>
 </div>
@@ -680,14 +686,14 @@ try{ tilt.inv=localStorage.getItem('camp3d-inv')==='1'; }catch(e){}
 $('#invS').checked=!!tilt.inv; $('#invS').addEventListener('change',e=>{ tilt.inv=e.target.checked; try{ localStorage.setItem('camp3d-inv',tilt.inv?'1':'0'); }catch(_){} });
 addEventListener('orientationchange',calibrate); if(screen.orientation) screen.orientation.addEventListener?.('change',calibrate);
 const pad={gas:false,brk:false}; function hold(el,k){ el.addEventListener('pointerdown',e=>{ e.preventDefault(); pad[k]=true; el.classList.add('down'); try{el.setPointerCapture(e.pointerId);}catch(_){} }); for(const t of ['pointerup','pointercancel','lostpointercapture']) el.addEventListener(t,()=>{ pad[k]=false; el.classList.remove('down'); }); }
-hold($('#gas'),'gas'); hold($('#brk'),'brk');
+hold($('#gas'),'gas'); hold($('#brk'),'brk'); hold($('#stL'),'l'); hold($('#stR'),'r');
 let drag=null, dragS=0; cv.addEventListener('pointerdown',e=>{ drag={id:e.pointerId,x:e.clientX,y:e.clientY,t:performance.now()}; try{ cv.setPointerCapture(e.pointerId); }catch(_){} });
 addEventListener('pointerup',e=>{ if(drag&&drag.id===e.pointerId) setTimeout(()=>{ if(drag&&drag.id===e.pointerId){ drag=null; dragS=0; } },0); },true); addEventListener('pointercancel',e=>{ if(drag&&drag.id===e.pointerId){ drag=null; dragS=0; } },true);
 cv.addEventListener('pointerup',e=>{ if(!campMode||!cs||cs.mini||cs.sleeping||!drag) return; if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>12||performance.now()-drag.t>350) return;
   const r=cv.getBoundingClientRect(); const ndc=new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1); const rc=new THREE.Raycaster(); rc.setFromCamera(ndc,cam); const hit=rc.intersectObject(window.__terrain,false)[0];
   if(hit){ cs.dest={x:hit.point.x,z:hit.point.z}; tapFx(hit.point); } }); cv.addEventListener('pointermove',e=>{ if(drag&&drag.id===e.pointerId) dragS=clamp((e.clientX-drag.x)/55,-1,1); }); for(const t of ['pointerup','pointercancel']) cv.addEventListener(t,e=>{ if(drag&&drag.id===e.pointerId){ drag=null; dragS=0; } });
 function readInput(){ const kl=keys.has('arrowleft')||keys.has('a'), kr=keys.has('arrowright')||keys.has('d'); let s=0;
-  if(kl||kr) s=(kr?1:0)-(kl?1:0); else if(drag&&Math.abs(dragS)>.02) s=dragS; else if(tilt.ok){ tilt.sm=lerp(tilt.sm,tilt.ang,.4); const g=tilt.sm, a=Math.abs(g); s=a<1.5?0:Math.sign(g)*Math.pow(clamp((a-1.5)/16,0,1),1.15); }
+  if(kl||kr||pad.l||pad.r) s=((kr||pad.r)?1:0)-((kl||pad.l)?1:0); else if(drag&&Math.abs(dragS)>.02) s=dragS; else if(tilt.ok){ tilt.sm=lerp(tilt.sm,tilt.ang,.4); const g=tilt.sm, a=Math.abs(g); s=a<1.5?0:Math.sign(g)*Math.pow(clamp((a-1.5)/16,0,1),1.15); }
   return {gas:(pad.gas||keys.has('arrowup')||keys.has('w'))?1:0, brk:(pad.brk||keys.has('arrowdown')||keys.has('s')||keys.has(' '))?1:0, steer:s}; }
 function toggleLow(){ if(st.vel.length()>1){ toast('Fermati prima','le ridotte si inseriscono da fermo'); return; } st.gear=st.gear==='alta'?'ridotte':'alta'; toast(st.gear==='ridotte'?'Ridotte inserite':'Marce alte',st.gear==='ridotte'?'tanta forza, fino a 25 km/h':'fino a 80 km/h'); }
 $('#lowB').addEventListener('click',toggleLow);
@@ -944,7 +950,7 @@ function startCamp(){
   // omino accanto alla portiera
   man.position.copy(st.pos).addScaledVector(rtv,-1.6); man.position.y=height(man.position.x,man.position.z); man.rotation.y=Math.atan2(-fh.x,-fh.z); man.visible=true;
   campMode=true; st.running=false; first=true;
-  $('#hud').hidden=$('#hud2').hidden=true; $('#ctl').hidden=false; $('#lowB').hidden=true; $('#helpB').hidden=true; $('#tb').hidden=true; $('#winB').hidden=true; $('#presB').hidden=true;
+  $('#stB').hidden=true; $('#hud').hidden=$('#hud2').hidden=true; $('#ctl').hidden=false; $('#lowB').hidden=true; $('#helpB').hidden=true; $('#tb').hidden=true; $('#winB').hidden=true; $('#presB').hidden=true;
   $('#gas').firstChild.textContent='AVANTI'; $('#gas').querySelector('small').textContent='cammina'; $('#brk').firstChild.textContent='INDIETRO'; $('#brk').querySelector('small').textContent='passo indietro';
   $('#obj').hidden=false; setStep(0);
 }
@@ -1149,7 +1155,7 @@ function frame(now){
     if(!st.done&&st.s>LEN) arrive();
     auUpd(inp,sp,dt);
     hudT+=dt; if(hudT>.1){ hudT=0; hud(sp); }
-    if(matchMedia('(pointer:coarse)').matches&&st.time>3&&st.time<3.2&&!tilt.seen) toast('Il telefono non manda l\'inclinazione','trascina il dito a destra e sinistra sullo schermo per sterzare');
+    if(matchMedia('(pointer:coarse)').matches&&st.time>3&&!tilt.seen&&$('#stB').hidden&&!st.done){ $('#stB').hidden=false; toast('Inclinazione non disponibile qui','sterza con le frecce, oppure apri il gioco da ilgabbah-ux.github.io/4x4-camp'); }
   }
   // grafica auto
   car.position.copy(st.pos); car.quaternion.copy(st.q);
@@ -1191,7 +1197,7 @@ const fmtT1=t=>`${Math.floor(t/60)}:${(t%60).toFixed(1).padStart(4,'0')}`;
 function showMsg(eye,title,text,lines,btn){ $('#msgEye').textContent=eye; $('#msgTitle').textContent=title; $('#msgText').textContent=text; const l=$('#msgLines'); l.innerHTML=''; l.hidden=!lines;
   for(const [a,b,cl] of lines||[]){ const d=document.createElement('div'); if(cl==='tot') d.className='tot'; const x=document.createElement('span'); x.textContent=a; const y=document.createElement('span'); y.textContent=b; if(cl&&cl!=='tot') y.className=cl; d.append(x,y); l.append(d); }
   $('#msgBtn').textContent=btn||'Torna al garage'; $('#msg').hidden=false; hideRunUI(); }
-function hideRunUI(){ for(const id of ['#hud','#hud2','#ctl','#obj','#actB','#goB','#tb','#mini']) $(id).hidden=true; }
+function hideRunUI(){ for(const id of ['#stB','#hud','#hud2','#ctl','#obj','#actB','#goB','#tb','#mini']) $(id).hidden=true; }
 $('#msgBtn').addEventListener('click',()=>{ $('#msg').hidden=true; toGarage(); });
 function arrive(){ st.done=true; dropWinch(); const id=TR.id, t=st.time; const nb=!save.best[id]||t<save.best[id]; save.done[id]=true; if(nb) save.best[id]=t; persist();
   toast(nb?'Vetta! Record':'Vetta!',`in ${fmtT1(t)} · si monta il campo`); submitScore(id,t,st.rescues); setTimeout(()=>{ if(st.done&&st.running) startCamp(); },2200); }
@@ -1312,6 +1318,7 @@ $('#go').addEventListener('click',async()=>{
 });
 { const touch=matchMedia('(pointer:coarse)').matches; $('#ovTxt').textContent+=touch?' Inclina il telefono per sterzare (o trascina il dito sullo schermo), pedali in basso.':' Frecce o WASD per guidare, R ridotte, V verricello, P gomme, C inquadratura.'; }
 const TRUCK='__TRUCK__', LOGO='__LOGO__';
+if(window.top!==window&&!/github\.io$/.test(location.hostname)) $('#olk').hidden=false;
 $('#ovLogo').src=LOGO; $('#garLogo').src=LOGO;
 buildWorld(TRACKS[save.track]&&!(TRACKS[save.track].locked&&TRACKS[save.track].locked())?save.track:'colle'); setSky(TR.night?1:0);
 reset(4);
