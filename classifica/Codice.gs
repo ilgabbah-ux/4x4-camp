@@ -5,8 +5,8 @@
 // Con &callback=nome risponde in JSONP (serve al gioco su GitHub Pages).
 // Nomi protetti: il primo telefono che usa un nome lo prenota col suo codice (si salva solo l'impronta).
 const SHEET_ID = '12tSdjeERZDV6F7AMwvkBH0At6aDu-ox54pbhGM0ENho';
-const TRACKS = ['colle', 'neve'];
-const MIN_TIME = { colle: 90, neve: 100 };   // sotto questi secondi un giro non è credibile
+const TRACKS = ['colle', 'bassa', 'neve'];
+const MIN_TIME = { colle: 40, bassa: 40, neve: 45 };   // sotto questi secondi un giro non è credibile (gioco 3D)
 const MAX_TIME = 3600;
 
 function sheet_(name, head) {
