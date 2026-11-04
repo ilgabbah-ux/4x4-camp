@@ -862,7 +862,7 @@ const PRESS=['2,4','1,6','1,0'];
 function gripMul(su){ const pb=[[1,1,1],[1,1.15,1.12],[.97,1.22,1.2]][pressure]; return isSoft(su)||su==='acqua'?pb[1]:su==='roccia'?pb[2]:pb[0]; }
 let hitT=0;
 
-function hit(v,kind){ const now=performance.now(); if(now-hitT<700) return; hitT=now; shake=Math.min(.5,v*.08); if(kind==='tree') toast('Albero!','occhio ai tronchi'); else if(kind==='car') toast('Il 4x4 di un amico!','parcheggia più in là'); else if(v>3) toast('Botta!','più piano sui sassi: rompi gomme e semiassi'); auThud(Math.min(1,v/6)); }
+function hit(v,kind){ const now=performance.now(); if(now-hitT<700) return; hitT=now; if(v>3.5) gabbah('g_gamba',25); shake=Math.min(.5,v*.08); if(kind==='tree') toast('Albero!','occhio ai tronchi'); else if(kind==='car') toast('Il 4x4 di un amico!','parcheggia più in là'); else if(v>3) toast('Botta!','più piano sui sassi: rompi gomme e semiassi'); auThud(Math.min(1,v/6)); }
 
 /* ---------- Particelle: zolle di fango, gocce, spruzzi, polvere, fumo ---------- */
 // k: 0 scintilla/scheggia · 1 zolla di fango (lascia la macchia a terra) · 2 goccia d'acqua · 3 fumo · 4 nebbia d'acqua/polvere
@@ -935,20 +935,20 @@ function toggleAwd(){ if(st.gear==='ridotte'&&st.awd){ toast('Prima togli le rid
 $('#awdB').addEventListener('click',toggleAwd);
 function toggleLow(){ if(st.vel.length()>1){ toast('Fermati prima','le ridotte si inseriscono da fermo'); return; } st.gear=st.gear==='alta'?'ridotte':'alta'; if(st.gear==='ridotte') st.awd=true; toast(st.gear==='ridotte'?'Ridotte inserite':'Marce alte',st.gear==='ridotte'?'tanta forza, fino a 25 km/h':'fino a 80 km/h'); }
 $('#lowB').addEventListener('click',toggleLow);
-const PURC=['Aggancio la strop, tu metti in folle!','Ti tiro fuori io, come sempre.','Ancora piantato? Una cassa di birra, eh!','Tieni dritto e non frenare!','Lo sapevo, ero già qui dietro la curva.'];
+const PURC=['Ancora piantato? Aggancio la strop, tu metti in folle… e mi devi una cassa di birra!','Aggancio la strop, tu metti in folle!','Ti tiro fuori io, come sempre.','Ancora piantato? Una cassa di birra, eh!','Tieni dritto e non frenare!','Lo sapevo, ero già qui dietro la curva.'];
 function rescue(){
   if(st.rescue) return;
   const flipped=up.y<.35;
   if(flipped){ reset(st.s+2); toast('Ribaltato!','Purcello ti ha rimesso sulle ruote'); st.rescues++; return; }
   const s0=clamp(st.s,2,LEN-2), sT=Math.min(LEN,s0+12), mirco=Math.random()<.3;
-  st.rescue={t:0,off:mirco?1.8:0,s0,sT,p0:st.pos.clone(),q0:st.q.clone(),line:PURC[Math.random()*PURC.length|0],said:false};
+  st.rescue={t:0,off:mirco?1.8:0,s0,sT,p0:st.pos.clone(),q0:st.q.clone(),line:PURC[0],said:false};
   st.rescues++; $('#helpB').hidden=true;
-  if(mirco){ toast('Chiami Mirco…','"Campa giù!" È in mutua. Chiami Purcello.'); say('Mirco','Campa giù! Sono in mutua.'); } else { toast('Arriva Purcello',st.rescue.line); say('Purcello',st.rescue.line); st.rescue.said=true; }
+  if(mirco){ toast('Chiami Mirco…','"Campa giù!" È in mutua. Chiami Purcello.'); say('Mirco','','m_campa'); } else { toast('Arriva Purcello',st.rescue.line); say('Purcello','','p_strop'); st.rescue.said=true; }
 }
 function trailPose(s,lat){ const x=CX(s)+lat, z=-s; const dx=CX(s+2)-CX(s-2); const yaw=Math.atan2(-dx,4); return {p:new V(x,height(x,z)+COMY,z),q:new THREE.Quaternion().setFromEuler(new THREE.Euler(0,yaw,0))}; }
 function updRescue(dt){
   const r=st.rescue; r.t+=dt; const t=r.t-r.off;
-  if(!r.said&&t>=0){ r.said=true; toast('Arriva Purcello',r.line); say('Purcello',r.line); }
+  if(!r.said&&t>=0){ r.said=true; toast('Arriva Purcello',r.line); say('Purcello','','p_strop'); }
   if(t<0) return;
   const e=sstep(1.9,4.9,t);
   // Purcello: arriva da davanti, si ferma, tira, poi riparte
@@ -1222,7 +1222,7 @@ function sheet(title,sub,groups,btn,done){ const S=$('#sheet'); $('#shT').textCo
 function openMenu(){ sheet('Cena con gli amici','Purcello, Mirco e Costa sono già lì coi loro 4x4. Cosa si mangia e cosa si beve? Alla festa ogni sorso dà punti nella gara, ma più bevi più barcolli quando torni a letto.',[{label:'Da mangiare',key:'food',items:FOODS},{label:'Da bere',key:'drink',items:DRINKS}],'A tavola!',s=>{
   cs.food=FOODS.find(f=>f.id===s.food); cs.drink=DRINKS.find(d=>d.id===s.drink); cs.drunk=cs.drink.alc*2; friendsDrink=true;
   const line=cs.food.id==='trote'?['Costa','«Finalmente qualcuno che apprezza il pesce!»']:cs.drink.id==='acqua'?['Purcello','«Acqua?! Ti sei perso la cassa di birra?»']:cs.drink.id==='grappa'?['Mirco','«Grappa? Domani campa giù…»']:['Purcello','«Ottima scelta. Paghi tu la prossima?»'];
-  toast(line[0],line[1]); say(line[0],line[1]); STEPS.find(x=>x.id==='cena').txt=`Cuoci ${cs.food.pl==='pancetta'?'la':'le'} ${cs.food.pl}`; setStep(cs.step+1); }); }
+  toast(line[0],line[1]); if(cs.food.id==='trote') say('Costa','','c_pesce'); STEPS.find(x=>x.id==='cena').txt=`Cuoci ${cs.food.pl==='pancetta'?'la':'le'} ${cs.food.pl}`; setStep(cs.step+1); }); }
 function openMusic(){ sheet('Festa!','Si sfida chi fa più casino. Tocca la pista quando i cerchi passano sulla linea gialla, a tempo coi colpi della cassa. BEVI dà tanti punti ma ti ubriaca: al ritorno barcolli di più.',[{label:'Musica',key:'mus',items:MUSIC}],'Alza il volume!',s=>showHelp('festa',()=>startParty(s.mus))); }
 
 // gara di casino a ritmo
@@ -1232,13 +1232,13 @@ function startParty(id){ musicStart(id); const G=MUSIC.find(m=>m.id===id);
   $('#party').hidden=false; $('#ctl').hidden=true; $('#obj').hidden=true;
   const B=$('#ptBoard'); B.innerHTML=''; ['Tu',...FRIENDS.map(f=>f.n)].forEach((n,i)=>{ const r=el('div','prow2'+(i?'':' me')); r.append(el('span','',n)); const b=el('i'); b.append(el('u')); r.append(b); B.append(r); });
   const L=$('#ptNotes'); L.innerHTML=''; for(let i=0;i<10;i++) L.append(el('i'));
-  const Q=[['Purcello','Chi perde paga la prossima cassa!'],['Mirco','Stasera ballo, domani sono in mutua.'],['Costa','Questa la ballavano anche le trote!']][Math.random()*3|0]; toast(G.ic+' '+G.n,`«${Q[1]}» — ${Q[0]}`); say(Q[0],Q[1]); }
+  const Q=[['Purcello','Chi perde paga la prossima cassa!','p_cassa'],['Mirco','Stasera ballo, domani sono in mutua!','m_ballo'],['Costa','Questa la ballavano anche le trote!','c_trote']][Math.random()*3|0]; toast(G.ic+' '+G.n,`«${Q[1]}» — ${Q[0]}`); setTimeout(()=>say(Q[0],'',Q[2]),600); }
 const lat=()=>AC?Math.min(.25,(AC.outputLatency||0)+(AC.baseLatency||0)):0;
 const heard=()=>clk()-lat();
 function partyHit(){ const P=cs.party; if(!P||P.over) return; const now=heard(); const n=Math.round((now-MUS.t0)/MUS.beat); const tn=MUS.t0+n*MUS.beat, d=Math.abs(now-tn);
   P.dance=1; if(n>=0&&!P.hit.has(n)&&d<.19){ P.hit.add(n); const pf=d<.08; P.combo=(P.combo||0)+1; const bonus=Math.min(3,Math.floor(P.combo/4)); P.score[0]+=(pf?3:2)+bonus;
-    ptFb((pf?'Perfetto!':'A tempo!')+(P.combo>=4?` combo ×${P.combo}`:''),pf?'#c9f0a8':'#93c46d'); P.flash=1; }
-  else if(!P.hit.has(n)){ P.combo=0; P.score[0]=Math.max(0,P.score[0]-.5); ptFb('Fuori tempo','#f08a7c'); } }
+    ptFb((pf?'Perfetto!':'A tempo!')+(P.combo>=4?` combo ×${P.combo}`:''),pf?'#c9f0a8':'#93c46d'); P.flash=1; if(P.combo===8||P.combo===16) gabbah('g_si',8); }
+  else if(!P.hit.has(n)){ if((P.combo||0)>=6) gabbah('g_dopo',15); P.combo=0; P.score[0]=Math.max(0,P.score[0]-.5); ptFb('Fuori tempo','#f08a7c'); } }
 function partyDrink(){ const P=cs.party; if(!P||P.over||P.cd>0) return; P.cd=2; P.drinks++; const D=cs.drink; P.score[0]+=D.alc?Math.round(4+D.alc*22):2; cs.drunk=Math.min(1.5,(cs.drunk||0)+D.alc*1.1);
   ptFb(D.alc?`${D.ic} Giù!`:'💧 Acqua…',D.alc?'#f2d24b':'#9ac8e0'); auBurst(600,.25,.2,'lowpass'); auBurst(2200,.15,.08,'bandpass',2); }
 $('#party').addEventListener('pointerdown',e=>{ if(e.target.closest('#ptBevi')) return; e.preventDefault(); partyHit(); }); $('#ptBevi').addEventListener('pointerdown',e=>{ e.preventDefault(); partyDrink(); });
@@ -1256,7 +1256,7 @@ function updParty(dt){ const P=cs.party; if(!P) return; P.t+=dt; P.cd=Math.max(0
   $('#ptBevi').classList.toggle('cd',P.cd>0);
   if(P.t>=P.dur&&!P.over){ P.over=true; const order=P.score.map((s,i)=>[s,i]).sort((a,b)=>b[0]-a[0]); cs.rank=order.findIndex(o=>o[1]===0)+1; const win=order[0][1];
     const names=['Tu',...FRIENDS.map(f=>f.n)];
-    toast(cs.rank===1?'Hai vinto tu! Re della festa':`Vince ${names[win]}`,cs.rank===1?'gli altri pagano la cassa':`sei arrivato ${cs.rank}°`); if(win) say(names[win],['Ho vinto io! Paghi tu la cassa.','Visto? Campione del casino!','Ve l\'avevo detto, io ballo come una trota!'][win-1]); else say('Purcello','Va bene, hai vinto tu. Pago io la cassa.');
+    toast(cs.rank===1?'Hai vinto tu! Re della festa':`Vince ${names[win]}`,cs.rank===1?'gli altri pagano la cassa':`sei arrivato ${cs.rank}°`); if(!win) gabbah('g_si',0); else gabbah('g_dopo',0);
     setTimeout(()=>{ $('#party').hidden=true; $('#obj').hidden=false; $('#ctl').hidden=false; musicVol(.18); cs.party=null; setStep(cs.step+1); },2600); } }
 
 // rientro: barra del barcollamento, si raddrizza inclinando o con le frecce
@@ -1270,7 +1270,7 @@ function updWalk(dt){ const W=cs.walk, U=man.userData; W.t+=dt; const d=cs.drunk
   if(!(W.nt>W.t)){ W.nt=W.t+.8+Math.random()*1.2; W.tg=(Math.random()<.5?-1:1)*(.35+Math.random()*.65)*Math.min(1.3,d*1.4); }
   W.v=lerp(W.v,W.tg||0,1-Math.pow(.25,dt));
   W.b+=(W.v+inp.steer*2.4)*dt; W.b*=1-dt*.4;
-  if(Math.abs(W.b)>1){ W.falls++; W.fallT=1.6; auThud(.7); if(W.falls>=3){ toast('Ci pensa Purcello','ti porta a letto di peso, ridendo'); say('Purcello','Dai che ti porto io, ubriacone!'); W.carry=true; } else toast(['Patapum!','Giù per terra','Ops…'][W.falls%3],'ti rialzi e riparti: inclina dalla parte opposta'); return; }
+  if(Math.abs(W.b)>1){ W.falls++; W.fallT=1.6; auThud(.7); if(W.falls>=3){ toast('Ci pensa Purcello','ti porta a letto di peso, ridendo'); say('Purcello','','p_letto'); W.carry=true; } else toast(['Patapum!','Giù per terra','Ops…'][W.falls%3],'ti rialzi e riparti: inclina dalla parte opposta'); gabbah('g_gamba',6); return; }
   if(W.carry){ W.b=0; W.v=0; W.tg=0; }
   const dx=W.tgt.x-man.position.x, dz=W.tgt.z-man.position.z, dd=Math.hypot(dx,dz); const fwd=new V(dx/dd,0,dz/dd), side=new V(-fwd.z,0,fwd.x);
   man.position.addScaledVector(fwd,(W.carry?1.6:1.1-d*.15)*dt).addScaledVector(side,W.b*1.1*dt); man.position.y=height(man.position.x,man.position.z);
@@ -1448,7 +1448,7 @@ $('#mini').addEventListener('pointerdown',e=>{ e.preventDefault(); const m=cs&&c
   if(m.cook){ const d=Math.abs(m.x-.62); cs.cook=d<.035?'perfetta':inz?'buona':m.x<.62?'cruda':'bruciata'; closeMini(); toast({perfetta:'Cena perfetta!',buona:'Cena buona',cruda:'Un po\' cruda',bruciata:'Bruciacchiata'}[cs.cook],'si mangia comunque'); setStep(cs.step+1); return; }
   doAnim(m.S.id);
   if(inz){ m.n++; hitFx(m.S.id,true); m.zc=m.t.zone/2+.05+Math.random()*(.9-m.t.zone); if(m.n>=m.t.need){ closeMini(); doneStep(m.S.id); } }
-  else { cs.misses++; hitFx(m.S.id,false); $('#mini').classList.remove('miss'); void $('#mini').offsetWidth; $('#mini').classList.add('miss'); }
+  else { cs.misses++; if(cs.misses%3===0) gabbah('g_dopo',15); hitFx(m.S.id,false); $('#mini').classList.remove('miss'); void $('#mini').offsetWidth; $('#mini').classList.add('miss'); }
   drawMini(); });
 function closeMini(){ cs.mini=null; $('#mini').hidden=true; $('#ctl').hidden=false; }
 function hitFx(id,ok){
@@ -1466,6 +1466,7 @@ function hitFx(id,ok){
     else auBurst(500,.1,.15,'lowpass'); }
 }
 function doneStep(id){
+  if(cs.mini===null&&(id==='fuoco'||id==='legna')) gabbah('g_si',20);
   if(id==='amaca') toast({amaca:'Amaca montata',tenda:'Tenda montata',maggiolina:'Maggiolina aperta'}[KIT.riparo],{amaca:'corde ben tese',tenda:'tiranti tesi, si dorme all\'asciutto',maggiolina:'un minuto ed è pronta'}[KIT.riparo]);
   if(id==='legna'){ man.userData.logs.visible=true; cs.obj.pile.visible=false; toast('Legna pronta','portala al fuoco'); }
   if(id==='fuoco'){ cs.lit=true; toast('Il fuoco ha preso!','adesso si cucina'); }
@@ -1654,6 +1655,7 @@ function frame(now){
     const fail=st.dmg.gomme>=100?['Gomma squarciata','Hai preso i sassi troppo forte: la gomma si è tagliata.']:st.dmg.coppa>=100?['Coppa dell\'olio spaccata','Un sasso ha bucato la coppa: olio a terra.']:st.dmg.semiassi>=100?['Semiasse rotto','Troppe botte sui massi: il semiasse ha ceduto.']:st.water>=1?['Motore annegato','Hai fatto l\'onda nel guado: l\'acqua è entrata dalla presa d\'aria.']:null;
     if(fail) failRun(fail);
     if(!st.done&&st.s>LEN) arrive();
+    { const z=zoneAt(st.s); if(z!==st.zPrev){ const p=st.zPrev; if(p&&['roccia','fangoProf','acqua','ghiaccio','galleria'].includes(p.t)&&st.rescues===(st.zResc||0)&&st.s>p.b) gabbah('g_si',25); st.zPrev=z; st.zResc=st.rescues; } }
     if(TR.panoS&&!st.panoSaid&&st.s>TR.panoS){ st.panoSaid=true; toast('Punto panoramico',PANO[TR.id]||''); }
     if(!st.rescue) helpAhead();
     if(!$('#helpB').hidden) showHelp('bloccato');
@@ -1707,8 +1709,8 @@ function showMsg(eye,title,text,lines,btn){ $('#msgEye').textContent=eye; $('#ms
 function hideRunUI(){ for(const id of ['#hq','#sheet','#party','#bal','#stB','#hud','#hud2','#ctl','#obj','#actB','#goB','#tb','#mini']) $(id).hidden=true; }
 $('#msgBtn').addEventListener('click',()=>{ $('#msg').hidden=true; toGarage(); });
 function arrive(){ st.done=true; dropWinch(); const id=TR.id, t=st.time; const nb=!save.best[id]||t<save.best[id]; save.done[id]=true; if(nb) save.best[id]=t; persist();
-  toast(nb?'Vetta! Record':'Vetta!',`in ${fmtT1(t)} · si monta il campo`); setTimeout(()=>say('Purcello','Finalmente! Ti stavamo aspettando, la birra si scalda!'),900); submitScore(id,t,st.rescues); setTimeout(()=>{ if(st.done&&st.running) startCamp(); },2200); }
-function failRun(f){ st.running=false; dropWinch(); const tow=150, resc=st.rescues*40; save.money=Math.max(0,save.money-tow-resc); save.dmg={...st.dmg}; persist();
+  toast(nb?'Vetta! Record':'Vetta!',`in ${fmtT1(t)} · si monta il campo`); gabbah('g_si',0); setTimeout(()=>say('Purcello','','p_vetta'),1900); submitScore(id,t,st.rescues); setTimeout(()=>{ if(st.done&&st.running) startCamp(); },2200); }
+function failRun(f){ st.running=false; gabbah('g_dopo',0); dropWinch(); const tow=150, resc=st.rescues*40; save.money=Math.max(0,save.money-tow-resc); save.dmg={...st.dmg}; persist();
   showMsg('Mezzo fermo',f[0],f[1]+' Il carro attrezzi ti riporta a valle: in officina si ripara.',[['Carro attrezzi','−'+eur(tow),'neg'],...(resc?[[`Birre a Purcello (${st.rescues})`,'−'+eur(resc),'neg']]:[]),['In cassa',eur(save.money),'']],'Torna al garage'); }
 function startRun(){ if(cs) clearCamp(); WX=save.meteo; if(builtTrack!==save.track) buildWorld(save.track); else { scene.fog.near=TR.theme==='neve'?25:60; scene.fog.far=TR.theme==='neve'?150:TR.theme==='alpino'?320:250; } applyUpgrades(); pressure=save.pressure;
   $('#hud').hidden=false; $('#hud2').hidden=false; $('#ctl').hidden=false; $('#tb').hidden=false; $('#lowB').hidden=false;
@@ -1762,11 +1764,13 @@ $('#hq').addEventListener('click',()=>showHelp(helpNow(),null,true));
 
 function applyQuality(){ const Q=QS[save.q]; ren.setPixelRatio(Math.min(Q.pr,devicePixelRatio||1)); const sh=Q.sh>0; ren.shadowMap.enabled=sh; sun.castShadow=sh;
   if(sun.shadow.map){ sun.shadow.map.dispose(); sun.shadow.map=null; } sun.shadow.mapSize.set(Q.sh||512,Q.sh||512); scene.traverse(o=>{ if(o.material) for(const m of [].concat(o.material)) m.needsUpdate=true; }); resize(); builtTrack=null; }
-// voci degli amici: sintesi vocale del telefono, un timbro per ognuno
-const VOX={Purcello:{p:.7,r:.98},Mirco:{p:1.2,r:1.08},Costa:{p:.95,r:.92}};
-function say(who,txt){ if(!save.voci||!('speechSynthesis' in window)) return; try{ const u=new SpeechSynthesisUtterance(String(txt).replace(/[«»"]/g,'').replace(/ — .*$/,'')); u.lang='it-IT';
-  const vs=speechSynthesis.getVoices().filter(v=>/^it/i.test(v.lang)); const male=vs.filter(v=>/male|uomo|luca|diego|cosimo|giorgio|paolo|roberto|riccardo/i.test(v.name)&&!/female/i.test(v.name)); const pick=male.length?male:vs; if(pick.length) u.voice=pick[(Object.keys(VOX).indexOf(who)+pick.length)%pick.length];
-  const V0=VOX[who]||{p:1,r:1}; u.pitch=V0.p; u.rate=V0.r; u.volume=1; speechSynthesis.cancel(); speechSynthesis.speak(u); }catch(e){} }
+// voci vere degli amici e del Gabbah (ElevenLabs), suonate dentro al gioco
+const VOCI_SRC='__VOCI__', VBUF={}; let vBusy=0; const vCD={};
+async function vLoad(k){ if(VBUF[k]||!AC||!VOCI_SRC[k]) return VBUF[k]; const b=Uint8Array.from(atob(VOCI_SRC[k].split(',')[1]),c=>c.charCodeAt(0)).buffer; VBUF[k]=await AC.decodeAudioData(b); return VBUF[k]; }
+function say(who,txt,key,cd){ if(!save.voci||!AC||!key||!VOCI_SRC[key]) return; const now=performance.now(); if(cd&&vCD[key]&&now-vCD[key]<cd*1000) return; if(now<vBusy) return; vCD[key]=now;
+  vLoad(key).then(buf=>{ if(!buf) return; const s=AC.createBufferSource(), g=AC.createGain(); s.buffer=buf; g.gain.value=1.5; s.connect(g); g.connect(M); s.start(); vBusy=performance.now()+buf.duration*1000;
+    if(MUS&&MUS.out){ MUS.out.gain.setTargetAtTime(.15,AC.currentTime,.1); MUS.out.gain.setTargetAtTime(.55,AC.currentTime+buf.duration,.3); } }).catch(()=>{}); }
+const gabbah=(k,cd)=>say('Gabbah','',k,cd||12);
 // registrazione del giro: video da condividere
 let rec=null;
 function toggleRec(){ if(rec){ rec.r.stop(); return; }
@@ -1857,7 +1861,7 @@ function renderGarage(){
     L.append(el('p','sec','Pressione gomme alla partenza'));
     const sg=el('div','seg'); [['2,4 bar','sterrato veloce'],['1,6 bar','il giusto'],['1,0 bar','fango e sassi']].forEach(([a,b2],i)=>{ const bt=el('button',save.pressure===i?'on':''); bt.append(a,el('small','',b2)); bt.addEventListener('click',()=>{ save.pressure=i; persist(); renderGarage(); }); sg.append(bt); }); L.append(sg);
     L.append(el('p','sec','Qualità grafica')); { const sg=el('div','seg'); for(const [k,q] of Object.entries(QS)){ const bt=el('button',save.q===k?'on':''); bt.append(q.n,el('small','',k==='alta'?'telefoni recenti':k==='media'?'quasi tutti':'telefoni vecchi')); bt.addEventListener('click',()=>{ save.q=k; persist(); applyQuality(); renderGarage(); }); sg.append(bt); } L.append(sg); }
-    L.append(el('p','sec','Voci degli amici')); { const sg=el('div','seg'); sg.style.gridTemplateColumns='1fr 1fr'; for(const [v,n] of [[true,'Sì'],[false,'No']]){ const bt=el('button',save.voci===v?'on':''); bt.append(n); bt.addEventListener('click',()=>{ save.voci=v; persist(); renderGarage(); if(v) say('Purcello','Eccomi! Pronto a tirarti fuori dal fango.'); }); sg.append(bt); } L.append(sg); }
+    L.append(el('p','sec','Voci (Purcello, Mirco, Costa e il Gabbah)')); { const sg=el('div','seg'); sg.style.gridTemplateColumns='1fr 1fr'; for(const [v,n] of [[true,'Sì'],[false,'No']]){ const bt=el('button',save.voci===v?'on':''); bt.append(n); bt.addEventListener('click',()=>{ save.voci=v; persist(); renderGarage(); if(v){ auInit(); say('Purcello','','p_vetta'); } }); sg.append(bt); } L.append(sg); }
     L.append(el('p','howto',own('comp')?'Col compressore cambi pressione anche sul tracciato, da fermo.':'Sul tracciato puoi solo sgonfiare, da fermo. Per rigonfiare serve il compressore.'));
   }
   if(garTab==='tracciati'){
