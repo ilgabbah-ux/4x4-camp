@@ -753,14 +753,15 @@ const V=THREE.Vector3;
 let first=true; const camPos=new THREE.Vector3(), camLook=new THREE.Vector3();
 const st={pos:new V(),vel:new V(),q:new THREE.Quaternion(),w:new V(),steer:0,gear:'alta',spin:[0,0,0,0],comp:[0,0,0,0],contact:[0,0,0,0],slip:[0,0,0,0],dspin:[0,0,0,0],cp:[new V(),new V(),new V(),new V()],cn:[new V(),new V(),new V(),new V()],surf:'terra',time:0,running:false,s:0,done:false,stuckT:0,sink:0,water:0,dmg:{gomme:0,coppa:0,semiassi:0,carrozzeria:0},wsurf:['terra','terra','terra','terra'],bumpT:[0,0,0,0],rescues:0,mode:'drive',winch:null,paused:false};
 let MASS=2100; const I=new V(4300,4400,2200), I0=I.clone(), K=26000, CD=2900;
-const VEHS={terrano:{n:'Terrano II del Gabbah',sub:'il tuo: nero, alzato, snorkel, barra LED e gomme tassellate · modello 3D vero',price:0,sc:[1,1,1],mass:2000,p:1.08,col:null,model:'terrano',rw:.45,wh:{x:.8,zf:-1.34,zr:1.11}},
+const VEHS={terrano:{n:'Terrano II del Gabbah',sub:'il tuo: nero, alzato, snorkel, barra LED e gomme tassellate · modello 3D vero',price:0,sc:[1,1,1],mass:2100,p:1.05,col:null,model:'terrano',rw:.44,ms:1.04,mw:{x:.8,zf:-1.34,zr:1.11}},
  base:{n:'Ranger 2.5 TD',sub:'il tuo 4x4 di serie: onesto e robusto',price:0,sc:[1,1,1],mass:2100,p:1,col:null},
  grillo:{n:'Grillo 1.3',sub:'piccolo e leggero (in stile Jimny): stretto, galleggia nel fango, poco motore',price:1800,sc:[.88,.96,.82],mass:1200,p:.64,col:0xd8c23a},
  bisonte:{n:'Bisonte 110',sub:'squadrato all\'inglese (in stile Defender): più alto e più forte',price:3500,sc:[1.02,1.04,1.06],mass:2250,p:1.25,col:0x3d5a3a,lift:.03},
  orso:{n:'Orso 200',sub:'giapponese indistruttibile (in stile Land Cruiser): pesante, potente, bloccaggio dietro di serie',price:5500,sc:[1.08,1.06,1.1],mass:2500,p:1.5,col:0xe9e7e0,lockR:true,tough:.7}};
 let VEH=VEHS.base, VS=[1,1,1]; const WH0=[ {x:-.82,z:-1.38},{x:.82,z:-1.38},{x:-.82,z:1.35},{x:.82,z:1.35} ]; let carRoot=null, bodyMat0=null;
 function applyVehicle(){ VEH=VEHS[save.veh]||VEHS.base; VS=VEH.sc; MASS=VEH.mass; I.copy(I0).multiplyScalar(MASS/2100);
-  if(VEH.wh) WH.forEach((w,i)=>{ w.x=(i%2?1:-1)*VEH.wh.x; w.z=i<2?VEH.wh.zf:VEH.wh.zr; }); else WH.forEach((w,i)=>{ w.x=WH0[i].x*VS[0]; w.z=WH0[i].z*VS[2]; }); HOOK.set(0,-.25,-2.45*VS[2]);
+  WH.forEach((w,i)=>{ w.x=WH0[i].x*VS[0]; w.z=WH0[i].z*VS[2]; delete w.vx; delete w.vz; });
+  if(VEH.mw&&terrRoot){ const k=VEH.ms||1, M=VEH.mw, dz=-.015-(M.zf+M.zr)/2*k; terrRoot.scale.setScalar(k); terrRoot.position.z=dz; WH.forEach((w,i)=>{ w.vx=(i%2?1:-1)*M.x*k; w.vz=(i<2?M.zf:M.zr)*k+dz; }); } HOOK.set(0,-.25,-2.45*VS[2]);
   const isT=VEH.model==='terrano'&&terrRoot; if(carRoot) carRoot.visible=!isT; if(terrRoot){ terrRoot.visible=!!isT; }
   for(const g of wheels){ if(!g) continue; for(const o of g.userData.hero||[]) o.visible=!isT; if(g.userData.terr) g.userData.terr.visible=!!isT; }
   if(carRoot) carRoot.scale.set(...VS); for(const m of bodyMats){ if(m.name==='MAT_body'&&m.userData.base){ m.userData.base.set(VEH.col==null?bodyMat0:VEH.col); m.color.copy(m.userData.base); } } }
@@ -773,8 +774,8 @@ function applyUpgrades(){
   if(own('shortlow')){ fl*=1.3; vl=5.5; eb=3800; }
   applyVehicle(); fa*=VEH.p; fl*=VEH.p; if(!VEH.p) fa=8200; ENG={fa,va,fl,vl,eb};
   RW=VEH.rw?(own('g33')?VEH.rw+.03:VEH.rw):(own('g33')?.445:.41); LN=(own('lift')?.47:.42)+(VEH.lift||0);
-  for(const g of wheels) if(g){ for(const o of g.userData.hero||[]) o.scale.setScalar(RW/.41); if(g.userData.terr) g.userData.terr.scale.setScalar(RW/.45); }
-  if(terrRoot) terrRoot.position.y=(heroWY??(MOUNTY-LN+.12))+.69+(RW-.45)*0;
+  for(const g of wheels) if(g){ for(const o of g.userData.hero||[]) o.scale.setScalar(RW/.41); if(g.userData.terr) g.userData.terr.scale.setScalar(RW/.45*(VEH.ms||1)*.97); }
+  if(terrRoot) terrRoot.position.y=(heroWY??(MOUNTY-LN+.12))+.69*(VEH.ms||1);
   const isT2=VEH.model==='terrano'; rtt.visible=own('maggiolina'); ledMesh.visible=own('led')&&!isT2; winchMesh.visible=own('winch'); snorkMesh.visible=own('snorkel')&&!isT2; winchMesh.position.z=-2.44*VS[2]; snorkMesh.scale.set(...VS);
 }
 function reset(s){
@@ -1654,7 +1655,7 @@ function frame(now){
   worldAnim(dt); lightsUpd(); if(TR) weatherUpd(dt);
   if(campMode&&cs){ if(!st.paused){ updCamp(dt); auCamp(dt); } campCamera(dt);
     car.position.copy(st.pos); car.quaternion.copy(st.q);
-    for(let i=0;i<4;i++){ const g=wheels[i]; if(!g) continue; const W=WH[i]; g.position.set(W.x,MOUNTY-(LN-st.comp[i]),W.z); g.rotation.set(0,0,0); g.userData.spin.rotation.x=-st.spin[i]; }
+    for(let i=0;i<4;i++){ const g=wheels[i]; if(!g) continue; const W=WH[i]; g.position.set(W.vx??W.x,MOUNTY-(LN-st.comp[i]),W.vz??W.z); g.rotation.set(0,0,0); g.userData.spin.rotation.x=-st.spin[i]; }
     sun.position.copy(man.position).addScaledVector(SUNDIR,50); sun.target.position.copy(man.position);
     if(performance.now()>toastT) $('#toast').classList.remove('show');
     ren.render(scene,cam); requestAnimationFrame(frame); return; }
@@ -1714,7 +1715,7 @@ function frame(now){
   }
   // grafica auto
   car.position.copy(st.pos); car.quaternion.copy(st.q);
-  for(let i=0;i<4;i++){ const g=wheels[i]; if(!g) continue; const W=WH[i]; const y=MOUNTY-(LN-st.comp[i]); g.position.set(W.x,clamp(y,MOUNTY-LN,MOUNTY-.02),W.z); g.rotation.set(0,W.f?-st.steer:0,0); g.userData.spin.rotation.x=-st.spin[i]; }
+  for(let i=0;i<4;i++){ const g=wheels[i]; if(!g) continue; const W=WH[i]; const y=MOUNTY-(LN-st.comp[i]); g.position.set(W.vx??W.x,clamp(y,MOUNTY-LN,MOUNTY-.02),W.vz??W.z); g.rotation.set(0,W.f?-st.steer:0,0); g.userData.spin.rotation.x=-st.spin[i]; }
   // camera: dietro, vicina, bassa sulle ruote
   const fh=new V(fw.x,0,fw.z).normalize(); if(!isFinite(fh.x)) fh.set(0,0,-1); const rh=new V(-fh.z,0,fh.x);
   let want, look, clr=1.6, kp=.02;
