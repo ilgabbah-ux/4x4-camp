@@ -670,22 +670,24 @@ const keys=new Set(); addEventListener('keydown',e=>{ const k=e.key.toLowerCase(
 const tilt={ok:false,ang:0,sm:0,g0:null,gx:0,gy:0,motion:false};
 // angolo tra la gravità di adesso e quella al momento della taratura, nel piano dello schermo:
 // funziona uguale col telefono in verticale o in orizzontale, su Android e su iPhone
-addEventListener('devicemotion',e=>{ const g=e.accelerationIncludingGravity; if(!g||g.x==null) return; tilt.motion=true; tilt.gx=lerp(tilt.gx,g.x,.35); tilt.gy=lerp(tilt.gy,g.y,.35);
+addEventListener('devicemotion',e=>{ const g=e.accelerationIncludingGravity; if(!g||g.x==null) return; tilt.motion=true; tilt.seen=(tilt.seen||0)+1; tilt.gx=lerp(tilt.gx,g.x,.35); tilt.gy=lerp(tilt.gy,g.y,.35);
   const L=Math.hypot(tilt.gx,tilt.gy); if(L<3) return; if(!tilt.g0) tilt.g0=[tilt.gx/L,tilt.gy/L];
   const ax=tilt.g0[0], ay=tilt.g0[1], bx=tilt.gx/L, by=tilt.gy/L; tilt.ang=Math.atan2(ax*by-ay*bx,ax*bx+ay*by)*57.3*(tilt.inv?-1:1); tilt.ok=true; });
-addEventListener('deviceorientation',e=>{ if(tilt.motion||e.gamma==null) return; tilt.ok=true; const a=(screen.orientation&&screen.orientation.angle)||0; tilt.ang=(a===90?e.beta:a===270||a===-90?-e.beta:e.gamma)*(tilt.inv?-1:1); });
+addEventListener('deviceorientation',e=>{ if(tilt.motion||e.gamma==null) return; tilt.ok=true; tilt.seen=(tilt.seen||0)+1; const a=(screen.orientation&&screen.orientation.angle)||0; tilt.ang=(a===90?e.beta:a===270||a===-90?-e.beta:e.gamma)*(tilt.inv?-1:1); });
 function calibrate(){ tilt.g0=null; tilt.sm=0; }
+function askSensors(){ try{ if(typeof DeviceMotionEvent!=='undefined'&&DeviceMotionEvent.requestPermission) DeviceMotionEvent.requestPermission().catch(()=>{}); }catch(e){} try{ if(typeof DeviceOrientationEvent!=='undefined'&&DeviceOrientationEvent.requestPermission) DeviceOrientationEvent.requestPermission().catch(()=>{}); }catch(e){} }
 try{ tilt.inv=localStorage.getItem('camp3d-inv')==='1'; }catch(e){}
 $('#invS').checked=!!tilt.inv; $('#invS').addEventListener('change',e=>{ tilt.inv=e.target.checked; try{ localStorage.setItem('camp3d-inv',tilt.inv?'1':'0'); }catch(_){} });
 addEventListener('orientationchange',calibrate); if(screen.orientation) screen.orientation.addEventListener?.('change',calibrate);
 const pad={gas:false,brk:false}; function hold(el,k){ el.addEventListener('pointerdown',e=>{ e.preventDefault(); pad[k]=true; el.classList.add('down'); try{el.setPointerCapture(e.pointerId);}catch(_){} }); for(const t of ['pointerup','pointercancel','lostpointercapture']) el.addEventListener(t,()=>{ pad[k]=false; el.classList.remove('down'); }); }
 hold($('#gas'),'gas'); hold($('#brk'),'brk');
-let drag=null, dragS=0; cv.addEventListener('pointerdown',e=>{ drag={id:e.pointerId,x:e.clientX,y:e.clientY,t:performance.now()}; });
+let drag=null, dragS=0; cv.addEventListener('pointerdown',e=>{ drag={id:e.pointerId,x:e.clientX,y:e.clientY,t:performance.now()}; try{ cv.setPointerCapture(e.pointerId); }catch(_){} });
+addEventListener('pointerup',e=>{ if(drag&&drag.id===e.pointerId) setTimeout(()=>{ if(drag&&drag.id===e.pointerId){ drag=null; dragS=0; } },0); },true); addEventListener('pointercancel',e=>{ if(drag&&drag.id===e.pointerId){ drag=null; dragS=0; } },true);
 cv.addEventListener('pointerup',e=>{ if(!campMode||!cs||cs.mini||cs.sleeping||!drag) return; if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>12||performance.now()-drag.t>350) return;
   const r=cv.getBoundingClientRect(); const ndc=new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1); const rc=new THREE.Raycaster(); rc.setFromCamera(ndc,cam); const hit=rc.intersectObject(window.__terrain,false)[0];
   if(hit){ cs.dest={x:hit.point.x,z:hit.point.z}; tapFx(hit.point); } }); cv.addEventListener('pointermove',e=>{ if(drag&&drag.id===e.pointerId) dragS=clamp((e.clientX-drag.x)/55,-1,1); }); for(const t of ['pointerup','pointercancel']) cv.addEventListener(t,e=>{ if(drag&&drag.id===e.pointerId){ drag=null; dragS=0; } });
 function readInput(){ const kl=keys.has('arrowleft')||keys.has('a'), kr=keys.has('arrowright')||keys.has('d'); let s=0;
-  if(kl||kr) s=(kr?1:0)-(kl?1:0); else if(drag) s=dragS; else if(tilt.ok){ tilt.sm=lerp(tilt.sm,tilt.ang,.4); const g=tilt.sm, a=Math.abs(g); s=a<1.5?0:Math.sign(g)*Math.pow(clamp((a-1.5)/16,0,1),1.15); }
+  if(kl||kr) s=(kr?1:0)-(kl?1:0); else if(drag&&Math.abs(dragS)>.02) s=dragS; else if(tilt.ok){ tilt.sm=lerp(tilt.sm,tilt.ang,.4); const g=tilt.sm, a=Math.abs(g); s=a<1.5?0:Math.sign(g)*Math.pow(clamp((a-1.5)/16,0,1),1.15); }
   return {gas:(pad.gas||keys.has('arrowup')||keys.has('w'))?1:0, brk:(pad.brk||keys.has('arrowdown')||keys.has('s')||keys.has(' '))?1:0, steer:s}; }
 function toggleLow(){ if(st.vel.length()>1){ toast('Fermati prima','le ridotte si inseriscono da fermo'); return; } st.gear=st.gear==='alta'?'ridotte':'alta'; toast(st.gear==='ridotte'?'Ridotte inserite':'Marce alte',st.gear==='ridotte'?'tanta forza, fino a 25 km/h':'fino a 80 km/h'); }
 $('#lowB').addEventListener('click',toggleLow);
@@ -1147,6 +1149,7 @@ function frame(now){
     if(!st.done&&st.s>LEN) arrive();
     auUpd(inp,sp,dt);
     hudT+=dt; if(hudT>.1){ hudT=0; hud(sp); }
+    if(matchMedia('(pointer:coarse)').matches&&st.time>3&&st.time<3.2&&!tilt.seen) toast('Il telefono non manda l\'inclinazione','trascina il dito a destra e sinistra sullo schermo per sterzare');
   }
   // grafica auto
   car.position.copy(st.pos); car.quaternion.copy(st.q);
@@ -1279,7 +1282,7 @@ function renderGarage(){
   }
 }
 document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{ garTab=b.dataset.t; renderGarage(); $('#gar').scrollTop=0; }));
-$('#garGo').addEventListener('click',()=>{ auInit(); const br=broken(); if(br.length){ garTab='officina'; renderGarage(); toast('Mezzo rotto','ripara '+br.map(k=>DMGN[k][0].toLowerCase()).join(', ')+' in officina'); return; }
+$('#garGo').addEventListener('click',()=>{ auInit(); askSensors(); tilt.seen=0; const br=broken(); if(br.length){ garTab='officina'; renderGarage(); toast('Mezzo rotto','ripara '+br.map(k=>DMGN[k][0].toLowerCase()).join(', ')+' in officina'); return; }
   const T=TRACKS[save.track]; if(T.locked&&T.locked()){ save.track='colle'; }
   $('#gar').hidden=true; $('#load').textContent=''; startRun(); calibrate(); toast(TRACKS[save.track].name,TRACKS[save.track].night?'notturna: accendi i fari, piano sul ghiaccio':'gas col pulsante verde, sterzo inclinando'); });
 
