@@ -1015,7 +1015,7 @@ cv.addEventListener('pointerup',e=>{ if(!campMode||!cs||cs.mini||cs.sleeping||!d
   const r=cv.getBoundingClientRect(); const ndc=new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1); const rc=new THREE.Raycaster(); rc.setFromCamera(ndc,cam); const hit=rc.intersectObject(window.__terrain,false)[0];
   if(hit){ cs.dest={x:hit.point.x,z:hit.point.z}; tapFx(hit.point); } }); cv.addEventListener('pointermove',e=>{ if(drag&&drag.id===e.pointerId) dragS=clamp((e.clientX-drag.x)/55,-1,1); }); for(const t of ['pointerup','pointercancel']) cv.addEventListener(t,e=>{ if(drag&&drag.id===e.pointerId){ drag=null; dragS=0; } });
 function readInput(){ const kl=keys.has('arrowleft')||keys.has('a'), kr=keys.has('arrowright')||keys.has('d'); let s=0;
-  if(kl||kr||pad.l||pad.r) s=((kr||pad.r)?1:0)-((kl||pad.l)?1:0); else if(drag&&Math.abs(dragS)>.02) s=dragS; else if(tilt.ok){ tilt.sm=lerp(tilt.sm,tilt.ang,.4); const g=tilt.sm, a=Math.abs(g); s=a<1.5?0:Math.sign(g)*Math.pow(clamp((a-1.5)/16,0,1),1.15); }
+  if(kl||kr||pad.l||pad.r) s=((kr||pad.r)?1:0)-((kl||pad.l)?1:0); else if(drag&&Math.abs(dragS)>.15&&!campMode) s=dragS; else if(drag&&campMode&&Math.abs(dragS)>.02) s=dragS; else if(tilt.ok){ tilt.sm=lerp(tilt.sm,tilt.ang,.4); const g=tilt.sm, a=Math.abs(g); s=a<1.5?0:Math.sign(g)*Math.pow(clamp((a-1.5)/16,0,1),1.15); }
   return {gas:pad.gas?(pad.gasV||1):(keys.has('arrowup')||keys.has('w'))?(keys.has('shift')?.45:1):0, brk:(pad.brk||keys.has('arrowdown')||keys.has('s')||keys.has(' '))?1:0, steer:s}; }
 function toggleAwd(){ if(st.gear==='ridotte'&&st.awd){ toast('Prima togli le ridotte','in ridotte si va sempre a 4 ruote motrici'); return; } st.awd=!st.awd; toast(st.awd?'4x4 inserita':'Solo trazione posteriore',st.awd?'tirano tutte e quattro le ruote':'più veloce sullo sterrato, ma niente presa nel fango'); auBurst(500,.15,.25,'lowpass'); }
 $('#awdB').addEventListener('click',toggleAwd);
@@ -1859,9 +1859,11 @@ function startRun(){ if(cs) clearCamp(); WX=save.meteo; if(builtTrack!==save.tra
   $('#hud').hidden=false; $('#hud2').hidden=false; $('#ctl').hidden=false; $('#tb').hidden=false; $('#lowB').hidden=false;
   clearSplats(); placeFriendCars(); Object.assign(st,{panoSaid:false,awd:true,dirt:0,progS:0,progT:0,running:true,done:false,rescue:null,time:0,water:0,sink:0,rescues:0,paused:false,gear:'alta',dmg:{...save.dmg}}); reset(4); campMode=false; clearRuts(); skyNow=-1; setSky(TR.night?1:0); lightsUpd(); $('#hq').hidden=false; setTimeout(()=>showHelp('guida'),400); }
 // pausa
-function pause(){ try{ if(AC&&AC.state==='running') AC.suspend(); }catch(_){}  if(!(st.running&&!st.done)&&!(campMode&&cs&&!cs.sleeping)) return; if(!$('#msg').hidden||!$('#gar').hidden) return; st.paused=true; snapshot(); $('#invS2').checked=!!tilt.inv; $('#pause').hidden=false; }
+function clearTouches(){ drag=null; dragS=0; for(const k of ['gas','brk','l','r']) pad[k]=false; document.querySelectorAll('.down').forEach(e=>e.classList.remove('down')); $('#gas').style.setProperty('--gv','0%'); }
+addEventListener('blur',()=>clearTouches());
+function pause(){ clearTouches(); try{ if(AC&&AC.state==='running') AC.suspend(); }catch(_){}  if(!(st.running&&!st.done)&&!(campMode&&cs&&!cs.sleeping)) return; if(!$('#msg').hidden||!$('#gar').hidden) return; st.paused=true; snapshot(); $('#invS2').checked=!!tilt.inv; $('#pause').hidden=false; }
 $('#pauB').addEventListener('click',pause);
-$('#pRes').addEventListener('click',()=>{ auInit(); $('#pause').hidden=true; st.paused=false; last=performance.now(); calibrate(); });
+$('#pRes').addEventListener('click',()=>{ clearTouches(); auInit(); $('#pause').hidden=true; st.paused=false; last=performance.now(); calibrate(); });
 $('#pRst').addEventListener('click',()=>{ $('#pause').hidden=true; startRun(); calibrate(); });
 $('#pGar').addEventListener('click',()=>{ clearResume(); $('#pause').hidden=true; st.running=false; st.paused=false; save.dmg={...st.dmg}; save.money=Math.max(0,save.money-st.rescues*40); persist(); dropWinch(); toGarage(); });
 $('#invS2').addEventListener('change',e=>{ tilt.inv=e.target.checked; $('#invS').checked=tilt.inv; try{ localStorage.setItem('camp3d-inv',tilt.inv?'1':'0'); }catch(_){} });
