@@ -376,6 +376,26 @@ body.incamp .pedal{display:none}
 #toast b,#toast strong{font-family:var(--fdirt)}
 #treeB{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 45%);font-family:var(--fd);font-size:15px;padding:9px 14px;border-radius:12px;background:#2e5a3c;color:#fff;box-shadow:0 4px 0 #173020;z-index:3}
 #starB{position:absolute;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 130px);font-family:var(--fd);font-size:18px;padding:10px 18px;border-radius:14px;background:#2a3d7a;color:#fff6d8;box-shadow:0 4px 0 #121c3d,0 0 18px #9fb4ff;z-index:6;animation:pul .5s infinite alternate}
+
+/* ---- festa: pista unica a tutta larghezza, si toccano le corsie ---- */
+#party{left:50%!important;transform:translateX(-50%)!important;bottom:calc(env(safe-area-inset-bottom,0px) + 6px)!important;width:min(calc(100vw - 12px),760px)!important;padding:8px 10px 10px!important}
+#party.split{width:min(calc(100vw - 12px),760px)!important}
+#jdPads{display:none!important}
+#party .mtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+#ptBoard{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:6px!important;margin-bottom:6px}
+#ptBoard .prow2{font-size:12px}
+#jdTrack.hwy{height:min(46vh,330px)!important;cursor:pointer;touch-action:none}
+#jdTrack .ln{position:relative;pointer-events:auto}
+#jdTrack .ln::after{content:attr(data-n);position:absolute;left:0;right:0;bottom:62px;text-align:center;font:700 11px/1 var(--fb,sans-serif);color:rgba(255,255,255,.55);letter-spacing:.06em;text-transform:uppercase}
+#jdTrack .rcp{bottom:10px!important}
+#jdTrack .rcp u{width:56px!important;height:56px!important;font-size:26px!important;opacity:.95!important;background:rgba(0,0,0,.35)}
+#jdTrack #ptNotes i{width:54px!important;height:54px!important;margin-left:-27px!important;font-size:26px!important;border-radius:14px!important}
+#ptBevi{position:absolute!important;right:10px!important;top:-70px!important;left:auto!important;bottom:auto!important;width:64px;height:64px}
+#party .phint{display:none}
+#ptCount{position:absolute;left:0;right:0;top:30%;text-align:center;font:400 64px/1 var(--fdirt,Impact);color:#fff;text-shadow:0 4px 0 #000;pointer-events:none;opacity:0}
+#ptCount.go{animation:cnt .8s ease-out}@keyframes cnt{0%{opacity:1;transform:scale(1.6)}100%{opacity:0;transform:scale(.8)}}
+#ptHelp{position:absolute;left:8px;right:8px;top:38%;text-align:center;font:700 15px/1.3 var(--fb,sans-serif);color:#fff;background:rgba(0,0,0,.55);border-radius:10px;padding:8px;pointer-events:none;transition:opacity .4s}
+@media (orientation:landscape) and (max-height:520px){ #jdTrack.hwy{height:min(52vh,240px)!important} #party .mtop b{font-size:15px} #ptBoard .prow2{font-size:11px} }
 </style>
 
 <div id="app">
@@ -454,7 +474,7 @@ body.incamp .pedal{display:none}
   </div>
   <section id="sheet" hidden><div class="shIn"><p class="eyebrow">Al campo</p><h2 id="shT"></h2><p class="muted" id="shS"></p><div id="shBody"></div><button class="big" id="shGo"></button></div></section>
   <div id="party" hidden><div id="ptF"></div><div class="mtop"><b>Chi fa più casino</b><span id="ptT"></span></div><div id="ptBoard"></div>
-    <div id="jdTrack" class="hwy"><b class="ln" data-k="0"></b><b class="ln" data-k="1"></b><b class="ln" data-k="2"></b><b class="ln" data-k="3"></b><div class="rcp"><u data-k="0">🙌</u><u data-k="1">🌀</u><u data-k="2">👏</u><u data-k="3">🦵</u></div><div id="ptNotes"></div><div id="ptCombo"></div><div class="hitl"></div></div>
+    <div id="jdTrack" class="hwy"><b class="ln" data-k="0" data-n="braccia su"></b><b class="ln" data-k="1" data-n="giro"></b><b class="ln" data-k="2" data-n="battimani"></b><b class="ln" data-k="3" data-n="calcio"></b><div id="ptCount"></div><div id="ptHelp">Le mosse scendono: <b>tocca la corsia</b> quando arrivano sul cerchio in basso</div><div class="rcp"><u data-k="0">🙌</u><u data-k="1">🌀</u><u data-k="2">👏</u><u data-k="3">🦵</u></div><div id="ptNotes"></div><div id="ptCombo"></div><div class="hitl"></div></div>
     <div id="jdPads"><button class="jp" data-k="0">🙌<small>Braccia su</small></button><button class="jp" data-k="1">🌀<small>Giro</small></button><button class="jp" data-k="2">👏<small>Battimani</small></button><button class="jp" data-k="3">🦵<small>Calcio</small></button></div>
     <div class="mrow"><button id="ptBevi" class="bevi">BEVI<small id="ptDr"></small></button><span class="phint">le mosse scendono nelle corsie: tocca il tasto dello stesso colore quando arrivano sul cerchio · ⭐ = punti doppi · BEVI: più punti, ma poi barcolli</span></div><div class="gauge sb">Sbronza<i id="ptSbI" style="--c:#e8b13c"></i></div></div>
   <div id="bal" hidden><div class="mtop"><b>Equilibrio</b><span id="balS"></span></div><div class="bbar"><div class="bsafe"></div><div id="balN"></div></div><p class="phint">la lancetta va dove inclini il telefono (o con le frecce): tienila nel verde</p></div>
@@ -1857,10 +1877,10 @@ function startParty(id){ musicStart(id); const G=MUSIC.find(m=>m.id===id);
   // coreografia: frasi di 8 mosse ripetute due volte, come in Just Dance; ogni tanto la mossa d'oro
   const beat=MUS.beat, ch=[]; let phrase=[], c=0; const ev=b=>Math.max(1,Math.round(b/beat));
   // coreografia a frasi di 8 mosse ripetute (come Just Dance); si parte tranquilli e poi si accelera
-  for(let n=4;n*beat<cs.party.dur-1.2;c++){ const tt=n*beat/cs.party.dur, step=ev(tt<.3?.85:tt<.7?.6:.45);
+  for(let n=8;n*beat<cs.party.dur-1.2;c++){ const tt=n*beat/cs.party.dur, step=ev(tt<.3?.85:tt<.7?.6:.45);
     if(c%16===0){ phrase=[]; let last=-1; for(let j=0;j<8;j++){ let k=Math.random()*4|0; if(k===last) k=(k+1+Math.random()*3|0)%4; phrase.push(k); last=k; } }
     ch.push({n,t:MUS.t0+n*beat,k:phrase[c%8],gold:c%16===15,hit:false,miss:false}); n+=step; }
-  cs.party.ch=ch; const L=$('#ptNotes'); L.innerHTML=''; for(const N of ch){ const e=el('i','',['🙌','🌀','👏','🦵'][N.k]); e.dataset.k=N.k; if(N.gold) e.classList.add('gold'); N.e=e; L.append(e); }
+  cs.party.ch=ch; $('#ptHelp').style.opacity=1; const cnt=$('#ptCount'); [3,2,1,'VIA!'].forEach((t,i)=>setTimeout(()=>{ cnt.textContent=t; cnt.classList.remove('go'); void cnt.offsetWidth; cnt.classList.add('go'); },i*MUS.beat*1000+(MUS.t0-clk())*1000)); setTimeout(()=>$('#ptHelp').style.opacity=0,6000); const L=$('#ptNotes'); L.innerHTML=''; for(const N of ch){ const e=el('i','',['🙌','🌀','👏','🦵'][N.k]); e.dataset.k=N.k; if(N.gold) e.classList.add('gold'); N.e=e; L.append(e); }
   const Q=[['Purcello','Chi perde paga la prossima cassa!','p_cassa'],['Mirco','Stasera ballo, domani sono in mutua!','m_ballo'],['Costa','Questa la ballavano anche le trote!','c_trote']][Math.random()*3|0]; toast(G.ic+' '+G.n,`«${Q[1]}» — ${Q[0]}`); setTimeout(()=>say(Q[0],'',Q[2]),600); }
 const lat=()=>AC?Math.min(.25,(AC.outputLatency||0)+(AC.baseLatency||0)):0;
 const heard=()=>clk()-lat();
@@ -1877,8 +1897,8 @@ function partyHit(){ const P=cs.party; if(!P||P.over) return; if(P.ch) return; c
   else if(!P.hit.has(n)){ if((P.combo||0)>=6) gabbah('g_dopo',15); P.combo=0; P.score[0]=Math.max(0,P.score[0]-.5); ptFb('Fuori tempo','#f08a7c'); } }
 function partyDrink(){ const P=cs.party; if(!P||P.over||P.cd>0) return; P.cd=2; P.drinks++; const D=cs.drink; P.score[0]+=(D.alc?Math.round(4+D.alc*22):2)+(own('frigo')?3:0); cs.drunk=Math.min(1.5,(cs.drunk||0)+D.alc*1.1);
   ptFb(D.alc?`${D.ic} Giù! +${Math.round(4+D.alc*22)} · balli e prendi di più`:'💧 Acqua… +2',D.alc?'#f2d24b':'#9ac8e0'); auBurst(600,.25,.2,'lowpass'); auBurst(2200,.15,.08,'bandpass',2); }
-{ const mq=matchMedia('(orientation:landscape) and (max-height:520px)'); const place=()=>{ const pads=$('#jdPads'), P=$('#party'); if(mq.matches){ if(pads.parentNode!==document.body) document.body.append(pads); P.classList.add('split'); } else { if(pads.parentNode!==P) $('#jdTrack').after(pads); P.classList.remove('split'); } pads.hidden=P.hidden; };
-  place(); mq.addEventListener?mq.addEventListener('change',place):mq.addListener(place); new MutationObserver(place).observe($('#party'),{attributes:true,attributeFilter:['hidden']}); }
+{ /* pad separati tolti: si tocca la corsia */ }
+for(const l of document.querySelectorAll('#jdTrack .ln')) l.addEventListener('pointerdown',e=>{ e.preventDefault(); padHit(+l.dataset.k); });
 for(const b of document.querySelectorAll('.jp')){ b.addEventListener('pointerdown',e=>{ e.preventDefault(); b.classList.add('dn'); padHit(+b.dataset.k); }); for(const t of ['pointerup','pointercancel','pointerleave']) b.addEventListener(t,()=>b.classList.remove('dn')); } $('#ptBevi').addEventListener('pointerdown',e=>{ e.preventDefault(); partyDrink(); });
 addEventListener('keydown',e=>{ if(cs&&cs.mini&&(e.key===' '||e.key==='Enter')){ miniTap(); e.preventDefault(); return; } if(!cs||!cs.party) return; const kk={arrowup:0,'1':0,arrowleft:1,'2':1,arrowdown:2,'3':2,arrowright:3,'4':3}[e.key.toLowerCase()]; if(kk!=null){ padHit(kk); e.preventDefault(); } if(e.key.toLowerCase()==='b') partyDrink(); });
 function ptFb(t,c){ const f=$('#ptF'); f.textContent=t; f.style.color=c; f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); }
@@ -1888,7 +1908,7 @@ function updParty(dt){ const P=cs.party; if(!P) return; P.t+=dt; P.cd=Math.max(0
   FRIENDS.forEach((f,i)=>{ P.score[i+1]+=dt*f.rate*(.8+Math.random()*.4)*(P.t<P.dur?1:0); });
   // note che arrivano verso la linea
   if(P.pose) P.pose.t+=dt;
-  const HH=$('#jdTrack').clientHeight||200; for(const N of P.ch||[]){ const x=(N.t-now)/1.9, e=N.e; if(x>1.08||x<-.15||(N.hit&&now-N.t>.15)){ e.style.display='none'; } else { e.style.display=''; e.style.left=(12.5+N.k*25)+'%'; e.style.top=((1-x)*(HH-30)-0)+'px'; }
+  const HH=$('#jdTrack').clientHeight||200; for(const N of P.ch||[]){ const x=(N.t-now)/2.2, e=N.e; if(x>1||x<-.15||(N.hit&&now-N.t>.15)){ e.style.display='none'; } else { e.style.display=''; e.style.left=(12.5+N.k*25)+'%'; e.style.top=(28+(1-x)*(HH-66))+'px'; }
     if(!N.hit&&!N.miss&&now-N.t>.32){ N.miss=true; e.classList.add('gone'); if((P.combo||0)>=8) gabbah('g_dopo',15); P.combo=0; ptFb('Mancato','#f08a7c'); } }
   const mx=Math.max(30,...P.score); [...$('#ptBoard').children].forEach((r,i)=>{ r.querySelector('u').style.width=(P.score[i]/mx*100)+'%'; });
   $('#ptT').textContent=P.t<P.dur?`${Math.ceil(P.dur-P.t)} s`:'fine!'; $('#ptDr').textContent=P.cd>0?'…':`${cs.drink.ic} ${P.drinks}`;
