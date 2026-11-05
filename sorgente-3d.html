@@ -2760,7 +2760,7 @@ async function doInstall(){ const inFrame=self!==top, ios=/iphone|ipad|ipod/i.te
   if(ios) return instHelp('<ol><li>Apri il gioco con <b>Safari</b></li><li>Tocca il tasto <b>Condividi</b> (il quadrato con la freccia in su)</li><li>Scegli <b>Aggiungi alla schermata Home</b></li><li>Premi <b>Aggiungi</b>: l\'icona 4x4 Camp compare tra le app</li></ol>');
   instHelp('<ol><li>Tocca i <b>tre puntini ⋮</b> in alto a destra di Chrome</li><li>Scegli <b>Aggiungi a schermata Home</b> (o <b>Installa app</b>)</li><li>Conferma con <b>Installa</b>: l\'icona 4x4 Camp compare tra le app e il gioco parte a schermo intero</li></ol>'); }
 $('#instB').addEventListener('click',doInstall); $('#instB2').addEventListener('click',doInstall); instUI();
-if('serviceWorker' in navigator&&/github\.io$/.test(location.hostname)) navigator.serviceWorker.register('sw.js').catch(()=>{});
+if('serviceWorker' in navigator&&/github\.io$/.test(location.hostname)) navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
 const TRUCK='__TRUCK__', LOGO='__LOGO__', LOGO4='__LOGO4__', TERRANO='__TERRANO__';
 if(window.top!==window&&!/github\.io$/.test(location.hostname)) $('#olk').hidden=false;
 $('#over').style.setProperty('--hero',`url(${VBASE}hero.webp)`); $('#ovLogo').src=LOGO4; $('#garLogo').src=LOGO4;
