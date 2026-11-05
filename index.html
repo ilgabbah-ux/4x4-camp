@@ -898,7 +898,8 @@ const VEHS={terrano:{n:'Terrano II del Gabbah',sub:'il tuo: nero, alzato, snorke
  bisonte:{n:'Bisonte 110',sub:'squadrato all\'inglese (in stile Defender): più alto e più forte',price:3500,sc:[1.02,1.04,1.06],mass:2250,p:1.25,col:0x3d5a3a,lift:.03},
  orso:{model:'landcruiser_stock',n:'Orso 200',sub:'giapponese indistruttibile (in stile Land Cruiser): pesante, potente, bloccaggio dietro di serie',price:5500,sc:[1.08,1.06,1.1],mass:2500,p:1.5,col:0xe9e7e0,lockR:true,tough:.7}};
 let VEH=VEHS.base, VS=[1,1,1]; const WH0=[ {x:-.82,z:-1.38},{x:.82,z:-1.38},{x:-.82,z:1.35},{x:.82,z:1.35} ]; let carRoot=null, bodyMat0=null;
-function applyVehicle(){ VEH=VEHS[save.veh]||VEHS.base; VS=VEH.sc; MASS=VEH.mass; I.copy(I0).multiplyScalar(MASS/2100);
+let prevVeh=null;
+function applyVehicle(){ VEH=VEHS[prevVeh||save.veh]||VEHS.base; VS=VEH.sc; MASS=VEH.mass; I.copy(I0).multiplyScalar(MASS/2100);
   WH.forEach((w,i)=>{ w.x=WH0[i].x*VS[0]; w.z=WH0[i].z*VS[2]; delete w.vx; delete w.vz; });
   const MI=VEH.model?VMOD[VEH.model]:null; if(MI&&!MI.root&&!MI.fail){ loadVModel(VEH.model); toast('Arriva '+VEH.n,'carico il modello 3D…'); }
   curRoot=MI&&MI.root||null; for(const M of Object.values(VMOD)) if(M.root) M.root.visible=M.root===curRoot;
@@ -2088,18 +2089,18 @@ const UPG={
 const DMGN={gomme:['Gomme',3],coppa:['Coppa dell\'olio',4],semiassi:['Semiassi',5],carrozzeria:['Carrozzeria',2]};
 let garTab='mezzo';
 const el=(t,cls,txt)=>{ const e=document.createElement(t); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; };
-function toGarage(){ shS=-1; if(rec) rec.r.stop(); WX='sereno'; if(cs) clearCamp(); st.running=false; hideRunUI(); $('#gar').hidden=false; renderGarage(); auSilence(); }
+function toGarage(){ shS=-1; if(prevVeh&&!(st.running||campMode)){}  if(rec) rec.r.stop(); WX='sereno'; if(cs) clearCamp(); st.running=false; hideRunUI(); $('#gar').hidden=false; renderGarage(); auSilence(); }
 function auSilence(){ if(!AC) return; for(const n of [eng,turbo,rush,suck,AC.gravel,AC.sizz,AC.win]) if(n) auSet(n,0,.05); if(eng) eng.g2.gain.setTargetAtTime(0,AC.currentTime,.05); musicStop(); }
 function broken(){ return Object.keys(DMGN).filter(k=>save.dmg[k]>=100); }
 function renderGarage(){
-  $('#garM').textContent=eur(save.money); const T=TRACKS[save.track]; $('#garGoS').textContent=T.name+(T.night?' · notturna':'')+' · '+METEO[save.meteo].ic+' '+METEO[save.meteo].n+' · '+VEHS[save.veh].n;
+  $('#garM').textContent=eur(save.money); const T=TRACKS[save.track]; $('#garGoS').textContent=T.name+(T.night?' · notturna':'')+' · '+METEO[save.meteo].ic+' '+METEO[save.meteo].n+' · '+VEHS[prevVeh||save.veh].n+(prevVeh?' (giro di prova)':'');
   document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===garTab));
   const L=$('#garList'); L.innerHTML='';
   if(garTab==='mezzo'||garTab==='campo'||garTab==='elabora'){
-    if(garTab==='mezzo'){ L.append(el('p','howto','Qui scegli il mezzo. Motore, snorkel, rialzo, gomme, verricello e gli altri pezzi sono nella scheda ⚙️ Elabora.')); L.append(el('p','sec','Il tuo fuoristrada'));
-      for(const [k,v] of Object.entries(VEHS)){ const it=el('div','item'+(save.veh===k?' sel':'')); it.append(el('h3','',v.n)); const b=el('button','buy'); const o=save.vehOwn[k];
+    if(garTab==='mezzo'){ L.append(el('p','howto','Tocca un fuoristrada per vederlo in 3D qui sopra e fare un giro di prova gratis; per tenerlo lo compri. Qui scegli il mezzo. Motore, snorkel, rialzo, gomme, verricello e gli altri pezzi sono nella scheda ⚙️ Elabora.')); L.append(el('p','sec','Il tuo fuoristrada'));
+      for(const [k,v] of Object.entries(VEHS)){ const it=el('div','item'+((prevVeh||save.veh)===k?' sel':'')); it.style.cursor='pointer'; it.addEventListener('click',e=>{ if(e.target.closest('button')) return; prevVeh=save.vehOwn[k]?null:k; if(save.vehOwn[k]){ save.veh=k; persist(); } applyUpgrades(); renderGarage(); $('#gar').scrollTop=0; toast(v.n,save.vehOwn[k]?'in uso':'anteprima · tocca PARTI per un giro di prova gratis'); }); it.append(el('h3','',v.n)); const b=el('button','buy'); const o=save.vehOwn[k];
         if(save.veh===k){ b.textContent='In uso'; b.classList.add('own'); } else if(o){ b.textContent='Usa'; b.addEventListener('click',()=>{ save.veh=k; persist(); applyUpgrades(); renderGarage(); }); }
-        else { b.textContent=eur(v.price); b.disabled=save.money<v.price; b.addEventListener('click',()=>{ if(save.money<v.price) return; save.money-=v.price; save.vehOwn[k]=true; save.veh=k; persist(); applyUpgrades(); auBurst(2400,.15,.2,'bandpass',4); renderGarage(); }); }
+        else { b.textContent=eur(v.price); b.disabled=save.money<v.price; if(prevVeh===k){ const t=el('span','fx','👁 In anteprima: lo vedi qui sopra · PARTI = giro di prova gratis'); t.style.color='#ffd84a'; it.append(t); } else { const t=el('span','fx','👁 Tocca la scheda per vederlo in 3D e provarlo'); t.style.color='var(--sabbia)'; it.append(t); } b.addEventListener('click',()=>{ if(save.money<v.price) return; save.money-=v.price; save.vehOwn[k]=true; save.veh=k; persist(); applyUpgrades(); auBurst(2400,.15,.2,'bandpass',4); renderGarage(); }); }
         it.append(b,el('p','',v.sub+'.'),el('span','fx',`${Math.round(v.mass)} kg · motore ×${v.p.toFixed(2).replace('.',',')}`)); L.append(it); }
       const gb=el('button','big','⚙️ Elabora il mezzo: motore, snorkel, rialzo, gomme…'); gb.style.fontSize='17px'; gb.addEventListener('click',()=>{ garTab='elabora'; renderGarage(); $('#gar').scrollTop=0; }); L.append(gb); }
     else if(garTab==='elabora') L.append(el('p','howto',`Gomme montate: ${TYRE_NAME[tyreKey()]}. I pezzi valgono per tutti i mezzi e cambiano davvero come si guida.`));
