@@ -236,6 +236,17 @@ p{margin:0;line-height:1.5}
 }
 
 /* ===== Tema 4x4 OFF ROAD PIEMONTE ===== */
+.vgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.vcard{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 8px 10px;border-radius:14px;background:linear-gradient(180deg,rgba(40,40,44,.95),rgba(18,18,20,.95));border:1.5px solid #3a3a3c;text-align:center;min-height:150px}
+.vcard img{width:100%;height:92px;object-fit:contain;filter:drop-shadow(0 8px 8px rgba(0,0,0,.6))}.vcard .vph{font-size:54px;font-style:normal;height:92px;line-height:92px}
+.vcard b{font-size:15px;line-height:1.15}.vcard small{font-size:13px;color:#ffd84a;font-weight:700}.vcard.own small{color:var(--ok)}.vcard.sel{border-color:#d7262b;box-shadow:inset 0 0 0 1px #d7262b,0 0 18px rgba(215,38,43,.3)}
+#gar:not(.det) .show3d small{display:none}#gar.det .wrap,#gar.det #garGo,#gar.det .ghead{display:none!important}#gar.det{background:none}#gar.det .show3d{height:52vh}
+#vdet{position:fixed;left:0;right:0;bottom:0;z-index:25;max-height:52vh;overflow:auto;padding:16px max(16px,env(safe-area-inset-left,0px)) calc(env(safe-area-inset-bottom,0px) + 16px);background:var(--grana),linear-gradient(180deg,rgba(14,14,15,.9),#0d0e0f 30%);border-top:3px solid #d7262b;border-radius:18px 18px 0 0;display:flex;flex-direction:column;gap:10px}
+#vdet h2{font-size:30px}#vdet .vsub{color:var(--sabbia);font-size:15px}.vx{position:absolute;right:14px;top:12px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.08);font-size:20px}
+.vstats{display:grid;gap:6px}.vst{display:grid;grid-template-columns:100px 1fr;align-items:center;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:.05em}.vst i{display:flex;gap:4px}.vst u{flex:1;height:10px;border-radius:2px;background:rgba(255,255,255,.1);transform:skewX(-14deg)}.vst u.on{background:linear-gradient(90deg,#d7262b,#ff5a5f)}
+.vspec{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;font-size:14px}.vspec div{display:flex;justify-content:space-between;gap:6px;border-bottom:1px solid #2a2a2c;padding:4px 0}.vspec span{color:var(--spento)}
+.vbtn{display:flex;flex-direction:column;gap:8px}.vhint{text-align:center;font-size:12px;color:var(--spento);letter-spacing:.1em;text-transform:uppercase}
+@media (orientation:landscape) and (max-height:520px){ #vdet{left:auto;top:0;width:min(52vw,520px);max-height:none;border-radius:0;border-top:0;border-left:3px solid #d7262b} #gar.det .show3d{height:100vh;width:48vw} }
 .sens{display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap}.sens span{width:100%;text-align:center;font-size:14px;color:var(--sabbia);letter-spacing:.06em;text-transform:uppercase}.sens button{flex:1;min-height:44px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid #3a3a3c;font-weight:700;transform:skewX(-7deg)}.sens button.on{background:#d7262b;border-color:#ff5a5f;color:#fff}
 :root{--notte:#0d0e0f;--carta:#f3f1ec;--sabbia:#d6d1c6;--spento:#9a9893;--segnale:#d7262b;--rosso:#d7262b;--linea:#3a3a3c;--ok:#8fc35d;
  --grana:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
@@ -341,9 +352,10 @@ p{margin:0;line-height:1.5}
       <label class="inv"><input type="checkbox" id="invS2"> Inverti lo sterzo col telefono</label>
     </div>
   </section>
+  <div id="vdet" hidden></div>
   <section id="gar" class="screen" hidden>
+    <div class="show3d" id="show3d"><small>↔ trascina per girare il mezzo</small></div>
     <div class="wrap">
-      <div class="show3d" id="show3d"><small>↔ trascina per girare il mezzo</small></div>
       <div class="ghead"><img id="garLogo" alt="4x4 Camp · Ridotte inserite"><div><p class="eyebrow">Garage</p><h2 id="garTr">Il tuo 4x4</h2></div><div class="money"><b id="garM">0 €</b><small>in cassa</small></div></div>
       <div class="tabs" role="tablist"><button data-t="mezzo" class="on">Mezzo</button><button data-t="elabora">Elabora</button><button data-t="campo">Campo</button><button data-t="officina">Officina</button><button data-t="tracciati">Uscita</button></div>
       <div id="garList" style="display:flex;flex-direction:column;gap:10px"></div>
@@ -827,6 +839,8 @@ const VMOD={terrano:{r:.45,cz:-.69,xf:1.34,xr:-1.11,wx:.8,k:1.04},
  linus_wrangler:{r:.49,cz:.49,xf:1.38,xr:-1.14,yo:.96}, giacu_wrangler:{r:.49,cz:.49,xf:1.32,xr:-1.2,yo:.82}, purcello_pajero:{r:.41,cz:.41,xf:1.44,xr:-1.14,yo:.86},
  daniel_patrol:{r:.58,cz:.58,xf:1.45,xr:-1.4,yo:.96}, renard_sorento:{r:.42,cz:.42,xf:1.32,xr:-1.32,yo:.9}, stefano_landcruiser:{r:.48,cz:.481,xf:1.31,xr:-1.06,yo:.8},
  gusta_cherokee:{r:.454,cz:.454,xf:1.35,xr:-1.22,yo:.8}, costa_terrano:{r:.41,cz:.41,xf:1.32,xr:-1.2,yo:.78}, linus_terrano:{r:.41,cz:.41,xf:1.14,xr:-1.05,yo:.78},
+ rubicon_grigio:{r:.49,cz:.49,xf:1.32,xr:-1.05,yo:.97}, grenadier:{r:.44,cz:.44,xf:1.59,xr:-1.41,yo:.87}, samurai:{r:.36,cz:.36,xf:1.08,xr:-.87,yo:.72},
+ pajero_sport:{r:.43,cz:.43,xf:1.32,xr:-1.47,yo:.79}, pajero_corto:{r:.4,cz:.4,xf:1.29,xr:-.99,yo:.7}, jimny_verde:{r:.43,cz:.43,xf:1.17,xr:-1.23,yo:.72},
  gabbah_terrano:{r:.42,cz:.42,xf:1.3,xr:-1.1,yo:.82}, zj_cherokee:{r:.41,cz:.41,xf:1.36,xr:-1.21,yo:.76}, camo_patrol:{r:.47,cz:.47,xf:1.36,xr:-1.07,yo:.96},
  jimny:{r:.452,cz:.45,xf:1.2,xr:-1.08,yo:.68}, landcruiser_stock:{r:.503,cz:.501,xf:1.58,xr:-1.2,yo:.85}};
 for(const M of Object.values(VMOD)){ if(!M.k) M.k=clamp(2.62/(M.xf-M.xr),.85,1.15); if(!M.wx) M.wx=M.yo-.15; M.dz=-.015+(M.xf+M.xr)/2*M.k; M.rw=clamp(M.r*M.k*.95,.38,.5); }
@@ -834,7 +848,7 @@ const VBASE=/github\.io$/.test(location.hostname)?'veh/':'https://ilgabbah-ux.gi
 async function loadVModel(name){ const M=VMOD[name]; if(!M||M.root||M.loading) return; M.loading=true;
   try{ const buf=await (await fetch(VBASE+name+'.glb')).arrayBuffer(); const g=await new GLTFLoader().parseAsync(buf,''); let body=g.scene.getObjectByName('V_BODY'); if(!body) body=g.scene;
     const tr=new THREE.Group(); tr.rotation.y=Math.PI/2; tr.add(body); body.position.set(0,0,0); body.traverse(o=>{ if(o.isMesh){ o.castShadow=true; o.receiveShadow=true; if(o.material) o.material.envMapIntensity=.9; } });
-    tr.visible=false; car.add(tr); M.root=tr; if(name==='purcello_pajero'){ const c=modelCarClone(name); if(c){ while(pur.children.length) pur.remove(pur.children[0]); pur.add(c); } } applyUpgrades(); if(cs) placeFriendCars(); }
+    tr.visible=false; car.add(tr); M.root=tr; if(name==='pajero_sport'){ const c=modelCarClone(name); if(c){ while(pur.children.length) pur.remove(pur.children[0]); pur.add(c); } } applyUpgrades(); if(cs) placeFriendCars(); }
   catch(e){ console.warn('modello',name,e); M.fail=true; } M.loading=false; }
 // copia di un mezzo (per gli amici al campo e per Purcello che ti tira fuori): origine come la macchina del giocatore
 function modelCarClone(name){ const M=VMOD[name]; if(!M||!M.root||!SPG) return null; const g=new THREE.Group(); const b=M.root.clone(true); b.visible=true; b.scale.setScalar(M.k);
@@ -900,19 +914,38 @@ let MASS=2100; const I=new V(4300,4400,2200), I0=I.clone(), K=26000, CD=2900;
 const VEHS={terrano:{n:'Terrano II Black Edition',sub:'nero, alzato, snorkel, barra LED e gomme tassellate · modello 3D vero',price:0,sc:[1,1,1],mass:2100,p:1.05,col:null,model:'gabbah_terrano'},
  linus_terrano:{n:'Terrano 2.7 TD',sub:'nero e argento, 2.7 TD, gomme tassellate: il gemello del tuo',price:900,sc:[1,1,1],mass:1950,p:1.02,col:null,model:'linus_terrano'},
  costa_terrano:{n:'Terrano grigio',sub:'grigio col Minion sulla ruota di scorta: affidabile, mai una rottura',price:800,sc:[1,1,1],mass:1900,p:.98,col:null,model:'costa_terrano',tough:.85},
- purcello_pajero:{n:'Pajero Sport',sub:'quello che ti tira fuori dal fango: comodo, potente, portapacchi con la ruota',price:1600,sc:[1,1,1],mass:2050,p:1.12,col:null,model:'purcello_pajero'},
- linus_wrangler:{n:'Wrangler 37"',sub:'grigio, gomme da 37, verricello: si arrampica ovunque',price:3800,sc:[1,1,1],mass:2100,p:1.25,col:null,model:'linus_wrangler',lockR:true,lift:.04},
+ purcello_pajero:{n:'Pajero Sport',sub:'argento, portapacchi con la ruota e fari LED: quello che ti tira fuori dal fango',price:1600,sc:[1,1,1],mass:2050,p:1.12,col:null,model:'pajero_sport'},
+ linus_wrangler:{n:'Wrangler Rubicon 37"',sub:'grigio, soft top, gomme da 37, verricello e barra LED: si arrampica ovunque',price:3800,sc:[1,1,1],mass:2100,p:1.25,col:null,model:'rubicon_grigio',lockR:true,lift:.04},
  giacu_wrangler:{n:'Wrangler Rubicon verde',sub:'verde acido, bloccaggi di serie e gomme enormi: il re delle pietraie',price:4500,sc:[1,1,1],mass:2050,p:1.3,col:null,model:'giacu_wrangler',lockR:true,lift:.05},
  gusta_cherokee:{n:'Grand Cherokee 4.0',sub:'ZJ 4.0 V6 nero, gomme AT: comodo, potente, va forte nel fango',price:2200,sc:[1,1,1],mass:1750,p:1.18,col:null,model:'zj_cherokee'},
  renard_sorento:{n:'Sorento',sub:'SUV comodo: bene sullo sterrato, nel fango profondo soffre',price:1200,sc:[1,1,1],mass:1950,p:1.02,col:null,model:'renard_sorento',lift:-.02},
  stefano_landcruiser:{n:'Land Cruiser BJ',sub:'BJ bianco: indistruttibile, lento ma non si ferma mai',price:3600,sc:[1,1,1],mass:1950,p:1.05,col:null,model:'stefano_landcruiser',lockR:true,tough:.7},
  daniel_patrol:{n:'Patrol mimetico',sub:'mimetico rosso: pesante, potentissimo, sospensioni lunghe',price:5200,sc:[1,1,1],mass:2600,p:1.45,col:null,model:'camo_patrol',tough:.75,lift:.03},
+ samurai:{n:'Samurai giallo',sub:'piccolo, leggerissimo, soft top e barra LED: passa dove gli altri si incastrano',price:1500,sc:[1,1,1],mass:1050,p:.7,col:null,model:'samurai'},
+ pajero_corto:{n:'Pajero corto',sub:'tre porte infangato con taniche e portapacchi: corto, agile, robusto',price:2400,sc:[1,1,1],mass:1850,p:1.12,col:null,model:'pajero_corto',tough:.85},
+ grenadier:{n:'Grenadier',sub:'verde scuro, telaio a longheroni e ponti rigidi: il fuoristrada moderno più duro',price:6000,sc:[1,1,1],mass:2650,p:1.45,col:null,model:'grenadier',lockR:true,tough:.7,lift:.02},
  base:{n:'Ranger 2.5 TD',sub:'il tuo 4x4 di serie: onesto e robusto',price:0,sc:[1,1,1],mass:2100,p:1,col:null},
- grillo:{model:'jimny',n:'Grillo 1.3',sub:'piccolo e leggero (in stile Jimny): stretto, galleggia nel fango, poco motore',price:1800,sc:[.88,.96,.82],mass:1200,p:.64,col:0xd8c23a},
+ grillo:{model:'jimny_verde',n:'Jimny 1.5',sub:'piccolo e leggero (in stile Jimny): stretto, galleggia nel fango, poco motore',price:1800,sc:[.88,.96,.82],mass:1200,p:.64,col:0xd8c23a},
  bisonte:{n:'Bisonte 110',sub:'squadrato all\'inglese (in stile Defender): più alto e più forte',price:3500,sc:[1.02,1.04,1.06],mass:2250,p:1.25,col:0x3d5a3a,lift:.03},
  orso:{model:'landcruiser_stock',n:'Orso 200',sub:'giapponese indistruttibile (in stile Land Cruiser): pesante, potente, bloccaggio dietro di serie',price:5500,sc:[1.08,1.06,1.1],mass:2500,p:1.5,col:0xe9e7e0,lockR:true,tough:.7}};
 let VEH=VEHS.base, VS=[1,1,1]; const WH0=[ {x:-.82,z:-1.38},{x:.82,z:-1.38},{x:-.82,z:1.35},{x:.82,z:1.35} ]; let carRoot=null, bodyMat0=null;
-let prevVeh=null;
+let prevVeh=null, detVeh=null;
+function vStats(v){ const M=v.model&&VMOD[v.model], rw=M?M.rw:.41, P=v.p, m=v.mass, t=v.tough||1;
+  const c=x=>Math.max(1,Math.min(5,Math.round(x)));
+  return [['Potenza',c(1+(P-.6)*4.5)],['Fango',c(1.5+(v.lockR?1:0)+(m<1900?1:0)+(P>1.15?1:0)+(rw>.45?.5:0))],['Pietraia',c(1.5+(v.lockR?1.2:0)+(rw>.46?1:0)+((v.lift||0)>0?1:0)+(m<1300?.6:0))],['Velocità',c(1+(P/(m/2000))*2.1)],['Robustezza',c(2+(1-t)*9+(m>2300?.5:0))]]; }
+function openVeh(k){ detVeh=k; const v=VEHS[k]; prevVeh=save.vehOwn[k]?null:k; if(save.vehOwn[k]){ save.veh=k; persist(); } applyUpgrades(); shA=.6; renderVeh(); $('#gar').classList.add('det'); }
+function closeVeh(){ detVeh=null; $('#vdet').hidden=true; $('#gar').classList.remove('det'); renderGarage(); }
+function renderVeh(){ const k=detVeh, v=VEHS[k], o=save.vehOwn[k], D=$('#vdet'); D.innerHTML=''; D.hidden=false;
+  const M=v.model&&VMOD[v.model], rw=M?M.rw:.41;
+  D.append(el('button','vx','✕')); D.lastChild.addEventListener('click',closeVeh);
+  D.append(el('p','eyebrow',o?(save.veh===k?'In uso':'Nel tuo garage'):'In vendita · '+eur(v.price)), el('h2','',v.n), el('p','vsub',v.sub+'.'));
+  const st=el('div','vstats'); for(const [n,x] of vStats(v)){ const r=el('div','vst'); r.append(el('span','',n)); const bar=el('i'); for(let q=0;q<5;q++) bar.append(el('u',q<x?'on':'')); r.append(bar); st.append(r); } D.append(st);
+  const sp=el('div','vspec'); for(const [a,b] of [['Peso',Math.round(v.mass)+' kg'],['Motore','×'+v.p.toFixed(2).replace('.',',')],['Gomme','Ø '+Math.round(rw*200)+' cm'],['Bloccaggio dietro',v.lockR?'di serie':'no (lo monti in Elabora)'],['Assetto',(v.lift||0)>0?'rialzato':(v.lift||0)<0?'basso, da SUV':'normale'],['Resistenza ai danni',(v.tough||1)<1?'alta':'normale']]){ const r=el('div'); r.append(el('span','',a),el('b','',b)); sp.append(r); } D.append(sp);
+  const bt=el('div','vbtn');
+  if(o){ const u=el('button','big',save.veh===k?'✔ In uso · PARTI':'Usa questo'); u.addEventListener('click',()=>{ save.veh=k; persist(); applyUpgrades(); if(u.textContent.includes('PARTI')){ closeVeh(); $('#garGo').click(); } else renderVeh(); }); bt.append(u); }
+  else { const pr=el('button','big','🏁 Prova gratis'); pr.addEventListener('click',()=>{ prevVeh=k; closeVeh(); $('#garGo').click(); }); const by=el('button','ghost',save.money>=v.price?'Compra · '+eur(v.price):'Servono '+eur(v.price)+' (hai '+eur(save.money)+')'); by.disabled=save.money<v.price;
+    by.addEventListener('click',()=>{ if(save.money<v.price) return; save.money-=v.price; save.vehOwn[k]=true; save.veh=k; prevVeh=null; persist(); applyUpgrades(); auBurst(2400,.15,.2,'bandpass',4); toast('È tuo!',v.n); renderVeh(); }); bt.append(pr,by); }
+  D.append(bt); D.append(el('p','vhint','↔ trascina sul mezzo per girarlo')); }
 function applyVehicle(){ VEH=VEHS[prevVeh||save.veh]||VEHS.base; VS=VEH.sc; MASS=VEH.mass; I.copy(I0).multiplyScalar(MASS/2100);
   WH.forEach((w,i)=>{ w.x=WH0[i].x*VS[0]; w.z=WH0[i].z*VS[2]; delete w.vx; delete w.vz; });
   const MI=VEH.model?VMOD[VEH.model]:null; if(MI&&!MI.root&&!MI.fail){ loadVModel(VEH.model); toast('Arriva '+VEH.n,'carico il modello 3D…'); }
@@ -1489,10 +1522,10 @@ function updWalk(dt){ const W=cs.walk, U=man.userData; W.t+=dt; const d=cs.drunk
 const fcars=new THREE.Group(); scene.add(fcars);
 function placeFriendCars(){ while(fcars.children.length) fcars.remove(fcars.children[0]);
   for(const [k,L] of TREEB) TREEB.set(k,L.filter(t=>!t.car));
-  const src=pur.children[0]; if(!src) return; for(const n of ['purcello_pajero','costa_terrano']) if(!VMOD[n].root) loadVModel(n);
+  const src=pur.children[0]; if(!src) return; for(const n of ['pajero_sport','costa_terrano']) if(!VMOD[n].root) loadVModel(n);
   const s0=LEN+16, O=new V(CX(s0),0,-s0), fh=new V((CX(s0+1)-CX(s0-1))/2,0,-1).normalize(), rtv=new V(-fh.z,0,fh.x);
   const at=(d,ds)=>{ const p=O.clone().addScaledVector(rtv,d).addScaledVector(fh,ds); p.y=height(p.x,p.z); return p; };
-  [[FRIENDS[0].car,at(-6.5,-4),.35,'purcello_pajero'],[FRIENDS[1].car,at(12.8,-9.5),-.5,'costa_terrano']].forEach(([col,p,rot,mn])=>{ const mc=modelCarClone(mn); const c=mc||src.clone(true); c.traverse(o=>{ if(o.isMesh&&o.material&&o.material.name==='MAT_body'){ o.material=o.material.clone(); o.material.color.set(col); } });
+  [[FRIENDS[0].car,at(-6.5,-4),.35,'pajero_sport'],[FRIENDS[1].car,at(12.8,-9.5),-.5,'costa_terrano']].forEach(([col,p,rot,mn])=>{ const mc=modelCarClone(mn); const c=mc||src.clone(true); c.traverse(o=>{ if(o.isMesh&&o.material&&o.material.name==='MAT_body'){ o.material=o.material.clone(); o.material.color.set(col); } });
     const g=new THREE.Group(); g.add(c); g.position.copy(p); const ry=Math.atan2(-fh.x,-fh.z)+rot, ff=new V(-Math.sin(ry),0,-Math.cos(ry)), rr=new V(-ff.z,0,ff.x);
     const hw=(a,b)=>{ const q=p.clone().addScaledVector(ff,a).addScaledVector(rr,b); return baseH(q.x,q.z); }, hFL=hw(1.3,-.8), hFR=hw(1.3,.8), hRL=hw(-1.2,-.8), hRR=hw(-1.2,.8);
     g.position.y=(hFL+hFR+hRL+hRR)/4+RW+LN-.198-MOUNTY; g.rotation.order='YXZ'; g.rotation.y=ry; g.rotation.x=Math.atan2((hFL+hFR)-(hRL+hRR),2*2.5); g.rotation.z=Math.atan2((hFR+hRR)-(hFL+hRL),2*1.6); fcars.add(g);
@@ -2111,11 +2144,11 @@ function renderGarage(){
   document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===garTab));
   const L=$('#garList'); L.innerHTML='';
   if(garTab==='mezzo'||garTab==='campo'||garTab==='elabora'){
-    if(garTab==='mezzo'){ L.append(el('p','howto','Tocca un fuoristrada per vederlo in 3D qui sopra e fare un giro di prova gratis; per tenerlo lo compri. Qui scegli il mezzo. Motore, snorkel, rialzo, gomme, verricello e gli altri pezzi sono nella scheda ⚙️ Elabora.')); L.append(el('p','sec','Il tuo fuoristrada'));
-      for(const [k,v] of Object.entries(VEHS)){ const it=el('div','item'+((prevVeh||save.veh)===k?' sel':'')); it.style.cursor='pointer'; it.addEventListener('click',e=>{ if(e.target.closest('button')) return; prevVeh=save.vehOwn[k]?null:k; if(save.vehOwn[k]){ save.veh=k; persist(); } applyUpgrades(); renderGarage(); $('#gar').scrollTop=0; toast(v.n,save.vehOwn[k]?'in uso':'anteprima · tocca PARTI per un giro di prova gratis'); }); it.append(el('h3','',v.n)); const b=el('button','buy'); const o=save.vehOwn[k];
-        if(save.veh===k){ b.textContent='In uso'; b.classList.add('own'); } else if(o){ b.textContent='Usa'; b.addEventListener('click',()=>{ save.veh=k; persist(); applyUpgrades(); renderGarage(); }); }
-        else { b.textContent=eur(v.price); b.disabled=save.money<v.price; if(prevVeh===k){ const t=el('span','fx','👁 In anteprima: lo vedi qui sopra · PARTI = giro di prova gratis'); t.style.color='#ffd84a'; it.append(t); } else { const t=el('span','fx','👁 Tocca la scheda per vederlo in 3D e provarlo'); t.style.color='var(--sabbia)'; it.append(t); } b.addEventListener('click',()=>{ if(save.money<v.price) return; save.money-=v.price; save.vehOwn[k]=true; save.veh=k; persist(); applyUpgrades(); auBurst(2400,.15,.2,'bandpass',4); renderGarage(); }); }
-        it.append(b,el('p','',v.sub+'.'),el('span','fx',`${Math.round(v.mass)} kg · motore ×${v.p.toFixed(2).replace('.',',')}`)); L.append(it); }
+    if(garTab==='mezzo'){ L.append(el('p','howto','Tocca un fuoristrada per aprire la sua scheda: lo vedi girare a 360°, ci sono tutte le caratteristiche e puoi provarlo gratis.')); L.append(el('p','sec','I fuoristrada'));
+      const grid=el('div','vgrid'); for(const [k,v] of Object.entries(VEHS)){ const cur=(prevVeh||save.veh)===k, o=save.vehOwn[k]; const c=el('button','vcard'+(cur?' sel':'')+(o?' own':''));
+        if(v.model&&VMOD[v.model]&&v.model!=='terrano'){ const im=document.createElement('img'); im.loading='lazy'; im.alt=v.n; im.src=VBASE+'thumbs/'+v.model+'.webp'; c.append(im); } else c.append(el('i','vph','🚙'));
+        c.append(el('b','',v.n), el('small','',save.veh===k?'✔ In uso':o?'Tuo':eur(v.price))); c.addEventListener('click',()=>openVeh(k)); grid.append(c); }
+      L.append(grid);
       const gb=el('button','big','⚙️ Elabora il mezzo: motore, snorkel, rialzo, gomme…'); gb.style.fontSize='17px'; gb.addEventListener('click',()=>{ garTab='elabora'; renderGarage(); $('#gar').scrollTop=0; }); L.append(gb); }
     else if(garTab==='elabora') L.append(el('p','howto',`Gomme montate: ${TYRE_NAME[tyreKey()]}. I pezzi valgono per tutti i mezzi e cambiano davvero come si guida.`));
     else L.append(el('p','howto','Si parte col kit base: amaca, accetta, acciarino e brace. Gli attrezzi migliori allargano la zona buona delle barre al campo.'));
