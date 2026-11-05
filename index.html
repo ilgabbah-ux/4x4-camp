@@ -552,7 +552,7 @@ function setTrack(id){
         if(t==='log'){ o.r=.17+R()*.1; o.half=HALF-.2-R()*1.2; o.off=(R()-.5)*1.2; }
         if(t==='ditch'){ o.w=.55+R()*.25; o.dep=.22+R()*.12; }
         if(t==='step'){ o.hg=.22+R()*.18; o.len=4+R()*4; }
-        if(t==='twist'){ o.dep=.3+R()*.12; o.sd=R()<.5?1:-1; }
+        if(t==='twist'){ o.dep=.34+R()*.12; o.sd=R()<.5?1:-1; }
         OBST.push(o); const k0=Math.floor((s-4)/4), k1=Math.floor((s+18)/4); for(let k=k0;k<=k1;k++){ if(!OBB.has(k)) OBB.set(k,[]); OBB.get(k).push(o); } s+=45+R()*35; }
       else s+=8; } }
 }
@@ -574,8 +574,8 @@ function obsAdj(x,z,h,logs){ const s=-z, O=OBB.get(Math.floor(s/4)); if(!O) retu
   for(const o of O){ const u=s-o.s+d*Math.tan(o.a);
     if(o.t==='log'){ if(!logs) continue; const dl=d-(o.off||0); if(Math.abs(dl)<o.half&&Math.abs(u)<o.r) h=Math.max(h,b0+o.r+Math.sqrt(o.r*o.r-u*u)); }
     else if(o.t==='ditch'){ if(ad<o.half+1.5&&Math.abs(u)<o.w){ const c=Math.cos(u/o.w*Math.PI/2); h-=o.dep*c*c*(1-sstep(o.half,o.half+1.5,ad)); } }
-    else if(o.t==='step'){ h+=o.hg*sstep(0,.3,u)*(1-sstep(o.len,o.len+2.5,u))*(1-sstep(o.half,o.half+1.2,ad)); }
-    else if(o.t==='twist'){ for(const [uu,dd] of [[2,-1],[6.5,1],[11,-1]]){ const q2=Math.hypot(u-uu,d-dd*1.05*o.sd); if(q2<1.3){ const c=Math.cos(q2/1.3*Math.PI/2); h-=o.dep*c*c; } } } }
+    else if(o.t==='step'){ h+=o.hg*sstep(0,.12,u)*(1-sstep(o.len,o.len+.4,u))*(1-sstep(o.half,o.half+1.2,ad)); }
+    else if(o.t==='twist'){ for(const [uu,dd,sg] of [[2,-1,-1],[6.5,1,-1],[11,-1,-1],[4.2,1,.55],[8.8,-1,.55]]){ const q2=Math.hypot((u-uu)*.75,d-dd*1.05*o.sd); if(q2<1.45){ const c=Math.cos(q2/1.45*Math.PI/2); h+=sg*o.dep*1.35*c*c; } } } }
   return h; }
 function height(x,z){
   let h=baseH(x,z); const s=-z, k=Math.floor(s/4), L=ROCKB.get(k);
@@ -2105,7 +2105,7 @@ function frame(now){
     const inp=st.done||st.drone?{gas:0,brk:1,steer:0}:readInput(); const n=Math.ceil(dt/(1/240)); st.brkOn=!!inp.brk;
     if(st.uprig){ const U=st.uprig; U.t+=dt; const k=sstep(0,1.8,U.t), lift=Math.sin(Math.min(1,U.t/1.8)*Math.PI)*.9; st.pos.lerpVectors(U.p0,U.p1,k); st.pos.y+=lift; st.q.copy(U.q0).slerp(U.q1,k); st.vel.set(0,0,0); st.w.set(0,0,0);
       up.set(0,1,0).applyQuaternion(st.q); fw.set(0,0,-1).applyQuaternion(st.q); rt.set(1,0,0).applyQuaternion(st.q); if(U.t>1.9){ st.uprig=null; st.stuckT=0; auThud(.5); } }
-    else if(st.rescue){ updRescue(dt); up.set(0,1,0).applyQuaternion(st.q); fw.set(0,0,-1).applyQuaternion(st.q); } else for(let k=0;k<n;k++) physStep(dt/n,inp);
+    else if(st.rescue){ updRescue(dt); up.set(0,1,0).applyQuaternion(st.q); fw.set(0,0,-1).applyQuaternion(st.q); } else if(st.drone){ st.vel.set(0,0,0); st.w.set(0,0,0); } else for(let k=0;k<n;k++) physStep(dt/n,inp);
     updWinch(dt);
     { const z=zoneAt(st.s), inT=z.t==='galleria'&&st.s>z.a+3&&st.s<z.b-3; tun=lerp(tun,inT?1:0,1-Math.pow(.05,dt)); sun.intensity=sunBase*(1-.9*tun); hemi.intensity=hemiBase*(1-.6*tun); scene.environment=envRT&&envRT.texture; if(scene.environmentIntensity!==undefined) scene.environmentIntensity=1-.6*tun;
       { const near=GLAMPS.map(p=>[p.distanceToSquared(st.pos),p]).sort((a,b)=>a[0]-b[0]); tunL.forEach((l,i)=>{ const q=near[i]; if(q&&tun>.02){ l.position.copy(q[1]); l.intensity=22*Math.min(1,tun*1.5); } else l.intensity=0; }); }
@@ -2206,7 +2206,7 @@ function showroom(dt){ if(builtTrack!==save.track){ buildWorld(save.track); shS=
 { const el=$('#show3d'); el.addEventListener('pointerdown',e=>{ shDrag={x:e.clientX,a:shA}; try{el.setPointerCapture(e.pointerId);}catch(_){} }); el.addEventListener('pointermove',e=>{ if(shDrag) shA=shDrag.a-(e.clientX-shDrag.x)/120; }); for(const t of ['pointerup','pointercancel']) el.addEventListener(t,()=>{ shDrag=null; }); }
 // ---- drone fotografico al punto panoramico ----
 const dpad={up:false,dn:false};
-function startDrone(){ const x=CX(st.s); const fh0=new V(fw.x,0,fw.z).normalize(), rh0=new V(-fh0.z,0,fh0.x), p0=st.pos.clone().addScaledVector(fh0,-6).addScaledVector(rh0,2.5).add(new V(0,5,0)), toC=st.pos.clone().sub(p0); st.drone={t:0,bat:40,shots:[],pos:p0,yaw:Math.atan2(-toC.x,-toC.z),pitch:-Math.atan2(5,Math.hypot(toC.x,toC.z)),vel:new V(),wind:new V(),gT:0};
+function startDrone(){ setTimeout(()=>showHelp('drone',null,true),50); const x=CX(st.s); const fh0=new V(fw.x,0,fw.z).normalize(), rh0=new V(-fh0.z,0,fh0.x), p0=st.pos.clone().addScaledVector(fh0,-6).addScaledVector(rh0,2.5).add(new V(0,5,0)), toC=st.pos.clone().sub(p0); st.drone={t:0,bat:40,shots:[],pos:p0,yaw:Math.atan2(-toC.x,-toC.z),pitch:-Math.atan2(5,Math.hypot(toC.x,toC.z)),vel:new V(),wind:new V(),gT:0};
   $('#drone').hidden=false; for(const id of ['#hud','#hud2','#tb','#hq']) $(id).hidden=true; for(const b of document.querySelectorAll('#ctl .cen')) b.style.visibility='hidden'; $('#dPics').innerHTML=''; toast('Drone in volo','40 secondi di batteria · 3 foto'); auBurst(5200,.8,.08,'bandpass',4); }
 function endDrone(){ const D=st.drone; if(!D) return; st.drone=null; st.droneDone=true; $('#drone').hidden=true; for(const id of ['#hud','#hud2','#tb','#hq']) $(id).hidden=false; for(const b of document.querySelectorAll('#ctl .cen')) b.style.visibility='';
   const best=D.shots.reduce((a,b)=>b.sc>a?b.sc:a,0); if(best>0){ const eu=Math.round(best*1.8); save.money+=eu; persist(); st.droneEur=eu; toast(`Foto migliore: ${best}/100 ${'★'.repeat(Math.max(1,Math.round(best/20)))}`,`+${eu} € · la mandi sul gruppo`); if(best>=80) gabbah('g_si',0); } else toast('Nessuna foto','il drone è tornato a casa'); first=true; }
@@ -2358,6 +2358,7 @@ const HELP={
  porta:{ic:'🪵',t:'Porta la legna',l:['Hai la legna in braccio: cammina fino al cerchio di pietre del fuoco (segno giallo).','Premi <b>Posa la legna</b>.']},
  menu:{ic:'🧊',t:'La cena',l:['Vai al <b>frigo blu</b> (segno giallo) e aprilo.','Scegli cosa mangiare e cosa bere.','Il bere conta alla festa: più alcol = <b>più punti</b> ballando, ma dopo <b>barcolli</b> tornando a letto e ogni caduta costa <b>15 €</b>.']},
  cena:{ic:'🍖',t:'Cottura',l:['La lancetta va da <b>cruda</b> a <b>bruciata</b>.','Tocca la barra quando è nel <b>verde</b>: cotta al punto giusto.','Se aspetti troppo arriva in fondo e si brucia.']},
+ drone:{ic:'🚁',t:'Foto col drone',l:['Il fuoristrada resta fermo col freno a mano. Hai <b>40 secondi</b> di batteria e <b>3 foto</b>.','Muovi il drone: <b>sterzo</b> per girare, <b>GAS</b> avanti, <b>FRENO</b> indietro, <b>▲ ▼</b> per salire e scendere. La telecamera guarda sempre verso il mezzo.','Per una foto da copertina: metti il fuoristrada su un <b>incrocio delle linee</b>, non troppo piccolo né troppo grande, con la <b>valle dietro</b>. Stai fermo quando premi <b>📸 SCATTA</b>: il vento ti sposta!','Ogni foto ha un voto su 100 e ti dice cosa migliorare. La migliore vale soldi.']},
  festa:{ic:'🎉',t:'La festa',l:['Gara di 26 secondi contro Purcello, Mirco e Costa a chi fa più casino.','Come in <b>Just Dance</b>: le mosse arrivano da destra. Quando una mossa entra nel <b>cerchio giallo</b> tocca il <b>tasto dello stesso colore</b>: 🙌 rosso, 🌀 blu, 👏 giallo, 🦵 verde.','Più sei preciso più punti: <b>Perfetto</b>, Super, Ok. La ⭐ <b>mossa d\'oro</b> vale doppio. Tante mosse giuste di fila = combo.','<b>BEVI</b>: punti subito e, più sei sbronzo, <b>più punti</b> ti dà ogni mossa ballata (fino a ×1,7).','Però dopo si va a letto: più sei sbronzo più <b>barcolli</b>, e ogni volta che <b>cadi perdi 15 €</b> dal premio del campo.']},
  nanna:{ic:'😴',t:'A letto',l:['L\'omino va da solo verso il letto, ma <b>barcolla</b>.','Guarda la lancetta in basso: <b>inclina il telefono</b> (o premi le frecce) <b>dalla parte opposta</b> a dove scappa e tienila nel verde.','Se esce dalla barra cadi: <b>ogni caduta −15 €</b> dal premio. Alla terza ti porta a letto Purcello.']}
 };
