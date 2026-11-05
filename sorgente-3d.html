@@ -369,7 +369,7 @@ p{margin:0;line-height:1.5}
 <script type="module">
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { mergeGeometries, mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 const $=s=>document.querySelector(s);
 const clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t, sstep=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t);};
 function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
@@ -436,7 +436,9 @@ function setTrack(id){
   TR=TRACKS[id]; if(!TR._sc){ const k=1.3; TR.zones=TR.zones.flatMap(z=>{ const a=Math.round(z.a*k), b=Math.round(z.b*k); if(z.t!=='fangoProf') return [{...z,a,b}]; const m=a+(z.b-z.a); return [{...z,a,b:m},{t:'terra',sl:z.sl,a:m,b}]; }); TR.len=Math.round(TR.len*k); TR._sc=1; } ZONES=TR.zones; LEN=TR.len; PH=TR.ph; AMP=TR.amp||[7,3.5,1.2]; FORDS=ZONES.filter(z=>z.t==='acqua').map(z=>[z.a,z.b]);
   HS=new Float32Array(Math.ceil((LEN+80)/.5)+2); {let h=0; for(let i=0;i<HS.length;i++){ const s=i*.5; h+=zoneAt(s).sl*.5; HS[i]=h; }}
   const R=rng(42+id.length*7); ROCKS=[];
-  for(const z of ZONES){ if(!z.rocks) continue; let s=z.a+3; while(s<z.b-2){ const n=z.rocks===2?2:1; for(let k=0;k<n;k++){ const d=(R()*2-1)*(HALF-.6); const r=.35+R()*(z.rocks===2?.55:.4); ROCKS.push({s:s+R()*2,d,r}); } s+=z.rocks===2?2.6+R()*2:3+R()*3; } }
+  for(const z of ZONES){ if(!z.rocks) continue; let s=z.a+3; while(s<z.b-2){ const n=z.rocks===2?2:1; for(let k=0;k<n;k++){ const d=(R()*2-1)*(HALF-.6); const r=.35+R()*(z.rocks===2?.55:.4); ROCKS.push({s:s+R()*2,d,r}); } s+=z.rocks===2?2.6+R()*2:3+R()*3; }
+    // pietroni sul bordo: si passano a fianco o ci si sale con una ruota
+    for(let s2=z.a+6;s2<z.b-4;s2+=9+R()*8){ const sd=R()<.5?-1:1; ROCKS.push({s:s2,d:sd*(HALF-.2+R()*.6),r:.95+R()*.55,big:1}); } }
   for(const b of ROCKS){ b.x=CX(b.s)+b.d; b.z=-b.s; }
   ROCKB=new Map(); for(const b of ROCKS){ const k=Math.floor(b.s/4); for(const kk of [k-1,k,k+1]){ if(!ROCKB.has(kk)) ROCKB.set(kk,[]); ROCKB.get(kk).push(b); } }
 }
@@ -658,6 +660,7 @@ function buildWorld(id){
         if(mud&&ad<HALF+4.5){ const sp=sstep(.55,.75,vnoise(x*.9,z*.9))*(1-sstep(HALF,HALF+4.5,ad)); gc=gc.map((v,j)=>lerp(v,C.fango?C.fango[j]:C.terra[j],sp*.8)); }
         { const f=inFord(s,7); if(f&&!neve){ const wet=sstep(f[0]-7,f[0]-1,s)*sstep(f[1]+7,f[1]+1,s); gc=gc.map((v,j)=>lerp(v,[.33,.3,.22][j]*(.85+n2*.3),wet*.75)); tc=tc.map((v,j)=>lerp(v,[.36,.31,.24][j],wet*.6)); } }
         let c=[lerp(gc[0],tc[0],onT),lerp(gc[1],tc[1],onT),lerp(gc[2],tc[2],onT)];
+        if(ad<HALF+2){ const L=ROCKB.get(Math.floor(s/4)); if(L){ let k=0; for(const b of L){ const dd=Math.hypot(x-b.x,z-b.z)/b.r; if(dd<1.9) k=Math.max(k,1-sstep(1,1.9,dd)); } if(k>0) c=c.map(v=>v*(1-.38*k)); } }
         const v=(.84+n2*.3)*1.18; col[i*3]=c[0]*v; col[i*3+1]=c[1]*v; col[i*3+2]=c[2]*v; i++; } }
     const idx=[]; for(let r=0;r<nr-1;r++) for(let c=0;c<nc-1;c++){ const a=r*nc+c,b=a+1,d2=a+nc,e=d2+1; idx.push(a,b,d2,b,e,d2); }
     const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(pos,3)); g.setAttribute('color',new THREE.BufferAttribute(col,3)); g.setAttribute('uv',new THREE.BufferAttribute(uv,2)); g.setIndex(idx); g.computeVertexNormals();
@@ -688,20 +691,30 @@ function buildWorld(id){
     mt.normalMap.repeat.set(10,4); mt.normalMap.needsUpdate=true;
     const w=new THREE.Mesh(g,mt); const sm=(f[0]+f[1])/2; w.position.set(CX(sm),waterY(sm),-sm); world.add(w); waters.push(w); }
   // massi sul tracciato e massi decorativi
-  { const mat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.85,flatShading:true,envMapIntensity:.6});
+  { const mat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.92,flatShading:true,envMapIntensity:.45});
     const RR=rng(5);
-    const rockGeo=r=>{ const g=new THREE.IcosahedronGeometry(r,1); const p=g.attributes.position; const c=new Float32Array(p.count*3);
-      for(let k=0;k<p.count;k++){ const f=.82+RR()*.3; p.setXYZ(k,p.getX(k)*f,p.getY(k)*f*.85,p.getZ(k)*f); }
-      g.computeVertexNormals(); const n=g.attributes.normal; for(let k=0;k<p.count;k++){ const top=n.getY(k), g0=.48+RR()*.1; let cc=[g0,g0*.97,g0*.92]; if(top>.55) cc=neve?[.92,.95,1]:[lerp(g0,.33,.5),lerp(g0,.4,.5),lerp(g0,.22,.5)]; c[k*3]=cc[0]; c[k*3+1]=cc[1]; c[k*3+2]=cc[2]; }
+    const TONES=TR.theme==='militare'?[[.5,.44,.36],[.42,.38,.33]]:TR.theme==='castagni'?[[.62,.6,.57],[.5,.49,.47]]:[[.24,.23,.22],[.2,.2,.21],[.29,.25,.21],[.33,.31,.28]];
+    const rockGeo=r=>{ let g=new THREE.IcosahedronGeometry(r,r>.5?2:1); g.deleteAttribute('normal'); g.deleteAttribute('uv'); g=mergeVertices(g); const p=g.attributes.position, o1=RR()*50, o2=RR()*50, sq=.7+RR()*.35;
+      for(let k=0;k<p.count;k++){ const x=p.getX(k), y=p.getY(k), z=p.getZ(k), L=Math.hypot(x,y,z)/r; const nx=x/(L*r), ny=y/(L*r), nz=z/(L*r);
+        let f=.78+fbm(nx*1.6+o1,nz*1.6+ny*1.3+o2)*.5; const face=Math.floor((Math.atan2(nz,nx)+3.2)*1.4); f*=1-.06*(face%2);  // facce spaccate
+        let yy=ny*f*sq; if(yy<-.25) yy=-.25-(yy+.25)*.25; p.setXYZ(k,nx*f*r,yy*r,nz*f*r); }
+      g=g.toNonIndexed(); g.computeVertexNormals(); const P2=g.attributes.position, n=g.attributes.normal, c=new Float32Array(P2.count*3); const T=TONES[RR()*TONES.length|0], tv=.85+RR()*.3;
+      for(let k=0;k<P2.count;k++){ const top=n.getY(k), y=P2.getY(k)/r, nn=vnoise(P2.getX(k)*3+o1,P2.getZ(k)*3+o2); let cc=T.map(v=>v*tv*(.85+nn*.3));
+        if(y<-.05) cc=cc.map(v=>v*lerp(.45,1,clamp((y+.3)/.25,0,1)));  // base scura, umida
+        if(top>.5&&!neve&&nn>.55) cc=lerp3(cc,[.36,.42,.2],.55);  // muschio
+        if(top>.6&&neve) cc=[.9,.93,.98];
+        if(top<.2&&top>-.2&&nn<.3) cc=cc.map(v=>v*1.25);  // spigoli chiari
+        c[k*3]=cc[0]; c[k*3+1]=cc[1]; c[k*3+2]=cc[2]; }
       g.setAttribute('color',new THREE.BufferAttribute(c,3)); return g; };
+    const lerp3=(a,b,t)=>a.map((v,i)=>lerp(v,b[i],t));
     const RG=[]; const put=(g,x,y,z,rx,ry,rz)=>{ g.applyMatrix4(new THREE.Matrix4().compose(new V(x,y,z),new THREE.Quaternion().setFromEuler(new THREE.Euler(rx,ry,rz)),new V(1,1,1))); RG.push(g); };
-    for(const b of ROCKS) put(rockGeo(b.r),b.x,baseH(b.x,b.z),b.z,0,RR()*6,0);
+    for(const b of ROCKS) put(rockGeo(b.r*1.08),b.x,baseH(b.x,b.z)-b.r*.05,b.z,0,RR()*6,0);
     for(let k=0;k<110;k++){ const s=-20+RR()*(LEN+60), d=(RR()<.5?-1:1)*(5+RR()*26); if(inFord(s,8)&&Math.abs(d)<22) continue; if(s>LEN-12&&s<LEN+40&&Math.abs(d)<19) continue; const x=CX(s)+d, z=-s, r=.4+RR()*1.6;
       put(rockGeo(r),x,baseH(x,z)-r*.25,z,RR(),RR()*6,RR()); }
     { const m=new THREE.Mesh(mergeGeometries(RG),mat); m.castShadow=true; m.receiveShadow=true; world.add(m); }
     // sassolini
-    const sg=new THREE.IcosahedronGeometry(.12,0); const pm=new THREE.MeshStandardMaterial({color:neve?0x7d8086:0x6f6a60,roughness:.9,flatShading:true}); const im=new THREE.InstancedMesh(sg,pm,1600); const M=new THREE.Matrix4(), Q=new THREE.Quaternion(), S=new THREE.Vector3(), P=new THREE.Vector3(); let n=0;
-    for(const z of ZONES){ const dens=z.t==='roccia'?14:z.t==='terra'?2:0; for(let k=0;k<(z.b-z.a)*dens&&n<1600;k++){ const s=z.a+RR()*(z.b-z.a), d=(RR()*2-1)*(HALF+.8), x=CX(s)+d; P.set(x,baseH(x,-s)+.03,-s); Q.setFromEuler(new THREE.Euler(RR()*3,RR()*3,0)); const sc=.5+RR()*1.6; S.set(sc,sc*.7,sc); M.compose(P,Q,S); im.setMatrixAt(n++,M); } }
+    const sg=new THREE.IcosahedronGeometry(.12,0); const pm=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.9,flatShading:true}); const im=new THREE.InstancedMesh(sg,pm,2600); const M=new THREE.Matrix4(), Q=new THREE.Quaternion(), S=new THREE.Vector3(), P=new THREE.Vector3(); let n=0;
+    for(const z of ZONES){ const dens=z.t==='roccia'?20:z.t==='ghiaia'?8:z.t==='terra'?2.5:0; for(let k=0;k<(z.b-z.a)*dens&&n<2600;k++){ const s=z.a+RR()*(z.b-z.a), d=(RR()*2-1)*(HALF+.8), x=CX(s)+d; P.set(x,baseH(x,-s)+.03,-s); Q.setFromEuler(new THREE.Euler(RR()*3,RR()*3,0)); const sc=.45+Math.pow(RR(),2)*1.6; S.set(sc,sc*.65,sc); M.compose(P,Q,S); const g0=neve?.45:.14+RR()*.14; im.setColorAt(n,new THREE.Color(g0,g0*.96,g0*.9)); im.setMatrixAt(n++,M); } }
     im.count=n; im.receiveShadow=true; world.add(im); }
   // pini (e collisioni coi tronchi vicini)
   TREES=[];
@@ -789,11 +802,26 @@ async function loadCar(){
       const gm=new THREE.MeshPhysicalMaterial({color:0x16202a,roughness:.04,metalness:.1,transparent:true,opacity:.62,envMapIntensity:1.6,side:THREE.DoubleSide,depthWrite:false,clearcoat:1,clearcoatRoughness:.05});
       const glass=new THREE.Mesh(g,gm); glass.renderOrder=2; tr.add(glass); }
     // le 4 ruote si fanno dalla ruota di scorta del modello (è l'unica intera e tonda): asse lungo X come le ruote del gioco
-    const bm=body.isMesh?body:body.children.find(o=>o.isMesh); const sg=spareGeo(bm.geometry); const smat=bm.material.clone(); smat.side=THREE.DoubleSide; SPG=sg; SPM=smat; VMOD.terrano.root=tr;
-    for(let i=0;i<4;i++){ const g=sg.clone(); if(i%2) g.rotateY(Math.PI); const mm=new THREE.Mesh(g,smat); mm.castShadow=true; mm.visible=false; wheels[i].userData.spin.add(mm); wheels[i].userData.terr=mm; }
+    const bm=body.isMesh?body:body.children.find(o=>o.isMesh); const sg=spareGeo(bm.geometry); const smat=bm.material.clone(); smat.side=THREE.DoubleSide; VMOD.terrano.root=tr;
+    for(let i=0;i<4;i++){ const mm=makeWheel(i%2===1); mm.visible=false; wheels[i].userData.spin.add(mm); wheels[i].userData.terr=mm; }
   }catch(e){ console.warn('terrano',e); }
 }
-let terrRoot=null, heroWY=null, terrMat=null, SPG=null, SPM=null, curRoot=null; const SPARE_R=.385;
+let terrRoot=null, heroWY=null, terrMat=null, SPG=true, curRoot=null; const SPARE_R=1, TIRE_W=.31;
+// ruota vera fatta a codice: gomma chiusa con tasselli sfalsati e spalla, cerchio nero a 6 razze con dadi. Raggio 1, larghezza 1 lungo X
+const WHEELGEO=(()=>{ const P=[], A=[]; const prof=[[.66,-.5],[.86,-.5],[.95,-.47],[.99,-.4],[1,-.3],[1,.3],[.99,.4],[.95,.47],[.86,.5],[.66,.5]];
+  const lathe=new THREE.LatheGeometry(prof.map(([r,x])=>new THREE.Vector2(r,x)),48); lathe.rotateZ(-Math.PI/2); const tire=[lathe];
+  const lug=new THREE.BoxGeometry(.36,.075,.13); for(let i=0;i<32;i++){ const a=i/32*Math.PI*2; for(const sd of [-1,1]){ const g=lug.clone(); g.translate(sd*.2+(i%2?.05:-.05)*sd,1.02,0); g.rotateX(a+(sd>0?Math.PI/32:0)); tire.push(g); } }
+  const sh=new THREE.BoxGeometry(.06,.1,.09); for(let i=0;i<24;i++){ const a=i/24*Math.PI*2; for(const sd of [-1,1]){ const g=sh.clone(); g.translate(sd*.47,.9,0); g.rotateX(a); tire.push(g); } }
+  const rim=[]; const barrel=new THREE.CylinderGeometry(.66,.66,.9,32,1,true); barrel.rotateZ(Math.PI/2); rim.push(barrel);
+  const face=new THREE.CylinderGeometry(.64,.64,.05,32); face.rotateZ(Math.PI/2); face.translate(-.32,0,0); rim.push(face);
+  const hub=new THREE.CylinderGeometry(.2,.24,.16,20); hub.rotateZ(Math.PI/2); hub.translate(-.4,0,0); rim.push(hub);
+  for(let i=0;i<6;i++){ const sp=new THREE.BoxGeometry(.08,.46,.12); sp.translate(-.37,.4,0); sp.rotateX(i/6*Math.PI*2); rim.push(sp); }
+  for(let i=0;i<6;i++){ const n=new THREE.CylinderGeometry(.028,.028,.06,6); n.rotateZ(Math.PI/2); n.translate(-.48,.13,0); n.rotateX(i/6*Math.PI*2+.5); rim.push(n); }
+  const lip=new THREE.TorusGeometry(.655,.03,6,40); lip.rotateY(Math.PI/2); lip.translate(-.45,0,0); rim.push(lip);
+  const m=a=>mergeGeometries(a.map(g=>g.index?g.toNonIndexed():g).map(g=>{ for(const k of Object.keys(g.attributes)) if(k!=='position'&&k!=='normal') g.deleteAttribute(k); return g; }));
+  return {tire:m(tire),rim:m(rim)}; })();
+const TIREM=new THREE.MeshStandardMaterial({color:0x1d1c1b,roughness:.93,metalness:0}), RIMM=new THREE.MeshStandardMaterial({color:0x1b1c1e,roughness:.38,metalness:.55});
+function makeWheel(right){ const g=new THREE.Group(); const t=new THREE.Mesh(WHEELGEO.tire,TIREM), r=new THREE.Mesh(WHEELGEO.rim,RIMM); t.castShadow=r.castShadow=true; g.add(t,r); if(right) g.rotation.y=Math.PI; g.userData.wheel=true; return g; }
 // modelli 3D dei fuoristrada degli amici, fatti dalle loro foto (si caricano quando servono)
 const VMOD={terrano:{r:.45,cz:-.69,xf:1.34,xr:-1.11,wx:.8,k:1.04},
  linus_wrangler:{r:.49,cz:.49,xf:1.38,xr:-1.14,yo:.96}, giacu_wrangler:{r:.49,cz:.49,xf:1.32,xr:-1.2,yo:.82}, purcello_pajero:{r:.41,cz:.41,xf:1.44,xr:-1.14,yo:.86},
@@ -810,7 +838,7 @@ async function loadVModel(name){ const M=VMOD[name]; if(!M||M.root||M.loading) r
 // copia di un mezzo (per gli amici al campo e per Purcello che ti tira fuori): origine come la macchina del giocatore
 function modelCarClone(name){ const M=VMOD[name]; if(!M||!M.root||!SPG) return null; const g=new THREE.Group(); const b=M.root.clone(true); b.visible=true; b.scale.setScalar(M.k);
   b.position.set(0,(heroWY??(MOUNTY-LN+.198))-M.cz*M.k,M.dz); g.add(b);
-  const wr=M.rw; for(let i=0;i<4;i++){ const w=new THREE.Mesh(SPG,SPM); if(i%2) w.rotation.y=Math.PI; w.scale.setScalar(wr/SPARE_R); w.position.set((i%2?1:-1)*M.wx*M.k,MOUNTY-LN+.198-(.41-wr),(i<2?-M.xf:-M.xr)*M.k+M.dz); w.castShadow=true; g.add(w); }
+  const wr=M.rw; for(let i=0;i<4;i++){ const w=makeWheel(i%2===1); w.scale.set(TIRE_W,wr,wr); w.position.set((i%2?1:-1)*M.wx*M.k,MOUNTY-LN+.198-(.41-wr),(i<2?-M.xf:-M.xr)*M.k+M.dz); w.castShadow=true; g.add(w); }
   g.traverse(o=>{ if(o.isMesh) o.castShadow=true; }); return g; }
 function spareGeo(src){ const C=new V(0,.15,.04), P=src.attributes.position, I=src.index, keep=[]; const nT=I?I.count/3:P.count/3, id=t=>I?I.getX(t):t;
   const ok=j=>{ const x=P.getX(j), y=P.getY(j), z=P.getZ(j); return x<-1.84&&Math.hypot(y-C.y,z-C.z)<.41; };
@@ -901,7 +929,7 @@ function applyUpgrades(){
   if(own('shortlow')){ fl*=1.3; vl=5.5; eb=3800; }
   applyVehicle(); fa*=VEH.p; fl*=VEH.p; if(!VEH.p) fa=8200; ENG={fa,va,fl,vl,eb};
   { const MI=VEH.model&&VMOD[VEH.model]; const brw=MI&&MI.root?(VEH.model==='terrano'?.44:MI.rw):0; RW=brw?(own('g33')?brw+.03:brw):(own('g33')?.445:.41); } LN=(own('lift')?.47:.42)+(VEH.lift||0);
-  for(const g of wheels) if(g){ for(const o of g.userData.hero||[]) o.scale.setScalar(RW/.41); if(g.userData.terr) g.userData.terr.scale.setScalar(RW/SPARE_R); }
+  for(const g of wheels) if(g){ for(const o of g.userData.hero||[]) o.scale.setScalar(RW/.41); if(g.userData.terr) g.userData.terr.scale.set(TIRE_W*(own('g33')?1.08:1),RW,RW); }
   if(curRoot){ const MI=VMOD[VEH.model]; curRoot.position.y=(heroWY??(MOUNTY-LN+.12))-MI.cz*MI.k; }
   const isT2=VEH.model==='terrano'; rtt.visible=own('maggiolina'); ledMesh.visible=own('led')&&!isT2; winchMesh.visible=own('winch'); snorkMesh.visible=own('snorkel')&&!isT2; winchMesh.position.z=-2.44*VS[2]; snorkMesh.scale.set(...VS);
 }
