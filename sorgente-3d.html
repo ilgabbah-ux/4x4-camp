@@ -914,7 +914,7 @@ const st={pos:new V(),vel:new V(),q:new THREE.Quaternion(),w:new V(),steer:0,gea
 let MASS=2100; const I=new V(4300,4400,2200), I0=I.clone(), K=26000, CD=2900;
 const VEHS={terrano:{n:'Terrano II Black Edition',sub:'nero, alzato, snorkel, barra LED e gomme tassellate · modello 3D vero',price:0,sc:[1,1,1],mass:2100,p:1.05,col:null,model:'gabbah_terrano'},
  linus_terrano:{n:'Terrano 2.7 TD',sub:'nero infangato, 2.7 TDi, snorkel, gomme tassellate e fari sul portellone',price:900,sc:[1,1,1],mass:1950,p:1.02,col:null,model:'terrano_nero'},
- costa_terrano:{n:'Terrano grigio',sub:'argento con fascioni grigi, portapacchi e cerchi in lega: affidabile, mai una rottura',price:800,sc:[1,1,1],mass:1900,p:.98,col:null,model:'terrano_grigio',tough:.85},
+ costa_terrano:{n:'Terrano grigio',sub:'argento con fascioni grigi, portapacchi e cerchi in lega: affidabile, mai una rottura',price:800,sc:[1,1,1],mass:1900,p:.98,col:null,model:'costa_terrano',tough:.85},
  purcello_pajero:{n:'Pajero Sport',sub:'argento, portapacchi con la ruota e fari LED: quello che ti tira fuori dal fango',price:1600,sc:[1,1,1],mass:2050,p:1.12,col:null,model:'pajero_sport'},
  linus_wrangler:{n:'Wrangler Rubicon 37"',sub:'grigio, soft top, gomme da 37, verricello e barra LED: si arrampica ovunque',price:3800,sc:[1,1,1],mass:2100,p:1.25,col:null,model:'rubicon_grigio',lockR:true,lift:.04},
  giacu_wrangler:{n:'Wrangler Rubicon verde',sub:'verde acido, bloccaggi di serie e gomme enormi: il re delle pietraie',price:4500,sc:[1,1,1],mass:2050,p:1.3,col:null,model:'giacu_wrangler',lockR:true,lift:.05},
@@ -1523,10 +1523,10 @@ function updWalk(dt){ const W=cs.walk, U=man.userData; W.t+=dt; const d=cs.drunk
 const fcars=new THREE.Group(); scene.add(fcars);
 function placeFriendCars(){ while(fcars.children.length) fcars.remove(fcars.children[0]);
   for(const [k,L] of TREEB) TREEB.set(k,L.filter(t=>!t.car));
-  const src=pur.children[0]; if(!src) return; for(const n of ['pajero_sport','terrano_grigio']) if(!VMOD[n].root) loadVModel(n);
+  const src=pur.children[0]; if(!src) return; for(const n of ['pajero_sport','costa_terrano']) if(!VMOD[n].root) loadVModel(n);
   const s0=LEN+16, O=new V(CX(s0),0,-s0), fh=new V((CX(s0+1)-CX(s0-1))/2,0,-1).normalize(), rtv=new V(-fh.z,0,fh.x);
   const at=(d,ds)=>{ const p=O.clone().addScaledVector(rtv,d).addScaledVector(fh,ds); p.y=height(p.x,p.z); return p; };
-  [[FRIENDS[0].car,at(-6.5,-4),.35,'pajero_sport'],[FRIENDS[1].car,at(12.8,-9.5),-.5,'terrano_grigio']].forEach(([col,p,rot,mn])=>{ const mc=modelCarClone(mn); const c=mc||src.clone(true); c.traverse(o=>{ if(o.isMesh&&o.material&&o.material.name==='MAT_body'){ o.material=o.material.clone(); o.material.color.set(col); } });
+  [[FRIENDS[0].car,at(-6.5,-4),.35,'pajero_sport'],[FRIENDS[1].car,at(12.8,-9.5),-.5,'costa_terrano']].forEach(([col,p,rot,mn])=>{ const mc=modelCarClone(mn); const c=mc||src.clone(true); c.traverse(o=>{ if(o.isMesh&&o.material&&o.material.name==='MAT_body'){ o.material=o.material.clone(); o.material.color.set(col); } });
     const g=new THREE.Group(); g.add(c); g.position.copy(p); const ry=Math.atan2(-fh.x,-fh.z)+rot, ff=new V(-Math.sin(ry),0,-Math.cos(ry)), rr=new V(-ff.z,0,ff.x);
     const hw=(a,b)=>{ const q=p.clone().addScaledVector(ff,a).addScaledVector(rr,b); return baseH(q.x,q.z); }, hFL=hw(1.3,-.8), hFR=hw(1.3,.8), hRL=hw(-1.2,-.8), hRR=hw(-1.2,.8);
     g.position.y=(hFL+hFR+hRL+hRR)/4+RW+LN-.198-MOUNTY; g.rotation.order='YXZ'; g.rotation.y=ry; g.rotation.x=Math.atan2((hFL+hFR)-(hRL+hRR),2*2.5); g.rotation.z=Math.atan2((hFR+hRR)-(hFL+hRL),2*1.6); fcars.add(g);
