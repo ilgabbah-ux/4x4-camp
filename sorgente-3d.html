@@ -639,11 +639,15 @@ function addLandmarks(){ LMK.length=0; const W=world, F=summitFrame(), at=F.at, 
     const inn=mk2(pos,0); inn.material.side=THREE.DoubleSide; inn.receiveShadow=true; W.add(inn); const out=mk2(posO,1); out.material.side=THREE.DoubleSide; out.castShadow=true; out.receiveShadow=true; W.add(out);
     for(const r of [0,rows.length-1]){ const P=[], I=[]; for(let k=0;k<=N;k++){ const o=(r*(N+1)+k)*3; P.push(pos[o],pos[o+1],pos[o+2],posO[o],posO[o+1],posO[o+2]); } for(let k=0;k<N;k++){ const a=k*2; I.push(a,a+1,a+2,a+1,a+3,a+2); }
       const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(P,3)); g.setIndex(I); g.computeVertexNormals(); const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x6e6a63,roughness:.95,side:THREE.DoubleSide,flatShading:true})); m.castShadow=true; W.add(m); }
-    sign('Galleria dei Saraceni','876 m · senza luce',(()=>{ const s=z.a-6, x=CX(s)+4.2; return new V(x,baseH(x,-s),-s); })(),0); }
+    // lampade da cantiere lungo le pareti: si vedono da lontano e danno luce vera vicino al mezzo
+    { const lm=new THREE.MeshStandardMaterial({color:0xffe1a8,emissive:0xffc870,emissiveIntensity:3}); const bx=new THREE.BoxGeometry(.18,.12,.35);
+      for(let s=z.a+4,i=0;s<z.b-2;s+=7,i++){ const sd=i%2?1:-1, cx=CX(s), g=baseH(cx,-s), p=new V(cx+sd*2.55,g+1.95,-s); const m=new THREE.Mesh(bx,lm); m.position.copy(p); W.add(m); GLAMPS.push(p); } }
+    sign('Galleria dei Saraceni','876 m · lampade da cantiere',(()=>{ const s=z.a-6, x=CX(s)+4.2; return new V(x,baseH(x,-s),-s); })(),0); }
 }
 
+const GLAMPS=[]; const tunL=[0,1,2].map(()=>{ const l=new THREE.PointLight(0xffd59a,0,16,1.6); scene.add(l); return l; });
 function buildWorld(id){
-  disposeWorld(); setTrack(id); builtTrack=id; const neve=TR.theme==='neve';
+  GLAMPS.length=0; disposeWorld(); setTrack(id); builtTrack=id; const neve=TR.theme==='neve';
   const RT=rng(11+id.length);
   // terreno
   { const cols=[]; for(let d=-330;d<-70;d+=20) cols.push(d); for(let d=-70;d<-10;d+=2.5) cols.push(d); for(let d=-10;d<=10;d+=.4) cols.push(+d.toFixed(2)); for(let d=12.5;d<=70;d+=2.5) cols.push(d); for(let d=90;d<=330;d+=20) cols.push(d);
@@ -1893,7 +1897,8 @@ function frame(now){
       up.set(0,1,0).applyQuaternion(st.q); fw.set(0,0,-1).applyQuaternion(st.q); rt.set(1,0,0).applyQuaternion(st.q); if(U.t>1.9){ st.uprig=null; st.stuckT=0; auThud(.5); } }
     else if(st.rescue){ updRescue(dt); up.set(0,1,0).applyQuaternion(st.q); fw.set(0,0,-1).applyQuaternion(st.q); } else for(let k=0;k<n;k++) physStep(dt/n,inp);
     updWinch(dt);
-    { const z=zoneAt(st.s), inT=z.t==='galleria'&&st.s>z.a+3&&st.s<z.b-3; tun=lerp(tun,inT?1:0,1-Math.pow(.05,dt)); sun.intensity=sunBase*(1-.97*tun); hemi.intensity=hemiBase*(1-.9*tun); scene.environment=tun>.6?null:(envRT&&envRT.texture);
+    { const z=zoneAt(st.s), inT=z.t==='galleria'&&st.s>z.a+3&&st.s<z.b-3; tun=lerp(tun,inT?1:0,1-Math.pow(.05,dt)); sun.intensity=sunBase*(1-.9*tun); hemi.intensity=hemiBase*(1-.6*tun); scene.environment=envRT&&envRT.texture; if(scene.environmentIntensity!==undefined) scene.environmentIntensity=1-.6*tun;
+      { const near=GLAMPS.map(p=>[p.distanceToSquared(st.pos),p]).sort((a,b)=>a[0]-b[0]); tunL.forEach((l,i)=>{ const q=near[i]; if(q&&tun>.02){ l.position.copy(q[1]); l.intensity=22*Math.min(1,tun*1.5); } else l.intensity=0; }); }
       if(tun>.3&&Math.random()<dt*8){ const p=st.pos.clone().add(new V((Math.random()-.5)*5,2.6,(Math.random()-.5)*8)); emit(p,new V(0,-1,0),[.8,.85,.9],{k:2,s:.05,a:.8,life:1.5}); } }
     st.time+=dt; st.s=-st.pos.z;
     // qualità automatica: se il telefono fatica, alleggerisce la grafica (si può rimettere in garage)
@@ -1957,7 +1962,7 @@ function frame(now){
   else if(camMode===2){ want=st.pos.clone().addScaledVector(fh,-3.4).addScaledVector(rh,-2.1).add(new V(0,.15,0)); look=st.pos.clone().addScaledVector(fh,6).addScaledVector(rh,.4).add(new V(0,.1,0)); clr=.45; kp=.002; }
   else { want=new V(0,1.75,.9).applyQuaternion(st.q).add(st.pos); look=new V(0,-.2,-8).applyQuaternion(st.q).add(st.pos); clr=.3; kp=.00001; }
   const gh=height(want.x,want.z)+clr; if(want.y<gh) want.y=gh;
-  if(tun>.05&&camMode<2){ const w2=st.pos.clone().addScaledVector(fh,-5).add(new V(0,1.5,0)); want.lerp(w2,tun); }
+  { const zc=zoneAt(-want.z), zp=zoneAt(st.s); if(zc.t==='galleria'||zp.t==='galleria'){ const w2=st.pos.clone().addScaledVector(fh,-4.6).add(new V(0,1.2,0)); if(camMode<2) want.copy(w2); const cx=CX(-want.z); want.x=clamp(want.x,cx-2,cx+2); const gy=baseH(cx,want.z); want.y=Math.min(want.y,gy+2.3); look.y=Math.min(look.y,gy+1.6); } }
   if(first){ camPos.copy(want); camLook.copy(look); first=false; }
   camPos.lerp(want,1-Math.pow(kp,dt)); camLook.lerp(look,1-Math.pow(camMode===3?kp:.001,dt));
   cam.position.copy(camPos); if(shake>0){ cam.position.x+=(Math.random()-.5)*shake; cam.position.y+=(Math.random()-.5)*shake; shake=Math.max(0,shake-dt*1.5); }
@@ -2254,5 +2259,5 @@ window.__st=st;
 window.__simulate=(secs,ctrl)=>{ const dt=1/240; for(let k=0;k<secs*240;k++){ const inp=ctrl(st); physStep(dt,inp); st.time+=dt; st.s=-st.pos.z; if(st.pos.y<height(st.pos.x,st.pos.z)-3) reset(st.s); } return {s:st.s,y:st.pos.y,v:st.vel.length(),surf:st.surf,up:up.y}; };
 window.__reset=reset; window.__low=()=>{ st.gear='ridotte'; };
 window.__rescue=rescue; window.__updR=updRescue; window.__cs=()=>cs; window.__man=man; window.__startCamp=startCamp;
-window.__save=save; window.__dbg=(px,py)=>{ const r=new THREE.Raycaster(); r.setFromCamera(new THREE.Vector2(px*2-1,1-py*2),cam); const h=r.intersectObjects(scene.children,true).slice(0,4); return h.map(x=>{ let o=x.object, path=[]; while(o){ path.push((o.type)+(o.name?":"+o.name:"")); o=o.parent; } return x.distance.toFixed(1)+" "+path.join("<")+" mat:"+(x.object.material&&x.object.material.type)+" col:"+(x.object.material&&x.object.material.color&&x.object.material.color.getHexString())+" geo:"+x.object.geometry.type+JSON.stringify(x.object.geometry.parameters||{})+" wp:"+x.object.getWorldPosition(new THREE.Vector3()).toArray().map(v=>v.toFixed(1))+" side:"+(x.object.material&&x.object.material.side)+" map:"+!!(x.object.material&&x.object.material.map)+" vc:"+!!(x.object.material&&x.object.material.vertexColors)+" world:"+(x.object.parent===world)+" camp:"+(x.object.parent===campGroup); }); }; window.__build=buildWorld; window.__apply=applyUpgrades; window.__startRun=startRun; window.__attach=attachWinch; window.__cam=m=>{ camMode=m; first=true; }; window.__garage=toGarage; window.__CX=CX; window.__TREES=()=>TREES; window.__setSky=setSky; window.__rtt=rtt; window.__updCamp=updCamp; window.__goSleep=goSleep; window.__startParty=startParty; window.__startWalk=startWalk; window.__STEPS=()=>STEPS; window.__LEN=()=>LEN; window.__pad=pad; window.__pl=pl; window.__pp=pp; window.__pc=pc; window.__ps=ps; window.__pu=partU;
+window.__save=save; window.__camobj=cam; window.__dbg=(px,py)=>{ const r=new THREE.Raycaster(); r.setFromCamera(new THREE.Vector2(px*2-1,1-py*2),cam); const h=r.intersectObjects(scene.children,true).slice(0,4); return h.map(x=>{ let o=x.object, path=[]; while(o){ path.push((o.type)+(o.name?":"+o.name:"")); o=o.parent; } return x.distance.toFixed(1)+" "+path.join("<")+" mat:"+(x.object.material&&x.object.material.type)+" col:"+(x.object.material&&x.object.material.color&&x.object.material.color.getHexString())+" geo:"+x.object.geometry.type+JSON.stringify(x.object.geometry.parameters||{})+" wp:"+x.object.getWorldPosition(new THREE.Vector3()).toArray().map(v=>v.toFixed(1))+" side:"+(x.object.material&&x.object.material.side)+" map:"+!!(x.object.material&&x.object.material.map)+" vc:"+!!(x.object.material&&x.object.material.vertexColors)+" world:"+(x.object.parent===world)+" camp:"+(x.object.parent===campGroup); }); }; window.__build=buildWorld; window.__apply=applyUpgrades; window.__startRun=startRun; window.__attach=attachWinch; window.__cam=m=>{ camMode=m; first=true; }; window.__garage=toGarage; window.__CX=CX; window.__TREES=()=>TREES; window.__setSky=setSky; window.__rtt=rtt; window.__updCamp=updCamp; window.__goSleep=goSleep; window.__startParty=startParty; window.__startWalk=startWalk; window.__STEPS=()=>STEPS; window.__LEN=()=>LEN; window.__pad=pad; window.__pl=pl; window.__pp=pp; window.__pc=pc; window.__ps=ps; window.__pu=partU;
 </script>
