@@ -473,7 +473,7 @@ let save={money:400,own:{},dmg:{gomme:0,coppa:0,semiassi:0,carrozzeria:0},pressu
 try{ const r=localStorage.getItem(KEY); if(r) save=Object.assign(save,JSON.parse(r)); }catch(e){}
 function persist(){ try{ localStorage.setItem(KEY,JSON.stringify(save)); }catch(e){} }
 const own=k=>!!save.own[k];
-save.vehOwn=save.vehOwn||{base:true}; save.vehOwn.terrano=true; if(!save.terr1){ save.terr1=1; save.veh='terrano'; } save.veh=save.veh||'terrano'; save.meteo=save.meteo||'sereno'; if(save.voci==null) save.voci=true; if(!save.q) save.q=matchMedia('(pointer:coarse)').matches?'media':'alta';
+save.vehOwn=save.vehOwn||{base:true}; save.vehOwn.terrano=true; if(!save.terr1){ save.terr1=1; save.veh='terrano'; } save.veh=save.veh||'terrano'; if(save.vehOwn.bisonte&&!save.bisRef){ save.bisRef=1; save.money=(save.money||0)+3500; } if(save.veh==='base'||save.veh==='bisonte') save.veh='terrano'; save.meteo=save.meteo||'sereno'; if(save.voci==null) save.voci=true; if(!save.q) save.q=matchMedia('(pointer:coarse)').matches?'media':'alta';
 const QS={alta:{n:'Alta',pr:2,sh:2048,grass:9000,trees:2400},media:{n:'Media',pr:1.5,sh:1024,grass:5000,trees:1700},bassa:{n:'Bassa',pr:1,sh:0,grass:0,trees:1000}};
 const METEO={sereno:{n:'Sereno',ic:'☀️',k:1,txt:'compenso normale'},pioggia:{n:'Pioggia',ic:'🌧️',k:1.2,txt:'tutto più scivoloso · compenso +20%'},nebbia:{n:'Nebbia',ic:'🌫️',k:1.15,txt:'vedi poco lontano · +15%'},temporale:{n:'Temporale',ic:'⛈️',k:1.4,txt:'buio, pioggia e fulmini · +40%'}};
 let WX='sereno';
@@ -1114,9 +1114,9 @@ const VEHS={terrano:{n:'Terrano II Black Edition',sub:'nero, alzato, snorkel, ba
  samurai:{n:'Samurai giallo',sub:'piccolo, leggerissimo, soft top e barra LED: passa dove gli altri si incastrano',price:1500,sc:[1,1,1],mass:1050,p:.7,col:null,model:'samurai'},
  pajero_corto:{n:'Pajero corto',sub:'tre porte infangato con taniche e portapacchi: corto, agile, robusto',price:2400,sc:[1,1,1],mass:1850,p:1.12,col:null,model:'pajero_corto',tough:.85},
  grenadier:{n:'Grenadier',sub:'verde scuro, telaio a longheroni e ponti rigidi: il fuoristrada moderno più duro',price:6000,sc:[1,1,1],mass:2650,p:1.45,col:null,model:'grenadier',lockR:true,tough:.7,lift:.02},
- base:{n:'Ranger 2.5 TD',sub:'il tuo 4x4 di serie: onesto e robusto',price:0,sc:[1,1,1],mass:2100,p:1,col:null},
+ base:{hide:1,n:'Ranger 2.5 TD',sub:'il tuo 4x4 di serie: onesto e robusto',price:0,sc:[1,1,1],mass:2100,p:1,col:null},
  grillo:{model:'jimny_verde',n:'Jimny 1.5',sub:'piccolo e leggero (in stile Jimny): stretto, galleggia nel fango, poco motore',price:1800,sc:[.88,.96,.82],mass:1200,p:.64,col:0xd8c23a},
- bisonte:{n:'Bisonte 110',sub:'squadrato all\'inglese (in stile Defender): più alto e più forte',price:3500,sc:[1.02,1.04,1.06],mass:2250,p:1.25,col:0x3d5a3a,lift:.03},
+ bisonte:{hide:1,n:'Bisonte 110',sub:'squadrato all\'inglese (in stile Defender): più alto e più forte',price:3500,sc:[1.02,1.04,1.06],mass:2250,p:1.25,col:0x3d5a3a,lift:.03},
  orso:{model:'landcruiser_stock',n:'Orso 200',sub:'giapponese indistruttibile (in stile Land Cruiser): pesante, potente, bloccaggio dietro di serie',price:5500,sc:[1.08,1.06,1.1],mass:2500,p:1.5,col:0xe9e7e0,lockR:true,tough:.7}};
 let VEH=VEHS.base, VS=[1,1,1]; const WH0=[ {x:-.82,z:-1.38},{x:.82,z:-1.38},{x:-.82,z:1.35},{x:.82,z:1.35} ]; let carRoot=null, bodyMat0=null;
 let prevVeh=null, detVeh=null;
@@ -2492,7 +2492,7 @@ function renderGarage(){
   const L=$('#garList'); L.innerHTML='';
   if(garTab==='mezzo'||garTab==='campo'||garTab==='elabora'){
     if(garTab==='mezzo'){ L.append(el('p','howto','Tocca un fuoristrada per aprire la sua scheda: lo vedi girare a 360°, ci sono tutte le caratteristiche e puoi provarlo gratis.')); L.append(el('p','sec','I fuoristrada'));
-      const grid=el('div','vgrid'); for(const [k,v] of Object.entries(VEHS)){ const cur=(prevVeh||save.veh)===k, o=save.vehOwn[k]; const c=el('button','vcard'+(cur?' sel':'')+(o?' own':''));
+      const grid=el('div','vgrid'); for(const [k,v] of Object.entries(VEHS)){ if(v.hide) continue; const cur=(prevVeh||save.veh)===k, o=save.vehOwn[k]; const c=el('button','vcard'+(cur?' sel':'')+(o?' own':''));
         if(v.model&&VMOD[v.model]&&v.model!=='terrano'){ const im=document.createElement('img'); im.loading='lazy'; im.alt=v.n; im.src=VBASE+'thumbs/'+v.model+'.webp'; c.append(im); } else c.append(el('i','vph','🚙'));
         c.append(el('b','',v.n), el('small','',save.veh===k?'✔ In uso':o?'Tuo':eur(v.price))); c.addEventListener('click',()=>openVeh(k)); grid.append(c); }
       L.append(grid);
