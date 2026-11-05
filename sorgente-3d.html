@@ -371,7 +371,7 @@ body.incamp .pedal{display:none}
 #ptBoard .prow2{font-size:12px}
 #jdTrack.hwy{height:min(46vh,330px)!important;cursor:pointer;touch-action:none}
 #jdTrack .ln{position:relative;pointer-events:auto}
-#jdTrack .ln::after{content:attr(data-n);position:absolute;left:0;right:0;bottom:62px;text-align:center;font:700 11px/1 var(--fb,sans-serif);color:rgba(255,255,255,.55);letter-spacing:.06em;text-transform:uppercase}
+#jdTrack .ln::after{content:attr(data-n);position:absolute;left:0;right:0;bottom:76px;text-align:center;font:700 11px/1 var(--fb,sans-serif);color:rgba(255,255,255,.55);letter-spacing:.06em;text-transform:uppercase}
 #jdTrack .rcp{bottom:10px!important}
 #jdTrack .rcp u{width:56px!important;height:56px!important;font-size:26px!important;opacity:.95!important;background:rgba(0,0,0,.35)}
 #jdTrack #ptNotes i{width:54px!important;height:54px!important;margin-left:-27px!important;font-size:26px!important;border-radius:14px!important}
@@ -379,6 +379,10 @@ body.incamp .pedal{display:none}
 #party .phint{display:none}
 #ptCount{position:absolute;left:0;right:0;top:30%;text-align:center;font:400 64px/1 var(--fdirt,Impact);color:#fff;text-shadow:0 4px 0 #000;pointer-events:none;opacity:0}
 #ptCount.go{animation:cnt .8s ease-out}@keyframes cnt{0%{opacity:1;transform:scale(1.6)}100%{opacity:0;transform:scale(.8)}}
+#jdTrack .rcp u.now{animation:nowp .25s infinite alternate;opacity:1!important;background:color-mix(in srgb,var(--jc) 55%,transparent)!important}@keyframes nowp{to{transform:scale(1.22);box-shadow:0 0 26px var(--jc),0 0 0 4px #fff}}
+#jdTrack .ln.nx{background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--jc) 45%,transparent))}
+#jdTrack .tutHand{position:absolute;bottom:4px;font-size:34px;transform:translateX(-50%);pointer-events:none;animation:tap .5s infinite alternate;filter:drop-shadow(0 2px 2px #000)}@keyframes tap{to{transform:translate(-50%,-14px)}}
+#ptHelp.big{font-size:18px;top:22%;background:rgba(0,0,0,.75);border:2px solid #f2d24b}
 #ptHelp{position:absolute;left:8px;right:8px;top:38%;text-align:center;font:700 15px/1.3 var(--fb,sans-serif);color:#fff;background:rgba(0,0,0,.55);border-radius:10px;padding:8px;pointer-events:none;transition:opacity .4s}
 @media (orientation:landscape) and (max-height:520px){ #jdTrack.hwy{height:min(52vh,240px)!important} #party .mtop b{font-size:15px} #ptBoard .prow2{font-size:11px} }
 
@@ -1730,7 +1734,7 @@ const SHELTER={amaca:{txt:'Monta l\'amaca',sub:'vai ai due pini col segno giallo
 let STEPS=[];
 const STEPS0=[
   {id:'intro',txt:'Prepariamo il campo base',sub:'tocca il terreno per camminare lì, oppure premi «Vai al segno giallo»'},
-  {id:'scarica',txt:'Scarica il fuoristrada',sub:'vai dietro al mezzo e apri il portellone: sedie, frigo e tavolino',target:'trunk',action:'Apri il portellone'},
+  {id:'scarica',txt:'Scarica il fuoristrada',sub:'apri il portellone e porta fuori una cosa alla volta dove c\'è il segno giallo: più sei veloce più guadagni',target:'carry',action:()=>carryAct()},
   {id:'amaca',txt:'Monta l\'amaca',sub:'vai ai due pini col segno giallo e lega le corde',target:'ham',action:'Lega le corde',tool:'riparo'},
   {id:'legna',txt:'Andiamo a fare legna',sub:'avvicinati all\'albero secco',target:'dead',action:'Taglia la legna',tool:'legna'},
   {id:'porta',txt:'Porta la legna al fuoco',sub:'posala nel cerchio di pietre',target:'fire',action:'Posa la legna'},
@@ -1739,7 +1743,7 @@ const STEPS0=[
   {id:'cena',txt:'Prepara la cena',sub:'sulla brace: toglila quando è cotta',target:'fire',action:'Metti sulla brace',tool:'cena'},
   {id:'festa',txt:'Festa!',sub:'scegli la musica e sfida gli amici a chi fa più casino',target:'fire',action:'Metti la musica'},
   {id:'dormi',txt:'A nanna',sub:'adesso arriva a letto… se ci riesci',target:'fire',action:'Vai a dormire'},
-  {id:'smonta',txt:'Buongiorno! Si smonta il campo',sub:'riporta sedie, frigo e tavolino nel bagagliaio',target:'trunk',action:'Carica il fuoristrada'}
+  {id:'smonta',txt:'Buongiorno! Si smonta il campo',sub:'prendi una cosa alla volta e riportala nel bagagliaio: più sei veloce più guadagni',target:'carry',action:()=>carryAct()}
 ];
 let cs=null;
 const campGroup=new THREE.Group(); scene.add(campGroup);
@@ -1798,7 +1802,7 @@ const FOODS=[{id:'salsiccia',n:'Salsiccia',pl:'salsicce',ic:'🌭',speed:.4,zone
   {id:'costine',n:'Costine',pl:'costine',ic:'🍖',speed:.3,zone:.22,txt:'lente ma perdonano'},{id:'trote',n:'Trote di Costa',pl:'trote',ic:'🐟',speed:.36,zone:.2,txt:'le ha portate Costa, ovviamente'},
   {id:'castagne',n:'Castagne',pl:'castagne',ic:'🌰',speed:.33,zone:.24,txt:'caldarroste nella padella bucata: saltano se esageri'},{id:'patatine',n:'Patate fritte',pl:'patate fritte',ic:'🍟',speed:.5,zone:.16,txt:'nella padella con l\'olio bollente: dorate, non nere'}];
 const DRINKS=[{id:'birra',n:'Birra',ic:'🍺',alc:.1,txt:'+6 punti a sorso · si barcolla poco'},{id:'vino',n:'Vino rosso',ic:'🍷',alc:.14,txt:'+7 punti · si barcolla un po\''},{id:'bianco',n:'Vino bianco',ic:'🥂',alc:.13,txt:'+7 punti · fresco, scende che è un piacere'},{id:'spritz',n:'Spritz',ic:'🍹',alc:.11,txt:'+6 punti · aperitivo in vetta'},{id:'prosecco',n:'Prosecco',ic:'🍾',alc:.12,txt:'+7 punti · si stappa per festeggiare la vetta'},{id:'grappa',n:'Grappa',ic:'🥃',alc:.22,txt:'+9 punti · a letto a zig zag'},{id:'acqua',n:'Acqua',ic:'💧',alc:0,txt:'+2 punti · torni dritto'}];
-const FRIENDS=[{n:'Purcello',jacket:0x2f4f7a,hat:0x1c1c1c,car:0x1f4f6a,rate:3.6},{n:'Mirco',jacket:0x4a7a3a,hat:0xe07a2a,car:0x3f6a34,rate:3.2},{n:'Costa',jacket:0xd8b02a,hat:0x2a5aa0,car:null,rate:3.4}];
+const FRIENDS=[{n:'Purcello',jacket:0x2f4f7a,hat:0x1c1c1c,car:0x1f4f6a,rate:3.1},{n:'Mirco',jacket:0x4a7a3a,hat:0xe07a2a,car:0x3f6a34,rate:2.7},{n:'Costa',jacket:0xd8b02a,hat:0x2a5aa0,car:null,rate:2.9}];
 const clk=()=>AC?AC.currentTime:performance.now()/1000;
 // sintetizzatore della festa: batteria vera, basso, chitarre distorte, fisarmonica, ottoni, riverbero
 let MUS=null;
@@ -1909,7 +1913,7 @@ function openMenu(){ sheet('Cena con gli amici','Purcello, Mirco e Costa sono gi
   cs.food=FOODS.find(f=>f.id===s.food); cs.drink=DRINKS.find(d=>d.id===s.drink); cs.drunk=cs.drink.alc*2; friendsDrink=true;
   const line=cs.food.id==='trote'?['Costa','«Finalmente qualcuno che apprezza il pesce!»']:cs.drink.id==='acqua'?['Purcello','«Acqua?! Ti sei perso la cassa di birra?»']:cs.drink.id==='grappa'?['Mirco','«Grappa? Domani campa giù…»']:['Purcello','«Ottima scelta. Paghi tu la prossima?»'];
   toast(line[0],line[1]); if(cs.food.id==='trote') say('Costa','','c_pesce'); STEPS.find(x=>x.id==='cena').txt=`Cuoci ${cs.food.pl==='pancetta'?'la':'le'} ${cs.food.pl}`; setStep(cs.step+1); }); }
-function openMusic(){ sheet('Festa!','Si sfida chi fa più casino. Come Just Dance: quando una mossa arriva nel cerchio giallo tocca il tasto del suo colore. BEVI: più sei sbronzo più punti fai ballando, ma tornando a letto barcolli e ogni caduta costa 15 €.',[{label:'Musica',key:'mus',items:MUSIC}],'Alza il volume!',s=>showHelp('festa',()=>startParty(s.mus))); }
+function openMusic(){ sheet('Festa!','Si sfida chi fa più casino ballando: le mosse cadono in 4 corsie, tocchi la corsia quando la mossa entra nel cerchio in fondo. Prima c’è una prova. BEVI: più sei sbronzo più punti fai ballando, ma tornando a letto barcolli e ogni caduta costa 15 €.',[{label:'Musica',key:'mus',items:MUSIC}],'Alza il volume!',s=>showHelp('festa',()=>startParty(s.mus))); }
 
 // gara di casino a ritmo
 let friendsDrink=false;
@@ -1917,17 +1921,25 @@ function startParty(id){ musicStart(id); const G=MUSIC.find(m=>m.id===id);
   cs.party={t:0,dur:42,score:[0,0,0,0],next:0,hit:new Set(),cd:0,notes:[],dance:0,drinks:0,id};
   $('#party').hidden=false; $('#ctl').hidden=true; $('#obj').hidden=true; if(cs.obj.mk) cs.obj.mk.visible=false;
   const B=$('#ptBoard'); B.innerHTML=''; ['Tu',...FRIENDS.map(f=>f.n)].forEach((n,i)=>{ const r=el('div','prow2'+(i?'':' me')); r.append(el('span','',n)); const b=el('i'); b.append(el('u')); r.append(b); B.append(r); });
-  // coreografia: frasi di 8 mosse ripetute due volte, come in Just Dance; ogni tanto la mossa d'oro
-  const beat=MUS.beat, ch=[]; let phrase=[], c=0; const ev=b=>Math.max(1,Math.round(b/beat));
-  // coreografia a frasi di 8 mosse ripetute (come Just Dance); si parte tranquilli e poi si accelera
-  for(let n=8;n*beat<cs.party.dur-1.2;c++){ const tt=n*beat/cs.party.dur, step=ev(tt<.3?.85:tt<.7?.6:.45);
+  document.querySelectorAll('.tutHand').forEach(x=>x.remove()); cs.party.ch=[]; cs.party.tut={i:0,seq:[0,1,2,3],y:0,ok:0}; const L=$('#ptNotes'); L.innerHTML=''; const te=el('i','','🙌'); te.dataset.k=0; L.append(te); cs.party.tut.e=te; const hd=el('div','tutHand','👆'); $('#jdTrack').append(hd); cs.party.tut.h=hd; tutTxt();
+  const Q=[['Purcello','Chi perde paga la prossima cassa!','p_cassa'],['Mirco','Stasera ballo, domani sono in mutua!','m_ballo'],['Costa','Questa la ballavano anche le trote!','c_trote']][Math.random()*3|0]; toast(G.ic+' '+G.n,`«${Q[1]}» — ${Q[0]}`); setTimeout(()=>say(Q[0],'',Q[2]),600); }
+const LNAME=['ROSSA 🙌','BLU 🌀','GIALLA 👏','VERDE 🦵'];
+function tutTxt(){ const T=cs.party.tut, H=$('#ptHelp'); H.classList.add('big'); H.style.opacity=1; const k=T.seq[T.i]; H.innerHTML=T.y<1?`PROVA ${T.i+1}/4 · guarda la mossa che scende nella corsia <b>${LNAME[k]}</b>…`:`ADESSO! È nel cerchio: <b>tocca la corsia ${LNAME[k]}</b>`; }
+function chartGo(){ const P=cs.party, beat=MUS.beat; P.tut.h.remove(); P.tut.e.remove(); P.tut=null; const H=$('#ptHelp'); H.innerHTML='Perfetto, hai capito! Ora le mosse arrivano <b>a tempo di musica</b>: fai uguale'; setTimeout(()=>{ H.style.opacity=0; H.classList.remove('big'); },3200);
+  const n0=Math.ceil((clk()-MUS.t0)/beat)+6, ch=[]; let phrase=[], c=0; const ev=b=>Math.max(1,Math.round(b/beat));
+  for(let n=n0;(n-n0)*beat<P.dur-1.2;c++){ const tt=(n-n0)*beat/P.dur, step=ev(tt<.3?1:tt<.7?.7:.5);
     if(c%16===0){ phrase=[]; let last=-1; for(let j=0;j<8;j++){ let k=Math.random()*4|0; if(k===last) k=(k+1+Math.random()*3|0)%4; phrase.push(k); last=k; } }
     ch.push({n,t:MUS.t0+n*beat,k:phrase[c%8],gold:c%16===15,hit:false,miss:false}); n+=step; }
-  cs.party.ch=ch; $('#ptHelp').style.opacity=1; const cnt=$('#ptCount'); [3,2,1,'VIA!'].forEach((t,i)=>setTimeout(()=>{ cnt.textContent=t; cnt.classList.remove('go'); void cnt.offsetWidth; cnt.classList.add('go'); },i*MUS.beat*1000+(MUS.t0-clk())*1000)); setTimeout(()=>$('#ptHelp').style.opacity=0,6000); const L=$('#ptNotes'); L.innerHTML=''; for(const N of ch){ const e=el('i','',['🙌','🌀','👏','🦵'][N.k]); e.dataset.k=N.k; if(N.gold) e.classList.add('gold'); N.e=e; L.append(e); }
-  const Q=[['Purcello','Chi perde paga la prossima cassa!','p_cassa'],['Mirco','Stasera ballo, domani sono in mutua!','m_ballo'],['Costa','Questa la ballavano anche le trote!','c_trote']][Math.random()*3|0]; toast(G.ic+' '+G.n,`«${Q[1]}» — ${Q[0]}`); setTimeout(()=>say(Q[0],'',Q[2]),600); }
+  P.ch=ch; P.t=-(MUS.t0+n0*beat-clk()); const cnt=$('#ptCount'); [3,2,1,'VIA!'].forEach((t,i)=>setTimeout(()=>{ cnt.textContent=t; cnt.classList.remove('go'); void cnt.offsetWidth; cnt.classList.add('go'); },(MUS.t0+(n0-4+i)*beat-clk())*1000));
+  const L=$('#ptNotes'); for(const N of ch){ const e=el('i','',['🙌','🌀','👏','🦵'][N.k]); e.dataset.k=N.k; if(N.gold) e.classList.add('gold'); N.e=e; L.append(e); } }
+function tutHit(k){ const T=cs.party.tut; if(T.y<.97){ ptFb('Aspetta: non è ancora nel cerchio','#f2d24b'); return; } if(k!==T.seq[T.i]){ ptFb('No! Tocca la corsia '+LNAME[T.seq[T.i]],'#f08a7c'); return; }
+  const u=document.querySelector(`#jdTrack .rcp u[data-k="${k}"]`); u.classList.add('hit'); setTimeout(()=>u.classList.remove('hit'),160); auBurst(2600,.15,.12,'bandpass',3); ptFb('PERFETTO! ✔','#c9f0a8'); T.i++; T.y=0;
+  if(T.i>=T.seq.length){ chartGo(); return; } const kk=T.seq[T.i]; T.e.textContent=['🙌','🌀','👏','🦵'][kk]; T.e.dataset.k=kk; tutTxt(); }
+function updTut(dt){ const P=cs.party, T=P.tut, HH=$('#jdTrack').clientHeight||200; const was=T.y; T.y=Math.min(1,T.y+dt/1.3); const k=T.seq[T.i]; T.e.style.display=''; T.e.style.left=(12.5+k*25)+'%'; T.e.style.setProperty('top',(28+T.y*(HH-66))+'px','important'); T.h.style.left=(12.5+k*25)+'%'; T.h.style.display=T.y>=1?'':'none';
+  document.querySelectorAll('#jdTrack .rcp u').forEach(u=>u.classList.toggle('now',T.y>=1&&+u.dataset.k===k)); document.querySelectorAll('#jdTrack .ln').forEach(l=>l.classList.toggle('nx',+l.dataset.k===k)); if(was<1&&T.y>=1) tutTxt(); }
 const lat=()=>AC?Math.min(.25,(AC.outputLatency||0)+(AC.baseLatency||0)):0;
 const heard=()=>clk()-lat();
-function padHit(k){ const P=cs.party; if(!P||P.over||!P.ch) return; const now=heard(); P.dance=1; P.pose={k,t:0};
+function padHit(k){ const P=cs.party; if(!P||P.over||!P.ch) return; if(P.tut){ tutHit(k); return; } const now=heard(); P.dance=1; P.pose={k,t:0};
   let best=null, bd=1e9; for(const N of P.ch){ if(N.hit||N.miss) continue; const d=Math.abs(now-N.t); if(d<bd){ bd=d; best=N; } if(N.t-now>.4) break; }
   if(!best||bd>.26){ ptFb('Aspetta che arrivi al cerchio','#f2d24b'); return; }
   if(best.k!==k){ P.combo=0; $('#ptCombo').classList.remove('on'); ptFb('Colore sbagliato: '+['rosso 🙌','blu 🌀','giallo 👏','verde 🦵'][best.k],'#f08a7c'); return; }
@@ -1945,16 +1957,17 @@ for(const l of document.querySelectorAll('#jdTrack .ln')) l.addEventListener('po
 for(const b of document.querySelectorAll('.jp')){ b.addEventListener('pointerdown',e=>{ e.preventDefault(); b.classList.add('dn'); padHit(+b.dataset.k); }); for(const t of ['pointerup','pointercancel','pointerleave']) b.addEventListener(t,()=>b.classList.remove('dn')); } $('#ptBevi').addEventListener('pointerdown',e=>{ e.preventDefault(); partyDrink(); });
 addEventListener('keydown',e=>{ if(cs&&cs.mini&&(e.key===' '||e.key==='Enter')){ miniTap(); e.preventDefault(); return; } if(!cs||!cs.party) return; const kk={arrowup:0,'1':0,arrowleft:1,'2':1,arrowdown:2,'3':2,arrowright:3,'4':3}[e.key.toLowerCase()]; if(kk!=null){ padHit(kk); e.preventDefault(); } if(e.key.toLowerCase()==='b') partyDrink(); });
 function ptFb(t,c){ const f=$('#ptF'); f.textContent=t; f.style.color=c; f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); }
-function updParty(dt){ const P=cs.party; if(!P) return; P.t+=dt; P.cd=Math.max(0,P.cd-dt); P.dance=Math.max(0,P.dance-dt*3);
+function updParty(dt){ const P=cs.party; if(!P) return; if(P.tut){ updTut(dt); return; } P.t+=dt; P.cd=Math.max(0,P.cd-dt); P.dance=Math.max(0,P.dance-dt*3);
   const now=heard(); P.flash=Math.max(0,(P.flash||0)-dt*5);
   { const ph=((now-MUS.t0)/MUS.beat)%1, pu=Math.max(0,1-ph*4); const h=$('.hitl'); h.style.transform=`scale(${1+pu*.25+P.flash*.3})`; h.style.background=P.flash>0?'rgba(147,196,109,.6)':`rgba(242,210,75,${pu*.35})`; $('#ptSbI').style.setProperty('--v',Math.min(100,(cs.drunk||0)/1.2*100)+'%'); }
-  FRIENDS.forEach((f,i)=>{ P.score[i+1]+=dt*f.rate*(.8+Math.random()*.4)*(P.t<P.dur?1:0); });
+  FRIENDS.forEach((f,i)=>{ P.score[i+1]+=dt*f.rate*(.8+Math.random()*.4)*(P.t>0&&P.t<P.dur?1:0); });
   // note che arrivano verso la linea
   if(P.pose) P.pose.t+=dt;
-  const HH=$('#jdTrack').clientHeight||200; for(const N of P.ch||[]){ const x=(N.t-now)/2.2, e=N.e; if(x>1||x<-.15||(N.hit&&now-N.t>.15)){ e.style.display='none'; } else { e.style.display=''; e.style.left=(12.5+N.k*25)+'%'; e.style.top=(28+(1-x)*(HH-66))+'px'; }
+  { let nx=null; for(const N of P.ch){ if(!N.hit&&!N.miss){ nx=N; break; } } const d=nx?nx.t-now:9; document.querySelectorAll('#jdTrack .rcp u').forEach(u=>u.classList.toggle('now',!!nx&&+u.dataset.k===nx.k&&Math.abs(d)<.14)); document.querySelectorAll('#jdTrack .ln').forEach(l=>l.classList.toggle('nx',!!nx&&+l.dataset.k===nx.k&&d<1.2)); }
+  const HH=$('#jdTrack').clientHeight||200; for(const N of P.ch||[]){ const x=(N.t-now)/2.2, e=N.e; if(x>1||x<-.15||(N.hit&&now-N.t>.15)){ e.style.display='none'; } else { e.style.display=''; e.style.left=(12.5+N.k*25)+'%'; e.style.setProperty('top',(28+(1-x)*(HH-66))+'px','important'); }
     if(!N.hit&&!N.miss&&now-N.t>.32){ N.miss=true; e.classList.add('gone'); if((P.combo||0)>=8) gabbah('g_dopo',15); P.combo=0; ptFb('Mancato','#f08a7c'); } }
   const mx=Math.max(30,...P.score); [...$('#ptBoard').children].forEach((r,i)=>{ r.querySelector('u').style.width=(P.score[i]/mx*100)+'%'; });
-  $('#ptT').textContent=P.t<P.dur?`${Math.ceil(P.dur-P.t)} s`:'fine!'; $('#ptDr').textContent=P.cd>0?'…':`${cs.drink.ic} ${P.drinks}`;
+  $('#ptT').textContent=P.t<0?'pronti…':P.t<P.dur?`${Math.ceil(P.dur-P.t)} s`:'fine!'; $('#ptDr').textContent=P.cd>0?'…':`${cs.drink.ic} ${P.drinks}`;
   $('#ptBevi').classList.toggle('cd',P.cd>0);
   if(P.t>=P.dur&&!P.over){ P.over=true; const order=P.score.map((s,i)=>[s,i]).sort((a,b)=>b[0]-a[0]); cs.rank=order.findIndex(o=>o[1]===0)+1; const win=order[0][1];
     const names=['Tu',...FRIENDS.map(f=>f.n)];
@@ -2039,7 +2052,7 @@ function startCamp(){ if(ghostCar){ ghostCar.visible=false; ghostData=null; } ca
   // il fuoristrada va a parcheggiare a bordo radura
   { const pk=at(2.6,-4.5), q1=new THREE.Quaternion().setFromEuler(new THREE.Euler(0,Math.atan2(-fh.x,-fh.z),0)); pk.y=height(pk.x,pk.z)+RW+LN-.198-MOUNTY;
     cs.park={t:0,p0:st.pos.clone(),q0:st.q.clone(),p1:pk,q1}; const p=pk.clone().addScaledVector(rtv,2.3).addScaledVector(fh,.4); p.y=height(p.x,p.z); cs.pos.car=p; const tk=pk.clone().addScaledVector(fh,-3.1); tk.y=height(tk.x,tk.z); cs.pos.trunk=tk; }
-  if(own('tendalino')) Object.assign(STEPS.find(x=>x.id==='scarica'),{sub:'apri il portellone e srotola il tendalino dal portapacchi',action:'Apri e scarica'});
+  if(own('tendalino')) Object.assign(STEPS.find(x=>x.id==='scarica'),{sub:'apri il portellone (si srotola il tendalino) e porta fuori una cosa alla volta dove c\'è il segno giallo'});
   const G=campGroup, add=(o,cast=true)=>{ o.traverse?.(m=>{ if(m.isMesh){ m.castShadow=cast; m.receiveShadow=true; } }); G.add(o); return o; };
   // terra battuta attorno al fuoco
   { const c=document.createElement('canvas'); c.width=c.height=256; const g=c.getContext('2d'); const gr=g.createRadialGradient(128,128,10,128,128,128); gr.addColorStop(0,'rgba(70,52,36,1)'); gr.addColorStop(.55,'rgba(92,72,50,.85)'); gr.addColorStop(1,'rgba(92,72,50,0)'); g.fillStyle=gr; g.fillRect(0,0,256,256);
@@ -2124,7 +2137,7 @@ function startCamp(){ if(ghostCar){ ghostCar.visible=false; ghostData=null; } ca
     const lan=new THREE.Mesh(new THREE.CylinderGeometry(.07,.08,.22,8),new THREE.MeshStandardMaterial({color:0xffe4a0,emissive:0xffb040,emissiveIntensity:2})); lan.position.y=.83; tb.add(lan); const ll=new THREE.PointLight(0xffb860,0,7,1.8); ll.position.y=1; tb.add(ll); cs.lanL=ll;
     dressAsset(tb,'tavolo',.74,[lan]); lan.position.y=.86;
     tb.position.copy(at(3.4,1.6)); tb.position.y=height(tb.position.x,tb.position.z); G.add(tb); cs.unl.push(tb); }
-  for(const o of cs.unl){ o.userData.home=o.position.clone(); o.visible=false; } setAwning(0);
+  cs.unl.forEach((o,i)=>{ o.userData.home=o.position.clone(); o.userData.hr=o.rotation.y; o.visible=false; o.userData.lbl=o===cs.cool?'il frigo':o===cs.obj.stove?'il fornelletto':i<3?'la sedia':'il tavolino'; }); setAwning(0); cs.carry=null; cs.pos.carry=cs.pos.trunk.clone();
   rtt.userData.lidP.rotation.x=0; rtt.userData.tela.scale.y=.001; man.userData.axe.visible=false; man.userData.saw.visible=false;
   man.visible=false;
   campMode=true; st.running=false; first=true; dropWinch();
@@ -2144,6 +2157,25 @@ function updPark(dt){ if(!cs.park) return; const P=cs.park;
   const ff=new V(-Math.sin(P.ry),0,-Math.cos(P.ry)), rr=new V(-ff.z,0,ff.x), h=(a,b)=>height(st.pos.x+ff.x*a+rr.x*b,st.pos.z+ff.z*a+rr.z*b), pit=Math.atan2(h(1.3,0)-h(-1.3,0),2.6), rol=Math.atan2(h(0,.8)-h(0,-.8),1.6);
   const qT=new THREE.Quaternion().setFromEuler(new THREE.Euler(pit,P.ry,-rol,'YXZ')); st.q.slerp(qT,k>.98?1:.35);
   for(let i=0;i<4;i++) st.spin[i]+=step/RW; fw.set(0,0,-1).applyQuaternion(st.q); if(u>=1){ st.steer=0; parkDone(); } }
+// scarico / carico a mano: una cosa alla volta tra bagagliaio e segno giallo
+const cNext=()=>{ const C=cs.carry, pk=STEPS[cs.step]&&STEPS[cs.step].id==='smonta'; if(pk) return cs.unl.find(o=>o.visible&&!o.userData.held); return C?cs.unl[C.i]:cs.unl[0]; };
+function carryTgt(){ const C=cs.carry, pk=STEPS[cs.step]&&STEPS[cs.step].id==='smonta'; if(C&&C.hold) return pk?cs.pos.trunk:C.hold.userData.home; if(!pk) return cs.pos.trunk; const n=cNext(); return n?n.userData.home:cs.pos.trunk; }
+function carryAct(){ const C=cs.carry, pk=STEPS[cs.step].id==='smonta', n=cNext(), cap=x=>x?x[0].toUpperCase()+x.slice(1):''; if(C&&C.hold) return pk?'Carica nel bagagliaio':'Posa '+C.hold.userData.lbl; if(!pk&&!C) return 'Apri il portellone'; return 'Prendi '+(n?n.userData.lbl:''); }
+function carryDo(pk){ let C=cs.carry; auThud(.25);
+  if(!C||C.pk!==pk){ C=cs.carry={pk,i:0,hold:null,t:0,aw:0,n:pk?cs.unl.filter(o=>o.visible).length:cs.unl.length,done:0}; if(!pk){ auBurst(700,.35,.25,'lowpass',2); toast('Portellone aperto',`porta fuori ${C.n} cose, una alla volta: il segno giallo ti dice dove`); if(own('tendalino')) C.aw=.01; return; } }
+  if(!C.hold){ const o=cNext(); if(!o) return; C.hold=o; o.visible=true; o.userData.held=true; auBurst(900,.12,.15,'lowpass',2); return; }
+  const o=C.hold; C.hold=null; o.userData.held=false; C.done++;
+  if(pk){ o.visible=false; } else { o.position.copy(o.userData.home); o.rotation.y=o.userData.hr; C.i++; }
+  auThud(.35); if(C.done<C.n){ toast(`${C.done}/${C.n}`,pk?'dentro! la prossima':'ok, torna al bagagliaio'); return; }
+  const e=Math.max(5,Math.round(40-C.t*.7)); save.money+=e; persist(); cs.carry=null;
+  if(pk){ if(own('tendalino')) setAwning(0); toast(`Tutto caricato in ${Math.round(C.t)} s · +${e} €`,'campo lasciato pulito: si torna a valle'); }
+  else { if(own('tendalino')) setAwning(1); toast(`Campo allestito in ${Math.round(C.t)} s · +${e} €`,C.t<30?'velocissimo!':'sedie pronte, frigo aperto'); }
+  setStep(cs.step+1); }
+function updCarry(dt){ const S=STEPS[cs.step]; if(!S||S.target!=='carry') return; cs.pos.carry.copy(carryTgt()); if(cs.obj.mk.visible) cs.obj.mk.position.copy(cs.pos.carry);
+  const C=cs.carry; if(!C) return; C.t+=dt; if(C.aw>0&&C.aw<1&&own('tendalino')){ C.aw=Math.min(1,C.aw+dt/1.6); setAwning(C.aw); }
+  if(C.pk&&own('tendalino')&&C.done===0&&C.hold) setAwning(Math.max(0,1-C.t/1.4));
+  $('#objN').textContent=`${C.done}/${C.n} · ${Math.round(C.t)} s`;
+  const o=C.hold; if(o){ const f=new V(-Math.sin(man.rotation.y),0,-Math.cos(man.rotation.y)); o.position.copy(man.position).addScaledVector(f,.55); o.position.y+=o===cs.cool?.75:.9; o.rotation.y=man.rotation.y; const U=man.userData; if(U.AL&&U.AR){ U.AL.rotation.x=U.AR.rotation.x=1.25; } } }
 function unloadCar(){ if(cs.unloading) return; cs.unloading={t:0}; $('#actB').hidden=true; auBurst(700,.35,.25,'lowpass',2); toast('Portellone aperto',own('tendalino')?'fuori sedie, frigo e tavolino · si srotola il tendalino':'fuori sedie, frigo e tavolino'); }
 function updUnload(dt){ const U=cs.unloading; if(!U) return; U.t+=dt; const T=cs.pos.trunk.clone().add(new V(0,1,0));
   cs.unl.forEach((o,i)=>{ const t0=.35+i*.32, u=clamp((U.t-t0)/.7,0,1); if(u<=0) return; if(!o.visible){ o.visible=true; auThud(.15); } const H=o.userData.home, k=u*u*(3-2*u); o.position.lerpVectors(T,H,k); o.position.y=lerp(T.y,H.y,k)+Math.sin(k*Math.PI)*1.1; });
@@ -2217,8 +2249,7 @@ function updStars(dt){ if(!cs) return; const n=cs.night||0; if(n<.6||cs.party||c
 $('#starB').addEventListener('click',()=>{ if(!cs||!cs.star) return; const q=cs.star.t; campGroup.remove(cs.star.m); cs.star=null; $('#starB').hidden=true; const e=q<.6?20:10; save.money+=e; persist(); auBurst(4000,.06,.25,'highpass',1); toast(`🌠 Stella cadente fotografata! +${e} €`,q<.6?'scatto al volo, bravo':'presa per un pelo'); });
 function nearTarget(){ const S=STEPS[cs.step]; if(!S||!S.target) return false; const p=cs.pos[S.target]; return Math.hypot(man.position.x-p.x,man.position.z-p.z)<(S.target==='fire'?2.3:2.6); }
 $('#actB').addEventListener('click',()=>{ if(!cs||cs.mini||!nearTarget()) return; const S=STEPS[cs.step]; faceTo(cs.pos[S.target]);
-  if(S.id==='scarica'){ unloadCar(); return; }
-  if(S.id==='smonta'){ packCar(); return; }
+  if(S.id==='scarica'||S.id==='smonta'){ carryDo(S.id==='smonta'); return; }
   if(S.id==='porta'){ man.userData.logs.visible=false; cs.obj.fireLogs.visible=true; cs.logsAtFire=true; auThud(.5); toast('Legna nel fuoco','adesso accendiamolo'); setStep(cs.step+1); return; }
   if(S.id==='dormi'){ showHelp('nanna',startWalk); return; }
   if(S.id==='menu'){ openMenu(); return; }
@@ -2351,6 +2382,7 @@ function updCamp(dt){
     if(id==='fuoco'||id==='cena'){ U.hips.position.y=.55; U.L.rotation.x=1.5; U.R.rotation.x=-.3; U.AR.rotation.x=1.2+(id==='fuoco'&&a<.3?Math.sin(a*40)*.4:0); U.AL.rotation.x=1.1; } }
   else if(!U.logs.visible){ U.axe.visible=false; U.saw.visible=false; }
   if(cs.walk) updWalk(dt);
+  updCarry(dt);
   if(cs.party) updParty(dt);
   updFriends(dt);
   if(cs.sleeping){ U.L.rotation.x=U.R.rotation.x=0; U.AL.rotation.x=U.AR.rotation.x=.15; U.AL.rotation.z=.3; U.AR.rotation.z=-.3; U.hips.position.y=.95; }
@@ -2359,7 +2391,7 @@ function updCamp(dt){
   const mk=cs.obj.mk; mk.userData.ar.position.y=3.4+Math.sin(cs.t*3)*.3; mk.userData.ar.visible=cs.walk?true:!nearTarget(); const pu=1+Math.sin(cs.t*4)*.08; mk.userData.ring.scale.set(pu,pu,pu); mk.userData.ring.material.opacity=.65+Math.sin(cs.t*4)*.3;
   // pulsante azione
   const S=STEPS[cs.step]; const busy=cs.walk||cs.party||!$('#sheet').hidden; const nt=S&&S.target&&nearTarget()&&!cs.mini&&!cs.sleeping&&!busy;
-  $('#actB').hidden=!nt||!!cs.unloading||!!cs.packing; if(nt) $('#actB').textContent=S.action;
+  $('#actB').hidden=!nt||!!cs.unloading||!!cs.packing; if(nt) $('#actB').textContent=typeof S.action==='function'?S.action():S.action;
   $('#goB').hidden=!(S&&S.target&&!nt&&!cs.mini&&!cs.sleeping&&!cs.dest&&!busy);
   // minigioco
   if(!cs.mini&&cs.obj.stove.userData.fl.visible&&cs.cook) cs.obj.stove.userData.fl.visible=false;
@@ -2716,7 +2748,7 @@ const HELP={
  menu:{ic:'🧊',t:'La cena',l:['Vai al <b>frigo blu</b> (segno giallo) e aprilo.','Scegli cosa mangiare e cosa bere.','Il bere conta alla festa: più alcol = <b>più punti</b> ballando, ma dopo <b>barcolli</b> tornando a letto e ogni caduta costa <b>15 €</b>.']},
  cena:{ic:'🍖',t:'Cottura',l:['La lancetta va da <b>cruda</b> a <b>bruciata</b>.','Tocca la barra quando è nel <b>verde</b>: cotta al punto giusto.','Se aspetti troppo arriva in fondo e si brucia.']},
  drone:{ic:'🚁',t:'Foto col drone',l:['Il fuoristrada resta fermo col freno a mano. Hai <b>60 secondi</b> di batteria e <b>3 foto</b>.','Il drone vola attorno al mezzo: <b>sterzo</b> per girargli intorno, <b>GAS</b> per avvicinarti, <b>FRENO</b> per allontanarti, <b>▲ ▼</b> per salire e scendere.','Tocca uno dei <b>⊕</b> sugli incroci delle linee: il fuoristrada si sposta lì nell\'inquadratura. In alto vedi il <b>voto in diretta</b> con il consiglio: quando è verde premi <b>📸 SCATTA</b>.','Più bella: di <b>tre quarti</b>, con la <b>valle dietro</b>, né troppo piccolo né troppo grande. Se arriva una raffica aspetta che il drone si fermi.','Ogni foto ha un voto su 100 e ti dice cosa migliorare. La migliore vale soldi.']},
- festa:{ic:'🎉',t:'La festa',l:['Gara di 26 secondi contro Purcello, Mirco e Costa a chi fa più casino.','Come in <b>Just Dance</b>: le mosse arrivano da destra. Quando una mossa entra nel <b>cerchio giallo</b> tocca il <b>tasto dello stesso colore</b>: 🙌 rosso, 🌀 blu, 👏 giallo, 🦵 verde.','Più sei preciso più punti: <b>Perfetto</b>, Super, Ok. La ⭐ <b>mossa d\'oro</b> vale doppio. Tante mosse giuste di fila = combo.','<b>BEVI</b>: punti subito e, più sei sbronzo, <b>più punti</b> ti dà ogni mossa ballata (fino a ×1,7).','Però dopo si va a letto: più sei sbronzo più <b>barcolli</b>, e ogni volta che <b>cadi perdi 15 €</b> dal premio del campo.']},
+ festa:{ic:'🎉',t:'La festa',l:['Gara contro Purcello, Mirco e Costa a chi fa più casino ballando.','Ci sono <b>4 corsie colorate</b>. Le mosse <b>cadono dall\'alto</b>: quando una mossa è <b>dentro il cerchio in fondo alla sua corsia</b>, tocca <b>quella corsia</b> (dove vuoi, anche in alto). Prima si fa una prova senza musica.','Più sei preciso più punti: <b>Perfetto</b>, Super, Ok. La ⭐ <b>mossa d\'oro</b> vale doppio. Tante mosse giuste di fila = combo.','<b>BEVI</b>: punti subito e, più sei sbronzo, <b>più punti</b> ti dà ogni mossa ballata (fino a ×1,7).','Però dopo si va a letto: più sei sbronzo più <b>barcolli</b>, e ogni volta che <b>cadi perdi 15 €</b> dal premio del campo.']},
  nanna:{ic:'😴',t:'A letto',l:['L\'omino va da solo verso il letto, ma <b>barcolla</b>.','Guarda la lancetta in basso: <b>inclina il telefono</b> (o premi le frecce) <b>dalla parte opposta</b> a dove scappa e tienila nel verde.','Se esce dalla barra cadi: <b>ogni caduta −15 €</b> dal premio. Alla terza ti porta a letto Purcello.']}
 };
 let helpOpen=false, helpCb=null;
