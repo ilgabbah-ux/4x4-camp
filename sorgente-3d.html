@@ -236,6 +236,17 @@ p{margin:0;line-height:1.5}
 }
 
 /* ===== Tema 4x4 OFF ROAD PIEMONTE ===== */
+#over{overflow:hidden}#over::before{content:"";position:absolute;inset:-4%;background:var(--hero) 50% 0/auto 60vh no-repeat,#0b0b0c;animation:kb 26s ease-in-out infinite alternate;z-index:-1;filter:saturate(1.15) contrast(1.05)}
+@keyframes kb{from{transform:scale(1) translate(0,0)}to{transform:scale(1.12) translate(-2%,1.5%)}}
+#over::after{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(60% 40% at 50% 34%,rgba(255,140,40,.18),transparent 70%),linear-gradient(180deg,rgba(0,0,0,.3) 0,rgba(0,0,0,0) 18%,rgba(0,0,0,0) 40%,rgba(11,11,12,.9) 56%,#0b0b0c 62%);pointer-events:none}
+#over{isolation:isolate}#over .card{position:relative}
+.brand img{animation:brandIn .9s cubic-bezier(.2,1.4,.4,1) both}@keyframes brandIn{from{transform:scale(.6) rotate(-6deg);opacity:0}to{transform:none;opacity:1}}
+.brand .pie{animation:pieIn .6s .35s both}@keyframes pieIn{from{transform:skewX(-10deg) translateY(20px);opacity:0}to{transform:skewX(-10deg);opacity:1}}
+@media (orientation:portrait){ .brand img{width:min(54vw,230px)} #over .card{gap:9px} }
+#ovTxt{font-size:14px!important;color:#e6dfd2!important;text-shadow:0 1px 3px #000}
+#go.big{font-size:26px;padding:18px;animation:goPulse 1.6s ease-in-out infinite}@keyframes goPulse{50%{box-shadow:0 5px 0 #5e0c0f,0 0 34px rgba(255,70,60,.55)}}
+.mudsp{position:absolute;pointer-events:none;z-index:-1;opacity:.85}
+@media (orientation:landscape) and (max-height:520px){ #over::before{background:var(--hero) 0 50%/auto 110vh no-repeat,#0b0b0c} #over::after{background:linear-gradient(90deg,rgba(0,0,0,0) 0,rgba(0,0,0,0) 30%,rgba(10,10,11,.85) 55%,#0b0b0c 75%)} }
 #tut{position:absolute;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 120px);z-index:8;width:min(calc(100vw - 32px),460px);pointer-events:none}
 .tcard{pointer-events:auto;background:linear-gradient(180deg,rgba(24,24,26,.96),rgba(12,12,13,.96));border:2px solid #d7262b;border-radius:16px;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.6);display:flex;flex-direction:column;gap:6px}
 .tstep{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#ff5a5f;font-weight:700}#tTitle{font-family:var(--fd);font-size:22px}#tText{font-size:15px;line-height:1.35;color:#e8e3d8}
@@ -431,7 +442,7 @@ body.incamp .pedal{display:none}
   <div id="over">
     <div class="card">
       <div class="brand"><img id="ovLogo" alt="4x4 Off-Road"><span class="pie">PIEMONTE</span><span class="sub">il gioco · ridotte inserite</span></div>
-      <p id="ovTxt">Fuoristrada vero: fango, massi, guadi, neve e salite in pietraia fino alla vetta. Lassù monti il campo, accendi il fuoco e dormi sotto le stelle.</p>
+      <p id="ovTxt">Fango, massi, guadi, neve e pietraie fino in vetta. Lassù il campo, il fuoco e la festa con gli amici.</p>
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button>
       <button class="big" id="go" disabled>Caricamento…</button>
       <button class="ghost" id="qcB">🎉 Vai subito al campo base a fare festa</button>
@@ -945,33 +956,50 @@ const WHEELGEO=(()=>{ const P=[], A=[]; const prof=[[.66,-.5],[.86,-.5],[.95,-.4
   const lip=new THREE.TorusGeometry(.655,.03,6,40); lip.rotateY(Math.PI/2); lip.translate(-.45,0,0); rim.push(lip);
   const m=a=>mergeGeometries(a.map(g=>g.index?g.toNonIndexed():g).map(g=>{ for(const k of Object.keys(g.attributes)) if(k!=='position'&&k!=='normal') g.deleteAttribute(k); return g; }));
   return {tire:m(tire),rim:m(rim)}; })();
-const TIREM=new THREE.MeshStandardMaterial({color:0x1d1c1b,roughness:.93,metalness:0}), RIMM=new THREE.MeshStandardMaterial({color:0x1b1c1e,roughness:.38,metalness:.55});
-function makeWheel(right){ const g=new THREE.Group(); const t=new THREE.Mesh(WHEELGEO.tire,TIREM), r=new THREE.Mesh(WHEELGEO.rim,RIMM); t.castShadow=r.castShadow=true; g.add(t,r); if(right) g.rotation.y=Math.PI; g.userData.wheel=true; return g; }
+const TIREM=new THREE.MeshStandardMaterial({color:0x1d1c1b,roughness:.93,metalness:0}), DARKM=new THREE.MeshStandardMaterial({color:0x050505,roughness:1}), STUDM=new THREE.MeshStandardMaterial({color:0xb8bcc0,metalness:.8,roughness:.3});
+const RIMGEO={}, RIMMAT={};
+function rimGeo(t,n){ const k=t+n; if(RIMGEO[k]) return RIMGEO[k]; const m=a=>mergeGeometries(a.map(g=>g.index?g.toNonIndexed():g).map(g=>{ for(const kk of Object.keys(g.attributes)) if(kk!=='position'&&kk!=='normal') g.deleteAttribute(kk); return g; }));
+  const rim=[], dark=[], stud=[]; const cyl=(r1,r2,h,seg)=>{ const g=new THREE.CylinderGeometry(r1,r2,h,seg); g.rotateZ(Math.PI/2); return g; };
+  const barrel=new THREE.CylinderGeometry(.66,.66,.9,32,1,true); barrel.rotateZ(Math.PI/2); rim.push(barrel);
+  const back=cyl(.62,.62,.03,28); back.translate(-.12,0,0); dark.push(back);
+  const hub=cyl(.2,.24,.16,20); hub.translate(-.4,0,0); rim.push(hub);
+  for(let i=0;i<6;i++){ const q=cyl(.03,.03,.06,6); q.translate(-.48,.13,0); q.rotateX(i/6*Math.PI*2+.5); stud.push(q); }
+  if(t==='spoke'){ const face=cyl(.2,.2,.05,16); face.translate(-.32,0,0); rim.push(face); for(let i=0;i<n;i++){ const sp=new THREE.BoxGeometry(.1,.46,.14); sp.translate(-.37,.4,0); sp.rotateX(i/n*Math.PI*2); rim.push(sp); }
+    const lip=new THREE.TorusGeometry(.655,.035,6,40); lip.rotateY(Math.PI/2); lip.translate(-.45,0,0); rim.push(lip); }
+  else { // cerchio in ferro: disco pieno con i fori, piatto e robusto
+    const face=cyl(.64,.64,.05,32); face.translate(-.33,0,0); rim.push(face); const ring=new THREE.TorusGeometry(.42,.035,6,32); ring.rotateY(Math.PI/2); ring.translate(-.37,0,0); rim.push(ring);
+    for(let i=0;i<n;i++){ const h=cyl(.07,.07,.06,10); h.translate(-.36,.5,0); h.rotateX(i/n*Math.PI*2+.2); dark.push(h); }
+    const lip=new THREE.TorusGeometry(.655,.04,6,40); lip.rotateY(Math.PI/2); lip.translate(-.45,0,0); rim.push(lip);
+    if(t==='bead'){ const br=new THREE.TorusGeometry(.6,.05,6,40); br.rotateY(Math.PI/2); br.translate(-.47,0,0); dark.push(br); for(let i=0;i<20;i++){ const q=cyl(.022,.022,.05,6); q.translate(-.5,.6,0); q.rotateX(i/20*Math.PI*2); stud.push(q); } } }
+  return RIMGEO[k]={rim:m(rim),dark:m(dark),stud:m(stud)}; }
+function makeWheel(right,sty){ sty=sty||{t:'spoke',n:6,c:0x1b1c1e}; const G2=rimGeo(sty.t,sty.n||6); const rm=RIMMAT[sty.c]||(RIMMAT[sty.c]=new THREE.MeshStandardMaterial({color:sty.c,roughness:.42,metalness:.55}));
+  const g=new THREE.Group(); const t=new THREE.Mesh(WHEELGEO.tire,TIREM), r=new THREE.Mesh(G2.rim,rm), d=new THREE.Mesh(G2.dark,DARKM), u=new THREE.Mesh(G2.stud,STUDM); t.castShadow=r.castShadow=true; g.add(t,r,d,u); if(right) g.rotation.y=Math.PI; g.userData.wheel=true; return g; }
 // modelli 3D dei fuoristrada degli amici, fatti dalle loro foto (si caricano quando servono)
 const VMOD={terrano:{r:.45,cz:-.69,xf:1.34,xr:-1.11,wx:.8,k:1.04},
  linus_wrangler:{r:.49,cz:.49,xf:1.38,xr:-1.14,yo:.96}, giacu_wrangler:{r:.49,cz:.49,xf:1.32,xr:-1.2,yo:.82}, purcello_pajero:{r:.41,cz:.41,xf:1.44,xr:-1.14,yo:.86},
  daniel_patrol:{r:.58,cz:.58,xf:1.45,xr:-1.4,yo:.96}, renard_sorento:{r:.42,cz:.42,xf:1.32,xr:-1.32,yo:.9}, stefano_landcruiser:{r:.48,cz:.481,xf:1.31,xr:-1.06,yo:.8},
  gusta_cherokee:{r:.454,cz:.454,xf:1.35,xr:-1.22,yo:.8}, costa_terrano:{r:.41,cz:.41,xf:1.32,xr:-1.2,yo:.78}, linus_terrano:{r:.41,cz:.41,xf:1.14,xr:-1.05,yo:.78},
  bj_bianco:{r:.43,cz:.44,xf:1.3,xr:-.99,yo:.85}, terrano_grigio:{r:.41,cz:.43,xf:1.31,xr:-1.09,yo:.8}, terrano_nero:{r:.43,cz:.45,xf:1.28,xr:-1.09,yo:.76},
- wrangler_verde:{r:.51,cz:.51,xf:1.35,xr:-1.02,yo:.94}, rubicon_verde:{r:.49,cz:.49,xf:1.32,xr:-1.05,yo:.97}, rubicon_grigio:{r:.49,cz:.49,xf:1.32,xr:-1.05,yo:.97}, grenadier:{r:.44,cz:.44,xf:1.59,xr:-1.41,yo:.87}, samurai:{r:.36,cz:.36,xf:1.08,xr:-.87,yo:.72},
+ sorento_ref:{r:.41,cz:.41,xf:1.45,xr:-1.35,yo:.84}, wrangler_verde:{r:.51,cz:.51,xf:1.35,xr:-1.02,yo:.94}, rubicon_verde:{r:.49,cz:.49,xf:1.32,xr:-1.05,yo:.97}, rubicon_grigio:{r:.49,cz:.49,xf:1.32,xr:-1.05,yo:.97}, grenadier:{r:.44,cz:.44,xf:1.59,xr:-1.41,yo:.87}, samurai:{r:.36,cz:.36,xf:1.08,xr:-.87,yo:.72},
  pajero_sport:{r:.43,cz:.43,xf:1.32,xr:-1.47,yo:.79}, pajero_corto:{r:.4,cz:.4,xf:1.29,xr:-.99,yo:.7}, jimny_verde:{r:.43,cz:.43,xf:1.17,xr:-1.23,yo:.72},
- gabbah_terrano:{r:.42,cz:.42,xf:1.3,xr:-1.1,yo:.82,glass:[1.4,1.98,-1.62,.6,.72,-1.58,.26,.64]}, zj_cherokee:{r:.41,cz:.41,xf:1.36,xr:-1.21,yo:.76}, camo_patrol:{r:.47,cz:.47,xf:1.36,xr:-1.07,yo:.96},
+ gabbah_terrano:{r:.42,cz:.42,xf:1.3,xr:-1.1,yo:.82,glass:[1.42,1.9,-1.55,.55,.66,-1.5,.24,.6]}, zj_cherokee:{r:.41,cz:.41,xf:1.36,xr:-1.21,yo:.76}, camo_patrol:{r:.47,cz:.47,xf:1.36,xr:-1.07,yo:.96},
  jimny:{r:.452,cz:.45,xf:1.2,xr:-1.08,yo:.68}, landcruiser_stock:{r:.503,cz:.501,xf:1.58,xr:-1.2,yo:.85}};
+{ const B=0x161718, S=0xb9bcc0; const RS={gabbah_terrano:{t:'steel',n:8,c:B},terrano_nero:{t:'steel',n:8,c:B},terrano_grigio:{t:'spoke',n:6,c:S},costa_terrano:{t:'spoke',n:6,c:S},pajero_sport:{t:'steel',n:8,c:B},pajero_corto:{t:'steel',n:8,c:0xc9b897},rubicon_grigio:{t:'bead',n:10,c:B},rubicon_verde:{t:'bead',n:10,c:B},wrangler_verde:{t:'bead',n:10,c:B},zj_cherokee:{t:'spoke',n:5,c:0x8d9196},sorento_ref:{t:'steel',n:8,c:B},bj_bianco:{t:'steel',n:8,c:B},camo_patrol:{t:'steel',n:6,c:B},jimny_verde:{t:'spoke',n:6,c:0x6e5c45},grenadier:{t:'steel',n:8,c:B},samurai:{t:'steel',n:6,c:B},landcruiser_stock:{t:'steel',n:6,c:S}}; for(const [k,v] of Object.entries(RS)) if(VMOD[k]) VMOD[k].rim=v; }
 for(const M of Object.values(VMOD)){ if(!M.k) M.k=clamp(2.62/(M.xf-M.xr),.85,1.15); if(!M.wx) M.wx=M.yo-.15; M.dz=-.015+(M.xf+M.xr)/2*M.k; M.rw=clamp(M.r*M.k*.95,.38,.5); }
 const VBASE=/github\.io$/.test(location.hostname)?'veh/':'https://ilgabbah-ux.github.io/4x4-camp/veh/';
 async function loadVModel(name){ const M=VMOD[name]; if(!M||M.root||M.loading) return; M.loading=true;
   try{ const buf=await (await fetch(VBASE+name+'.glb')).arrayBuffer(); const g=await new GLTFLoader().parseAsync(buf,''); let body=g.scene.getObjectByName('V_BODY'); if(!body) body=g.scene;
     const tr=new THREE.Group(); tr.rotation.y=Math.PI/2; tr.add(body); body.position.set(0,0,0); body.traverse(o=>{ if(o.isMesh){ o.castShadow=true; o.receiveShadow=true; if(o.material) o.material.envMapIntensity=.9; } });
-    if(M.glass){ const [yb,yt,xb0,xb1,wb,xt0,xt1,wt]=M.glass, P=[[xb1,yb,-wb],[xb1,yb,wb],[xb0,yb,wb],[xb0,yb,-wb],[xt1,yt,-wt],[xt1,yt,wt],[xt0,yt,wt],[xt0,yt,-wt]], F=[[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7],[4,5,6,7]], pos=[];
+    if(M.glass){ const [yb,yt,xb0,xb1,wb,xt0,xt1,wt]=M.glass, P=[[xb1,yb,-wb],[xb1,yb,wb],[xb0,yb,wb],[xb0,yb,-wb],[xt1,yt,-wt],[xt1,yt,wt],[xt0,yt,wt],[xt0,yt,-wt]], F=[[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]], pos=[];
       for(const f of F){ const [a,b,c,d]=f.map(i=>P[i]); pos.push(...a,...b,...c,...a,...c,...d); }
       const gg=new THREE.BufferGeometry(); gg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3)); gg.computeVertexNormals();
-      const gl=new THREE.Mesh(gg,new THREE.MeshPhysicalMaterial({color:0x141c24,roughness:.05,metalness:.1,transparent:true,opacity:.78,side:THREE.DoubleSide,depthWrite:false,clearcoat:1,clearcoatRoughness:.05,envMapIntensity:1.5})); gl.renderOrder=2; body.add(gl); }
+      const gl=new THREE.Mesh(gg,new THREE.MeshStandardMaterial({color:0x0b0f13,roughness:.15,metalness:0,transparent:true,opacity:.6,side:THREE.DoubleSide,depthWrite:false,envMapIntensity:.35})); gl.renderOrder=2; body.add(gl); }
     tr.visible=false; car.add(tr); M.root=tr; if(name==='pajero_sport'){ const c=modelCarClone(name); if(c){ while(pur.children.length) pur.remove(pur.children[0]); pur.add(c); } } applyUpgrades(); placeFriendCars(); }
   catch(e){ console.warn('modello',name,e); M.fail=true; } M.loading=false; }
 // copia di un mezzo (per gli amici al campo e per Purcello che ti tira fuori): origine come la macchina del giocatore
 function modelCarClone(name){ const M=VMOD[name]; if(!M||!M.root||!SPG) return null; const g=new THREE.Group(); const b=M.root.clone(true); b.visible=true; b.scale.setScalar(M.k);
   b.position.set(0,(heroWY??(MOUNTY-LN+.198))-M.cz*M.k,M.dz); g.add(b);
-  const wr=M.rw; for(let i=0;i<4;i++){ const w=makeWheel(i%2===1); w.scale.set(TIRE_W,wr,wr); w.position.set((i%2?1:-1)*M.wx*M.k,MOUNTY-LN+.198-(.41-wr),(i<2?-M.xf:-M.xr)*M.k+M.dz); w.castShadow=true; g.add(w); }
+  const wr=M.rw; for(let i=0;i<4;i++){ const w=makeWheel(i%2===1,M.rim); w.scale.set(TIRE_W,wr,wr); w.position.set((i%2?1:-1)*M.wx*M.k,MOUNTY-LN+.198-(.41-wr),(i<2?-M.xf:-M.xr)*M.k+M.dz); w.castShadow=true; g.add(w); }
   g.traverse(o=>{ if(o.isMesh) o.castShadow=true; }); return g; }
 function spareGeo(src){ const C=new V(0,.15,.04), P=src.attributes.position, I=src.index, keep=[]; const nT=I?I.count/3:P.count/3, id=t=>I?I.getX(t):t;
   const ok=j=>{ const x=P.getX(j), y=P.getY(j), z=P.getZ(j); return x<-1.84&&Math.hypot(y-C.y,z-C.z)<.41; };
@@ -1036,7 +1064,7 @@ const VEHS={terrano:{n:'Terrano II Black Edition',sub:'nero, alzato, snorkel, ba
  linus_wrangler:{n:'Wrangler Rubicon 37"',sub:'grigio, soft top, gomme da 37, verricello e barra LED: si arrampica ovunque',price:3800,sc:[1,1,1],mass:2100,p:1.25,col:null,model:'rubicon_grigio',lockR:true,lift:.04},
  giacu_wrangler:{n:'Wrangler Rubicon verde acido',sub:'verde acido, hard top, snorkel, barra LED, verricello e gomme da 37: il re delle pietraie',price:4500,sc:[1,1,1],mass:2050,p:1.3,col:null,model:'wrangler_verde',lockR:true,lift:.05},
  gusta_cherokee:{n:'Grand Cherokee 4.0',sub:'ZJ 4.0 V6 nero, gomme AT: comodo, potente, va forte nel fango',price:2200,sc:[1,1,1],mass:1750,p:1.18,col:null,model:'zj_cherokee'},
- renard_sorento:{n:'Sorento',sub:'SUV comodo: bene sullo sterrato, nel fango profondo soffre',price:1200,sc:[1,1,1],mass:1950,p:1.02,col:null,model:'renard_sorento',lift:-.02},
+ renard_sorento:{n:'Sorento',sub:'SUV comodo: bene sullo sterrato, nel fango profondo soffre',price:1200,sc:[1,1,1],mass:1950,p:1.02,col:null,model:'sorento_ref',lift:-.02},
  stefano_landcruiser:{n:'Land Cruiser BJ',sub:'BJ bianco a 3 porte, snorkel, verricello e gomme da fango: indistruttibile',price:3600,sc:[1,1,1],mass:1950,p:1.05,col:null,model:'bj_bianco',lockR:true,tough:.7},
  daniel_patrol:{n:'Patrol mimetico',sub:'mimetico rosso: pesante, potentissimo, sospensioni lunghe',price:5200,sc:[1,1,1],mass:2600,p:1.45,col:null,model:'camo_patrol',tough:.75,lift:.03},
  samurai:{n:'Samurai giallo',sub:'piccolo, leggerissimo, soft top e barra LED: passa dove gli altri si incastrano',price:1500,sc:[1,1,1],mass:1050,p:.7,col:null,model:'samurai'},
@@ -1066,10 +1094,11 @@ function renderVeh(){ const k=detVeh, v=VEHS[k], o=save.vehOwn[k], D=$('#vdet');
   D.append(bt); D.append(el('p','vhint','↔ trascina sul mezzo per girarlo')); }
 function applyVehicle(){ VEH=VEHS[prevVeh||save.veh]||VEHS.base; VS=VEH.sc; MASS=VEH.mass; I.copy(I0).multiplyScalar(MASS/2100);
   WH.forEach((w,i)=>{ w.x=WH0[i].x*VS[0]; w.z=WH0[i].z*VS[2]; delete w.vx; delete w.vz; });
-  const MI=VEH.model?VMOD[VEH.model]:null; if(MI&&!MI.root&&!MI.fail){ loadVModel(VEH.model); toast('Arriva '+VEH.n,'carico il modello 3D…'); }
+  const MI=VEH.model?VMOD[VEH.model]:null; if(MI&&!MI.root&&!MI.fail){ loadVModel(VEH.model); if($('#over').hidden) toast('Arriva '+VEH.n,'carico il modello 3D…'); }
   curRoot=MI&&MI.root||null; for(const M of Object.values(VMOD)) if(M.root) M.root.visible=M.root===curRoot;
   if(curRoot){ curRoot.scale.setScalar(MI.k); curRoot.position.z=MI.dz; WH.forEach((w,i)=>{ w.vx=(i%2?1:-1)*MI.wx*MI.k; w.vz=(i<2?-MI.xf:-MI.xr)*MI.k+MI.dz; }); terrMat=null; } HOOK.set(0,-.25,-2.45*VS[2]);
   const isT=!!curRoot; if(carRoot) carRoot.visible=!isT;
+  if(MI&&MI.rim&&wheels[0]&&wheels[0].userData.rimSty!==MI.rim) for(let i=0;i<4;i++){ const g=wheels[i]; if(!g||!g.userData.terr) continue; g.userData.spin.remove(g.userData.terr); const mm=makeWheel(i%2===1,MI.rim); g.userData.spin.add(mm); g.userData.terr=mm; g.userData.rimSty=MI.rim; }
   for(const g of wheels){ if(!g) continue; for(const o of g.userData.hero||[]){ o.visible=!isT; o.traverse(m=>{ if(m.isMesh&&/rim/i.test(m.name+(m.material&&m.material.name))){ if(!m.userData.m0){ m.userData.m0=m.material; m.userData.mT=m.material.clone(); m.userData.mT.color.set(0x161616); m.userData.mT.metalness=.4; m.userData.mT.roughness=.45; } m.material=isT?m.userData.mT:m.userData.m0; } }); } if(g.userData.terr) g.userData.terr.visible=!!isT; }
   if(carRoot) carRoot.scale.set(...VS); for(const m of bodyMats){ if(m.name==='MAT_body'&&m.userData.base){ m.userData.base.set(VEH.col==null?bodyMat0:VEH.col); m.color.copy(m.userData.base); } } }
 let ENG={fa:8200,va:22,fl:17000,vl:7,eb:2600};
@@ -2486,7 +2515,7 @@ $('#go').addEventListener('click',async()=>{
 });
 $('#qcB').addEventListener('click',()=>{ if($('#go').disabled) return; quickCamp(); });
 $('#goRes').addEventListener('click',async()=>{ auInit(); askSensors(); calibrate(); $('#over').hidden=true; resumeGame(); });
-{ const touch=matchMedia('(pointer:coarse)').matches; $('#ovTxt').textContent+=touch?' Inclina il telefono per sterzare (o trascina il dito sullo schermo), pedali in basso.':' Frecce o WASD per guidare, R ridotte, V verricello, P gomme, C inquadratura.'; }
+{ }
 /* ---------- Installa come app (icona nella Home) ---------- */
 let instEv=null; const standalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
 addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); instEv=e; });
@@ -2502,7 +2531,7 @@ $('#instB').addEventListener('click',doInstall); $('#instB2').addEventListener('
 if('serviceWorker' in navigator&&/github\.io$/.test(location.hostname)) navigator.serviceWorker.register('sw.js').catch(()=>{});
 const TRUCK='__TRUCK__', LOGO='__LOGO__', LOGO4='__LOGO4__', TERRANO='__TERRANO__';
 if(window.top!==window&&!/github\.io$/.test(location.hostname)) $('#olk').hidden=false;
-$('#ovLogo').src=LOGO4; $('#garLogo').src=LOGO4;
+$('#over').style.setProperty('--hero',`url(${VBASE}hero.webp)`); $('#ovLogo').src=LOGO4; $('#garLogo').src=LOGO4;
 buildWorld(TRACKS[save.track]&&!(TRACKS[save.track].locked&&TRACKS[save.track].locked())?save.track:'colle'); setSky(TR.night?1:0);
 reset(4);
 loadCar().then(()=>{ applyUpgrades(); $('#go').disabled=false; $('#go').textContent='Entra in garage'; if(save.resume){ $('#goRes').hidden=false; $('#go').classList.add('ghost'); $('#go').classList.remove('big'); } }).catch(e=>{ $('#load').textContent='Errore nel caricare il fuoristrada: '+e.message; });
