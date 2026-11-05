@@ -1689,7 +1689,10 @@ function updFriends(dt){ if(!cs.fr) return; const P=cs.party, now=clk();
       U.hips.position.y=.95; U.L.rotation.x=b*.3; U.R.rotation.x=-b*.3; U.AL.rotation.x=2.6+b*.3; U.AR.rotation.x=(i%2?2.8:1.2)+b*.4; U.AL.rotation.z=-.2; U.AR.rotation.z=.2; f.m.rotation.y+=Math.sin(f.ph*2+i)*dt*.8; continue; }
     // seduti: ogni tanto un sorso
     f.m.position.copy(f.p); U.hips.position.y=.52; U.L.rotation.x=1.45; U.R.rotation.x=1.45; U.AL.rotation.x=.9; U.AL.rotation.z=0; U.AR.rotation.z=0;
-    const sip=((f.ph+i*2.3)%6); U.AR.rotation.x=sip<1?lerp(1,2.6,Math.sin(sip*Math.PI)):1; }
+    const sip=((f.ph+i*2.3)%6); U.AR.rotation.x=sip<1?lerp(1,2.6,Math.sin(sip*Math.PI)):1;
+    { const tgt=(Math.floor(f.ph/4+i)%3===0)?man.position:cs.C; const want=Math.atan2(-(tgt.x-f.m.position.x),-(tgt.z-f.m.position.z)); let d=want-f.m.rotation.y; d=Math.atan2(Math.sin(d),Math.cos(d)); f.m.rotation.y+=d*Math.min(1,dt*2); }
+    const lp=(f.ph*.37+i*1.9)%11; if(lp<1.2){ U.hips.position.y=.52+Math.abs(Math.sin(lp*14))*.04; U.AL.rotation.x=1.6+Math.sin(lp*10)*.3; }
+    if(Math.floor(f.ph/23+i)%4===3&&((f.ph+i*5)%23)<2.4){ const k=Math.sin(((f.ph+i*5)%23)/2.4*Math.PI); U.AR.rotation.x=2.9*k+1*(1-k); U.AL.rotation.x=2.9*k+.9*(1-k); U.hips.position.y=.52+k*.38; U.L.rotation.x=U.R.rotation.x=1.45*(1-k); } }
   if(P&&P.pose&&P.pose.t<.5){ const U=man.userData, k=P.pose.k, a=Math.sin(Math.min(1,P.pose.t/.5)*Math.PI); U.AL.rotation.set(0,0,0); U.AR.rotation.set(0,0,0); U.L.rotation.set(0,0,0); U.R.rotation.set(0,0,0);
     if(k===0){ U.AL.rotation.x=U.AR.rotation.x=3*a; U.AL.rotation.z=-.4*a; U.AR.rotation.z=.4*a; }
     else if(k===1){ man.rotation.y+=dt*12.5; U.AL.rotation.z=-1.3*a; U.AR.rotation.z=1.3*a; }
@@ -2053,6 +2056,7 @@ function frame(now){
       { const near=GLAMPS.map(p=>[p.distanceToSquared(st.pos),p]).sort((a,b)=>a[0]-b[0]); tunL.forEach((l,i)=>{ const q=near[i]; if(q&&tun>.02){ l.position.copy(q[1]); l.intensity=22*Math.min(1,tun*1.5); } else l.intensity=0; }); }
       if(tun>.3&&Math.random()<dt*8){ const p=st.pos.clone().add(new V((Math.random()-.5)*5,2.6,(Math.random()-.5)*8)); emit(p,new V(0,-1,0),[.8,.85,.9],{k:2,s:.05,a:.8,life:1.5}); } }
     st.time+=dt; st.s=-st.pos.z; tutUpd(dt);
+    if(!TR.night&&WX==='sereno'&&tun<.05){ const g=clamp(st.s/LEN,0,1); const tg=g<.6?g*.12:.072+(g-.6)*.6; if(Math.abs(tg-skyNow)>.01) setSky(tg); }
     if(!st.done&&save.voci){ st.cbT=(st.cbT??(35+Math.random()*25))-dt; if(st.cbT<0){ st.cbT=55+Math.random()*45; const L=[['Mirco','m_campa'],['Costa','c_pesce'],['Purcello','p_cassa'],['Costa','c_trote'],['Mirco','m_ballo'],['Gabbah','g_dopo']].filter(x=>!st.cbLast||x[1]!==st.cbLast); const q=L[Math.random()*L.length|0]; st.cbLast=q[1]; toast('📻 Radio CB · '+q[0],'gli amici in colonna'); say(q[0],'',q[1]); } }
     // qualità automatica: se il telefono fatica, alleggerisce la grafica (si può rimettere in garage)
     if(!save.qManual){ fpsA.n++; fpsA.t+=dt; if(fpsA.t>6){ const fps=fpsA.n/fpsA.t; fpsA.n=0; fpsA.t=0; if(fps<26&&save.q!=='bassa'){ save.q=save.q==='alta'?'media':'bassa'; persist(); applyQuality(); builtTrack=null; toast('Grafica alleggerita','per andare più fluido · la cambi in garage'); } } }
