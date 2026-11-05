@@ -615,8 +615,9 @@ function baseH(x,z){
   const s=-z, d=x-CX(s), ad=Math.abs(d);
   let h=hsAt(s);
   let side=Math.max(0,ad-lerp(4.2,15,sstep(LEN-6,LEN+4,s))); if(side>55) side=55+(side-55)*.45; if(s>LEN+60) side+=(s-LEN-60)*.5*sstep(0,40,ad); const sk=TR.theme==='militare'?.12:1; { let up=(Math.pow(side,1.25)*.32+fbm(x*.08,z*.08)*side*.35)*sk; const pk=TR.panoS&&d>0?sstep(-34,-14,s-TR.panoS)*sstep(34,14,s-TR.panoS):0; if(pk>0){ const dn=-Math.pow(Math.max(0,d-6.5),1.15)*.7-sstep(6,14,d)*1.5; up=lerp(up,dn,pk); } h+=up; }
-  h+=(fbm(x*.6,z*.6)-.5)*.12*(ad<HALF?1:2.5);
-  if(ad<HALF+.5) h-=.07*Math.exp(-Math.pow((ad-.85)/.28,2));
+  h+=(fbm(x*.6,z*.6)-.5)*.12*(ad<HALF?1:3.2);
+  { const lw=sstep(10,24,s)*sstep(LEN+20,LEN-10,s); h+=lw*((vnoise(x*.11+3,z*.11)-.5)*.75+(vnoise(x*.23-7,z*.23+5)-.5)*.35); if(ad>HALF+.8) h+=lw*sstep(HALF+.8,HALF+3,ad)*Math.max(0,vnoise(x*.35+9,z*.35-4)-.45)*1.6; }
+  if(ad<HALF+.5) h-=.11*Math.exp(-Math.pow((ad-.85)/.3,2));
   const Z=zoneAt(s), zt=Z.t;
   // asperità della pista: dossi irregolari, buche e sassi sotto le ruote (diversi tra sinistra e destra → la scocca rolla e beccheggia)
   if(ad<HALF+1.5&&s>18&&s<LEN-8){ const rk=RUFK[zt]??1, m=(1-sstep(HALF-.3,HALF+1.5,ad))*rk*sstep(18,32,s)*sstep(LEN-8,LEN-22,s);
@@ -850,7 +851,7 @@ const STY={
  jafferau:{far:260,mid:170,near:80,snow:.45,rock:0x7a756d,slope:0x6b6a48,haze:0xcfd9e4,tree:'larice',ghiaione:1},
  sommelier:{far:300,mid:200,near:100,snow:.32,rock:0x6e6c68,haze:0xd5e0ea,tree:'larice',ghiaione:1,ghiacciaio:1}};
 function sceneryFor(RT){ const ST=STY[TR.id]||{}, W=world, M=new THREE.Matrix4(), Q=new THREE.Quaternion(), S=new THREE.Vector3(), P=new THREE.Vector3(), col=new THREE.Color();
-  const free=(s,d)=>!(inFord(s,6)&&Math.abs(d)<22)&&!(s>LEN-14&&s<LEN+42&&Math.abs(d)<22)&&!(TR.panoS&&d>0&&Math.abs(s-TR.panoS)<40&&d<70)&&zoneAt(s).t!=='galleria';
+  const free=(s,d)=>!(s<36&&Math.abs(d)<17)&&!(inFord(s,6)&&Math.abs(d)<22)&&!(s>LEN-14&&s<LEN+42&&Math.abs(d)<22)&&!(TR.panoS&&d>0&&Math.abs(s-TR.panoS)<40&&d<70)&&zoneAt(s).t!=='galleria';
   // vigne sui pendii (Rivoli-Pinerolo): filari di pali e chioma verde, a gruppi
   if(ST.vigne){ const N=900, im=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.9}),N), pm=new THREE.InstancedMesh(new THREE.CylinderGeometry(.04,.05,1.6,5),new THREE.MeshStandardMaterial({color:0x6b5a44,roughness:1}),N); let n=0, k=0;
     for(let v=0;v<14&&n<N;v++){ const s0=20+RT()*(LEN-40), side=RT()<.5?-1:1, d0=side*(16+RT()*22); if(!free(s0,d0)) continue; for(let row=0;row<8&&n<N;row++){ const d=d0+side*row*2.4; for(let s=s0;s<s0+22&&n<N;s+=4){ const x=CX(s)+d, z=-s, y=baseH(x,z), ang=Math.atan2(CX(s+1)-CX(s-1),2);
@@ -937,16 +938,16 @@ function buildWorld(id){
       terrU={uT0:{value:T0},uT1:{value:T1},uT2:{value:T2},uT3:{value:T3},uReady:{value:[T0,T1,T2,T3].every(t=>t.userData.ok)?1:0}};
       m.material.onBeforeCompile=sh=>{ Object.assign(sh.uniforms,terrU);
       sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nattribute vec4 sw; varying vec4 vSW; varying vec3 vWP; varying vec3 vWN;').replace('#include <project_vertex>','#include <project_vertex>\n vSW=sw; vWP=(modelMatrix*vec4(transformed,1.0)).xyz; vWN=normalize(mat3(modelMatrix)*objectNormal);');
-      sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform sampler2D uT0,uT1,uT2,uT3; uniform float uReady; varying vec4 vSW; varying vec3 vWP; varying vec3 vWN;').replace('#include <map_fragment>',`
+      sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform sampler2D uT0,uT1,uT2,uT3; uniform float uReady; varying vec4 vSW; varying vec3 vWP; varying vec3 vWN; float gH=0.;').replace('#include <map_fragment>',`
         vec3 bw=pow(abs(normalize(vWN)),vec3(4.0)); bw/=bw.x+bw.y+bw.z;
         vec2 uv0=vWP.xz/3.2; vec2 uvF=vWP.xz/2.6+vec2(.37,.11);
         vec3 t0=texture2D(uT0,uv0).rgb, t1=texture2D(uT1,uvF).rgb, t3=texture2D(uT3,vWP.xz/4.0).rgb;
         vec3 t2=texture2D(uT2,vWP.xz/3.0).rgb*bw.y+texture2D(uT2,vWP.zy/4.0).rgb*bw.x+texture2D(uT2,vWP.xy/4.0).rgb*bw.z;
         vec4 w=max(vSW,vec4(0.)); float ws=w.x+w.y+w.z+w.w+1e-4; w/=ws;
-        vec3 tc=t0*w.x+t1*w.y+t2*w.z+t3*w.w;
+        vec3 tc=t0*w.x+t1*w.y+t2*w.z+t3*w.w; gH=dot(tc,vec3(.3,.5,.2))*(w.x*.6+w.y*.8+w.z*1.4+w.w*.4);
         vec3 old=(texture2D(map,vWP.xz/2.5).rgb*bw.y+texture2D(map,vWP.zy/2.5).rgb*bw.x+texture2D(map,vWP.xy/2.5).rgb*bw.z);
         vec3 tint=mix(vec3(1.),clamp(vColor*1.9,0.,1.4),.45);
-        diffuseColor.rgb=mix(diffuseColor.rgb*old, tc*tint*diffuse, uReady);`).replace('#include <color_fragment>','if(uReady<.5) diffuseColor.rgb*=vColor;'); }; }
+        diffuseColor.rgb=mix(diffuseColor.rgb*old, tc*tint*diffuse, uReady);`).replace('#include <color_fragment>','if(uReady<.5) diffuseColor.rgb*=vColor;').replace('#include <normal_fragment_maps>','#include <normal_fragment_maps>\n if(uReady>.5){ vec3 sx=dFdx(-vViewPosition), sy=dFdy(-vViewPosition); vec3 R1=cross(sy,normal), R2=cross(normal,sx); float fd=dot(sx,R1); float bx=dFdx(gH), by=dFdy(gH); vec3 gr=sign(fd)*(bx*R1+by*R2); normal=normalize(abs(fd)*normal-gr*1.6); }').replace('#include <aomap_fragment>','#include <aomap_fragment>\n if(uReady>.5){ float ao=smoothstep(.12,.55,gH); reflectedLight.indirectDiffuse*=mix(.55,1.05,ao); reflectedLight.directDiffuse*=mix(.75,1.0,ao); }'); }; }
     m.receiveShadow=true; world.add(m); window.__terrain=m; }
   // fango lucido e ghiaccio a specchio sopra le zone
   for(const z of ZONES){ if(!isMud(z.t)) continue;
@@ -1019,7 +1020,7 @@ function buildWorld(id){
     const im=new THREE.InstancedMesh(geo,new THREE.MeshStandardMaterial({vertexColors:true,roughness:.9,flatShading:true,envMapIntensity:.5}),N);
     const M=new THREE.Matrix4(), Q=new THREE.Quaternion(), S=new THREE.Vector3(), P=new THREE.Vector3(), col=new THREE.Color(); let n=0;
     for(let k=0;k<N*3&&n<N;k++){ const s=-30+RT()*(LEN+100), side=RT()<.5?-1:1, d=side*(HALF+2.2+Math.pow(RT(),1.6)*60);
-      if(inFord(s,6)&&Math.abs(d)<22) continue; if(s>LEN-12&&s<LEN+40&&Math.abs(d)<19) continue;
+      if(inFord(s,6)&&Math.abs(d)<22) continue; if(s>LEN-12&&s<LEN+40&&Math.abs(d)<19) continue; if(s<36&&Math.abs(d)<17) continue;
       if(TR.treeline&&s>LEN*TR.treeline+RT()*40) continue; if(zoneAt(s).t==='galleria'&&Math.abs(d)<12) continue; if(d>0&&Math.abs(s-TR.panoS)<40&&d<70) continue;
       const x=CX(s)+d, z=-s, y=baseH(x,z), h=(TR.theme==='castagni'?7:6)+RT()*10, r=TR.theme==='castagni'?h*(.45+RT()*.15):1.2+RT()*1.5+h*.04;
       M.compose(P.set(x,y-.15,z),Q.setFromEuler(new THREE.Euler(0,RT()*6,0)),S.set(r,h,r)); im.setMatrixAt(n,M);
@@ -1325,7 +1326,7 @@ function applyUpgrades(){
   applyVehicle(); fa*=VEH.p; fl*=VEH.p; if(!VEH.p) fa=8200; ENG={fa,va,fl,vl,eb};
   { const MI=VEH.model&&VMOD[VEH.model]; const brw=MI&&MI.root?(VEH.model==='terrano'?.44:MI.rw):0; RW=brw?(own('g33')?brw+.03:brw):(own('g33')?.445:.41); } LN=(own('lift')?.47:.42)+(VEH.lift||0);
   for(const g of wheels) if(g){ for(const o of g.userData.hero||[]) o.scale.setScalar(RW/.41); if(g.userData.terr) g.userData.terr.scale.set(TIRE_W*(own('g33')?1.08:1),RW,RW); }
-  if(curRoot){ const MI=VMOD[VEH.model]; curRoot.position.y=(heroWY??(MOUNTY-LN+.12))-MI.cz*MI.k; }
+  if(curRoot){ const MI=VMOD[VEH.model]; curRoot.position.y=(heroWY??(MOUNTY-LN+.12))-MI.cz*MI.k; curRoot.userData.by0=curRoot.position.y; }
   const isT2=VEH.model==='terrano'; rtt.visible=own('maggiolina'); ledMesh.visible=own('led')&&!isT2; winchMesh.visible=own('winch'); snorkMesh.visible=own('snorkel')&&!isT2; winchMesh.position.z=-2.44*VS[2]; snorkMesh.scale.set(...VS);
   fitAccessories();
 }
@@ -1380,8 +1381,8 @@ function physStep(dt,inp){
   const Fmax=low?ENG.fl:ENG.fa, vmax=low?ENG.vl:ENG.va*(st.awd!==false?1:1.07);
   if(inp.brk&&Math.abs(sp)<.6){ brkT+=dt; if(brkT>.3) revMode=true; } else if(!inp.brk){ brkT=0; revMode=false; }
   let thr=0, brake=0;
-  if(revMode) thr=-.55; else { thr=inp.gas; if(inp.brk&&!revMode) brake=1; }
-  const q2=Math.max(0,thr>0?sp/vmax:-sp/(vmax*.45));
+  if(revMode) thr=-.8; else { thr=inp.gas; if(inp.brk&&!revMode) brake=1; }
+  const q2=Math.max(0,thr>0?sp/vmax:-sp/(vmax*(low?.6:.3)));
   const Fe=thr*Fmax*Math.max(0,1-q2*q2);
   // sterzo: più rapido e con più angolo, si chiude meno con la velocità
   const maxSt=.7/(1+Math.abs(sp)/12);
@@ -1406,6 +1407,7 @@ function physStep(dt,inp){
     const vComp=-vp.dot(up);
     let Fs=K*x+CD*clamp(vComp,-3,3); if(x>LN-.06) Fs+=90000*(x-(LN-.06)); Fs=clamp(Fs,0,22000);
     if(x>LN-.07&&vComp>2.5&&st.time-st.bumpT[i]>.5){ st.bumpT[i]=st.time; const k=vComp-2.5; st.dmg.semiassi+=k*3.5*semiK; st.dmg.gomme+=k*2.5*gomK; if(k>.8) hit(vComp*1.6); }
+    if(vComp>1.6&&st.time-(st.thudT||0)>.25){ st.thudT=st.time; st.thud=Math.min(1,(vComp-1.6)/3); }
     st.comp[i]=x; st.contact[i]=1; contacts++; st.cp[i].copy(P); st.cn[i].copy(n);
     const wf=new V().copy(fw); if(W.f) wf.applyAxisAngle(up,-st.steer);
     wf.addScaledVector(n,-wf.dot(n)).normalize(); const ws=new V().crossVectors(wf,n).normalize();
@@ -1426,7 +1428,7 @@ function physStep(dt,inp){
     let fx=drive[i], fy=-vs*16000;
     const stopCap=Math.abs(vl)*MASS/4/dt*.5;
     if(brake) fx+=-Math.sign(vl)*Math.min(5200,stopCap);
-    fx+=-Math.sign(vl)*Math.min(N*(CRR[su]+(isSoft(su)?st.sink*.3:0)),stopCap);
+    fx+=-Math.sign(vl)*Math.min(N*(CRR[su]+(isSoft(su)?st.sink*(thr<0?.14:.3):0))*(thr<0&&isSoft(su)?.7:1),stopCap);
     if(low&&!thr) fx+=-Math.sign(vl)*Math.min(ENG.eb,stopCap);
     if(su==='acqua') fx+=-vl*Math.abs(vl)*120;
     const mag=Math.hypot(fx,fy); let slip=0;
@@ -1439,7 +1441,9 @@ function physStep(dt,inp){
   st.surf=surf; st.contacts=contacts;
   { const softW=st.wsurf.filter((w,i)=>st.contact[i]&&isSoft(w)).length, deep=st.wsurf.some(w=>w==='fangoProf');
     const slip=(st.slip[0]+st.slip[1]+st.slip[2]+st.slip[3])/4, asp=Math.abs(sp), snowK=st.wsurf.some(w=>w==='neve')&&!st.wsurf.some(isMud)?.85:1;
-    if(softW){ if(thr<0&&asp>.3) st.sink=Math.max(0,st.sink-dt*.3);
+    // remata: avanti-indietro alternati compattano il fango e il mezzo si libera un po' alla volta
+    { const sg=Math.sign(thr); if(sg){ if(st.rkSg&&sg!==st.rkSg&&st.time-st.rkT<3.5&&st.rkHold>.35&&softW&&st.sink>.05){ st.sink=Math.max(0,st.sink-.13); st.vel.addScaledVector(fw,sg*1.1); st.rocks=(st.rocks||0)+1; if(st.rocks%2===1) toast('Dondola!','avanti e indietro: il fango si compatta e il mezzo esce'); auThud(.35); } if(sg!==st.rkSg){ st.rkHold=0; } st.rkSg=sg; st.rkT=st.time; st.rkHold=(st.rkHold||0)+dt; } }
+    if(softW){ if(thr<0) st.sink=Math.max(0,st.sink-dt*(asp>.15?.35:.12));
       else if(asp>4&&slip<.15) st.sink=Math.max(0,st.sink-dt*.18);
       else if(thr>0&&(slip>.15||asp<2.5)) st.sink=Math.min(1,st.sink+dt*(deep?.3:.16)*snowK*(.4+slip)*(softW/4)*(pressure===0?1.3:pressure===2?.75:1)*(own('g33')?.85:1)*Math.pow(MASS/2100,.8)); }
     else st.sink=Math.max(0,st.sink-dt*.6);
@@ -1481,6 +1485,17 @@ const PRESS=['2,4','1,6','1,0'];
 function gripMul(su){ const pb=[[1,1,1],[1,1.15,1.12],[.97,1.22,1.2]][pressure]; return isSoft(su)||su==='acqua'?pb[1]:su==='roccia'?pb[2]:pb[0]; }
 let hitT=0;
 
+// la scocca si muove sulle sospensioni: si siede in accelerazione, si tuffa in frenata, rolla in curva e rimbalza sugli ostacoli
+const BD={p:0,r:0,h:0,vp:0,vr:0,vh:0,pv:new V(),cmp:[0,0,0,0]};
+function bodyDyn(dt){ const R=curRoot||carRoot; if(!R) return; if(!R.userData.by0) R.userData.by0=R.position.y;
+  if(dt<=0){ BD.p=BD.r=BD.h=BD.vp=BD.vr=BD.vh=0; BD.pv.copy(st.vel); return; }
+  const a=st.vel.clone().sub(BD.pv).divideScalar(Math.max(dt,1e-3)); BD.pv.copy(st.vel);
+  const al=a.dot(fw), at=a.dot(rt), av=a.dot(up);
+  // colpi delle ruote: quanto in fretta si comprimono davanti/dietro e sinistra/destra
+  let df=0, dr=0, dl=0, dR=0; for(let i=0;i<4;i++){ const d=(st.comp[i]-BD.cmp[i])/Math.max(dt,1e-3); BD.cmp[i]=st.comp[i]; const v=clamp(d,-6,6); if(i<2) df+=v; else dr+=v; if(i%2) dR+=v; else dl+=v; }
+  const tp=clamp(-al*.011+(df-dr)*.018,-.12,.12), tr=clamp(at*.013+(dl-dR)*.016,-.12,.12), th=clamp(-av*.004-(df+dr)*.01,-.08,.08);
+  const k=95, c=9; BD.vp+=((tp-BD.p)*k-BD.vp*c)*dt; BD.p+=BD.vp*dt; BD.vr+=((tr-BD.r)*k-BD.vr*c)*dt; BD.r+=BD.vr*dt; BD.vh+=((th-BD.h)*120-BD.vh*10)*dt; BD.h+=BD.vh*dt;
+}
 function hit(v,kind){ const now=performance.now(); if(now-hitT<700) return; hitT=now; if(v>3.5) gabbah('g_gamba',25); shake=Math.min(.5,v*.08); if(kind==='tree') toast('Albero!','occhio ai tronchi'); else if(kind==='car') toast('Il 4x4 di un amico!','parcheggia più in là'); else if(v>3) toast('Botta!','più piano sui sassi: rompi gomme e semiassi'); auThud(Math.min(1,v/6)); }
 
 /* ---------- Particelle: zolle di fango, gocce, spruzzi, polvere, fumo ---------- */
@@ -2485,8 +2500,10 @@ function frame(now){
     if(matchMedia('(pointer:coarse)').matches&&st.time>3&&!tilt.seen&&$('#stB').hidden&&!st.done){ $('#stB').hidden=false; toast('Inclinazione non disponibile qui','sterza con le frecce, oppure apri il gioco da ilgabbah-ux.github.io/4x4-camp'); }
   }
   // grafica auto
-  car.position.copy(st.pos); car.quaternion.copy(st.q);
+  car.position.copy(st.pos); car.quaternion.copy(st.q); if(st.running&&!campMode) bodyDyn(dt); else bodyDyn(0);
   for(let i=0;i<4;i++){ const g=wheels[i]; if(!g) continue; const W=WH[i]; const y=MOUNTY-(LN-st.comp[i]); g.position.set(W.vx??W.x,clamp(y,MOUNTY-LN,MOUNTY-.02),W.vz??W.z); g.rotation.set(0,W.f?-st.steer:0,0); { const sq=st.contact[i]?clamp((st.comp[i]-.17)/(LN-.17),0,1):0; const lo=pressure===2?.12:pressure===0?.04:.07; g.scale.set(1+sq*lo*.5,1-sq*lo,1); g.position.y-=sq*lo*RW*.5; } g.userData.spin.rotation.x=-st.spin[i]; }
+  if(BD.p||BD.r||BD.h){ const qe=new THREE.Quaternion().setFromEuler(new THREE.Euler(BD.p,0,-BD.r)), qi=qe.clone().invert(); car.quaternion.multiply(qe); car.position.addScaledVector(up,BD.h); for(const g of wheels) if(g){ g.position.y-=BD.h; g.position.applyQuaternion(qi); g.quaternion.premultiply(qi); } }
+  if(st.thud){ shake=Math.max(shake,st.thud*.22); auThud(.2+st.thud*.6); st.thud=0; }
   // camera: dietro, vicina, bassa sulle ruote
   const fh=new V(fw.x,0,fw.z).normalize(); if(!isFinite(fh.x)) fh.set(0,0,-1); const rh=new V(-fh.z,0,fh.x);
   let want, look, clr=1.6, kp=.02;
