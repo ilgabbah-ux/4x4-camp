@@ -248,8 +248,8 @@ p{margin:0;line-height:1.5}
 body.incamp .pedal{display:none}
 #actB{min-width:150px;min-height:64px;font-size:20px!important}
 #cockpit{position:absolute;inset:0;z-index:0;pointer-events:none}#ctl,#hud,#hud2,#tb,#stB{z-index:2}#mudc{position:absolute;inset:0;width:100%;height:100%;filter:blur(.6px) contrast(1.1)}
-.ckf{position:absolute;inset:0;width:100%;height:100%}.ckw{position:absolute;left:12%;bottom:-16vh;width:min(46vh,300px);height:min(46vh,300px);transition:transform .05s}
-.ckwp{position:absolute;inset:0;width:100%;height:100%;opacity:0}.ckwp line{transform-box:fill-box;transform-origin:50% 100%}
+.ckf{position:absolute;inset:0;width:100%;height:100%}.ckw{position:absolute;left:22%;bottom:-18vh;width:min(52vh,330px);height:min(52vh,330px)}
+
 #wipeB{pointer-events:auto;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 12px);padding:10px 18px;border-radius:12px;background:rgba(14,14,15,.9);border:1.5px solid #7fb3dd;font-weight:700;z-index:3}
 .cb.drone{background:#1f4f7a;border-color:#7fb3dd;grid-column:1/-1}
 #drone{position:absolute;inset:0;z-index:7;pointer-events:none}#drone button{pointer-events:auto}
@@ -347,9 +347,35 @@ body.incamp .pedal{display:none}
     <div class="dalt"><button id="dUp">▲</button><button id="dDn">▼</button></div>
     <button id="dShot">📸<small>SCATTA</small></button><button id="dEnd">Fatto</button>
     <div id="dPics"></div></div>
-  <div id="cockpit" hidden><canvas id="mudc"></canvas><svg viewBox="0 0 1000 600" preserveAspectRatio="none" class="ckf"><path d="M0,0 L70,0 L150,600 L0,600Z M1000,0 L930,0 L850,600 L1000,600Z" fill="#0d0e10"/><path d="M0,480 C220,450 380,445 500,445 C620,445 780,450 1000,480 L1000,600 L0,600Z" fill="#141518"/><path d="M0,486 C220,456 380,451 500,451 C620,451 780,456 1000,486" stroke="#2a2c30" stroke-width="5" fill="none"/></svg>
-    <svg viewBox="-120 -120 240 240" class="ckw" id="ckw"><circle r="100" fill="none" stroke="#18191c" stroke-width="22"/><circle r="100" fill="none" stroke="#2c2e33" stroke-width="3"/><path d="M-96,10 L-30,22 L-22,70 L22,70 L30,22 L96,10" fill="#18191c"/><circle r="24" fill="#222"/><rect x="-6" y="-112" width="12" height="16" fill="#d7262b"/></svg>
-    <button id="wipeB">🧽 Tergi</button><svg viewBox="0 0 1000 600" preserveAspectRatio="none" class="ckwp" id="ckwp"><line x1="300" y1="560" x2="300" y2="140" stroke="#0a0a0a" stroke-width="9" stroke-linecap="round"/><line x1="650" y1="560" x2="650" y2="140" stroke="#0a0a0a" stroke-width="9" stroke-linecap="round"/></svg></div>
+  <div id="cockpit" hidden><canvas id="mudc"></canvas>
+    <svg viewBox="0 0 1000 600" preserveAspectRatio="none" class="ckf" id="ckwp">
+      <g id="wpL" transform="rotate(0 250 505)"><line x1="250" y1="505" x2="560" y2="492" stroke="#0b0b0b" stroke-width="7" stroke-linecap="round"/><line x1="290" y1="500" x2="555" y2="489" stroke="#222" stroke-width="3"/></g>
+      <g id="wpR" transform="rotate(0 610 505)"><line x1="610" y1="505" x2="910" y2="492" stroke="#0b0b0b" stroke-width="7" stroke-linecap="round"/><line x1="650" y1="500" x2="905" y2="489" stroke="#222" stroke-width="3"/></g></svg>
+    <svg viewBox="0 0 1000 600" preserveAspectRatio="none" class="ckf">
+      <defs><linearGradient id="dashG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a2b2f"/><stop offset=".08" stop-color="#18191c"/><stop offset="1" stop-color="#0c0c0e"/></linearGradient>
+        <linearGradient id="pilG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#101113"/><stop offset=".8" stop-color="#1d1e22"/><stop offset="1" stop-color="#2b2c31"/></linearGradient>
+        <linearGradient id="roofG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b3a37"/><stop offset="1" stop-color="#26252a"/></linearGradient>
+        <radialGradient id="gaugeG"><stop offset="0" stop-color="#16181c"/><stop offset=".85" stop-color="#0a0b0d"/><stop offset="1" stop-color="#3a3c42"/></radialGradient></defs>
+      <path d="M0,0 L1000,0 L1000,48 C700,62 300,62 0,48Z" fill="url(#roofG)"/>
+      <path d="M0,0 L96,0 C120,180 160,360 205,500 L0,520Z" fill="url(#pilG)"/><path d="M1000,0 L904,0 C880,180 840,360 795,500 L1000,520Z" fill="url(#pilG)"/>
+      <rect x="440" y="40" width="120" height="42" rx="12" fill="#121316" stroke="#2e3036" stroke-width="3"/><rect x="452" y="50" width="96" height="24" rx="6" fill="#56636e" opacity=".55"/><rect x="494" y="22" width="12" height="22" fill="#1a1b1e"/>
+      <path d="M0,520 C200,488 360,478 500,478 C640,478 800,488 1000,520 L1000,600 L0,600Z" fill="url(#dashG)"/>
+      <path d="M0,522 C200,490 360,480 500,480 C640,480 800,490 1000,522" stroke="#3a3c42" stroke-width="3" fill="none"/>
+      <path d="M150,600 C150,540 180,505 270,500 L420,500 C470,505 490,540 490,600Z" fill="#0f1012"/>
+      <g id="gauges"><circle cx="275" cy="548" r="40" fill="url(#gaugeG)"/><circle cx="385" cy="548" r="40" fill="url(#gaugeG)"/>
+        <g stroke="#cfcac0" stroke-width="2">
+<line x1="250.9583694396574" y1="572.0416305603426" x2="255.20101012677668" y2="567.7989898732234"/><line x1="360.95836943965736" y1="572.0416305603426" x2="365.2010101267767" y2="567.7989898732234"/><line x1="242.66407844596478" y1="558.5065778087483" x2="248.3704175437357" y2="556.6524758424986"/><line x1="352.6640784459648" y1="558.5065778087483" x2="358.3704175437357" y2="556.6524758424986"/><line x1="241.41859641976532" y1="542.6812281886322" x2="247.34472646333614" y2="543.6198349788735"/><line x1="351.4185964197653" y1="542.6812281886322" x2="357.34472646333614" y2="543.6198349788735"/><line x1="247.4934221912518" y1="528.0153014220559" x2="252.34752415750148" y2="531.5420129358107"/><line x1="357.4934221912518" y1="528.0153014220559" x2="362.3475241575015" y2="531.5420129358107"/><line x1="259.5643230088554" y1="517.7057781775954" x2="262.2882660072927" y2="523.0518173227257"/><line x1="369.5643230088554" y1="517.7057781775954" x2="372.2882660072927" y2="523.0518173227257"/><line x1="275.0" y1="514.0" x2="275.0" y2="520.0"/><line x1="385.0" y1="514.0" x2="385.0" y2="520.0"/><line x1="290.4356769911446" y1="517.7057781775954" x2="287.7117339927073" y2="523.0518173227257"/><line x1="400.4356769911446" y1="517.7057781775954" x2="397.7117339927073" y2="523.0518173227257"/><line x1="302.5065778087482" y1="528.0153014220559" x2="297.6524758424985" y2="531.5420129358107"/><line x1="412.5065778087482" y1="528.0153014220559" x2="407.6524758424985" y2="531.5420129358107"/><line x1="308.5814035802347" y1="542.6812281886322" x2="302.65527353666386" y2="543.6198349788735"/><line x1="418.5814035802347" y1="542.6812281886322" x2="412.65527353666386" y2="543.6198349788735"/><line x1="307.3359215540352" y1="558.5065778087481" x2="301.6295824562643" y2="556.6524758424985"/><line x1="417.3359215540352" y1="558.5065778087481" x2="411.6295824562643" y2="556.6524758424985"/><line x1="299.04163056034264" y1="572.0416305603426" x2="294.7989898732233" y2="567.7989898732234"/><line x1="409.04163056034264" y1="572.0416305603426" x2="404.7989898732233" y2="567.7989898732234"/></g>
+        <line id="ndS" x1="275" y1="548" x2="275" y2="516" stroke="#ff4a3a" stroke-width="3" transform="rotate(-135 275 548)"/><line id="ndR" x1="385" y1="548" x2="385" y2="516" stroke="#ff4a3a" stroke-width="3" transform="rotate(-135 385 548)"/>
+        <text x="275" y="575" fill="#9a958c" font-size="11" text-anchor="middle" font-family="sans-serif">km/h</text><text x="385" y="575" fill="#9a958c" font-size="11" text-anchor="middle" font-family="sans-serif">giri x1000</text>
+        <circle cx="330" cy="520" r="4" id="lt4" fill="#3a3"/><circle cx="345" cy="520" r="4" id="ltL" fill="#552"/></g>
+      <path d="M560,600 L585,505 L700,505 L725,600Z" fill="#141518"/><rect x="600" y="515" width="85" height="30" rx="4" fill="#0a0b0c" stroke="#2c2e33"/><text x="642" y="536" fill="#ff8a3a" font-size="14" text-anchor="middle" font-family="monospace" id="ckRad">CB 27.125</text>
+      <circle cx="610" cy="565" r="9" fill="#26282c"/><circle cx="642" cy="565" r="9" fill="#26282c"/><circle cx="674" cy="565" r="9" fill="#26282c"/>
+    </svg>
+    <svg viewBox="-120 -120 240 240" class="ckw" id="ckw"><defs><radialGradient id="whG"><stop offset=".75" stop-color="#202124"/><stop offset="1" stop-color="#0d0d0f"/></radialGradient></defs>
+      <circle r="100" fill="none" stroke="url(#whG)" stroke-width="24"/><circle r="100" fill="none" stroke="#34363b" stroke-width="2" opacity=".7"/>
+      <path d="M-92,-8 C-60,-14 -40,-6 -28,6 L-18,48 L18,48 L28,6 C40,-6 60,-14 92,-8 L92,14 C60,10 44,16 34,28 L22,92 L-22,92 L-34,28 C-44,16 -60,10 -92,14Z" fill="#17181b"/>
+      <circle r="30" fill="#1d1e21" stroke="#2f3136" stroke-width="3"/><rect x="-5" y="-113" width="10" height="14" fill="#d7262b"/></svg>
+    <button id="wipeB">🧽 Tergi</button></div>
   <div id="tut" hidden><div class="tcard"><span class="tstep" id="tStep"></span><b id="tTitle"></b><p id="tText"></p><div class="tbar"><i id="tProg"></i></div><div class="tbtn"><button id="tSkip">Salta tutorial</button><button id="tNext">Avanti ›</button></div></div></div>
   <div id="stB" hidden><button id="stL" aria-label="Sterza a sinistra">◀</button><button id="stR" aria-label="Sterza a destra">▶</button></div>
   <div id="tb" hidden><button id="camB" aria-label="Cambia inquadratura">CAM</button><button id="pauB" aria-label="Pausa">II</button><button id="recB" aria-label="Registra il giro">REC</button></div>
@@ -2104,7 +2130,7 @@ function frame(now){
   if(camMode===0){ want=st.pos.clone().addScaledVector(fh,-9).add(new V(0,4.2,0)); look=st.pos.clone().addScaledVector(fh,5).add(new V(0,.6,0)); }
   else if(camMode===1){ want=st.pos.clone().addScaledVector(fh,-5.6).add(new V(0,2.3,0)); look=st.pos.clone().addScaledVector(fh,6).add(new V(0,.7,0)); clr=1.1; }
   else if(camMode===2){ want=st.pos.clone().addScaledVector(fh,-3.4).addScaledVector(rh,-2.1).add(new V(0,.15,0)); look=st.pos.clone().addScaledVector(fh,6).addScaledVector(rh,.4).add(new V(0,.1,0)); clr=.45; kp=.002; }
-  else if(camMode===4){ want=new V(-.36,.62,-.15).applyQuaternion(st.q).add(st.pos); look=new V(-.36,.5,-12).applyQuaternion(st.q).add(st.pos); clr=.2; kp=.000001; }
+  else if(camMode===4){ want=new V(-.36,.58,-.05).applyQuaternion(st.q).add(st.pos); look=new V(-.36,.25,-12).applyQuaternion(st.q).add(st.pos); clr=.2; kp=.000001; }
   else { want=new V(0,1.75,.9).applyQuaternion(st.q).add(st.pos); look=new V(0,-.2,-8).applyQuaternion(st.q).add(st.pos); clr=.3; kp=.00001; }
   const gh=height(want.x,want.z)+clr; if(want.y<gh) want.y=gh;
   { const zc=zoneAt(-want.z), zp=zoneAt(st.s); if(zc.t==='galleria'||zp.t==='galleria'){ const w2=st.pos.clone().addScaledVector(fh,-4.6).add(new V(0,1.2,0)); if(camMode<2) want.copy(w2); const cx=CX(-want.z); want.x=clamp(want.x,cx-2,cx+2); const gy=baseH(cx,want.z); want.y=Math.min(want.y,gy+2.3); look.y=Math.min(look.y,gy+1.6); } }
@@ -2185,9 +2211,10 @@ function cockpitUpd(dt){ const on=camMode===4&&st.running&&!campMode&&!st.drone;
   const sp=Math.abs(st.vel.dot(fw)); let soft=0; for(let i=0;i<4;i++) if(st.contact[i]&&isSoft(st.wsurf[i])&&st.wsurf[i]!=='neve') soft+=1+st.slip[i]*3;
   if(soft&&(sp>2||st.slip.some(v=>v>.3))&&Math.random()<dt*soft*(.6+sp*.12)) mudSplat(Math.random()<.25);
   if(st.inWater>0&&sp>2&&Math.random()<dt*sp*.5){ mctx.globalCompositeOperation='destination-out'; mctx.fillStyle='rgba(0,0,0,.25)'; mctx.fillRect(0,0,mudc.width,mudc.height); mctx.globalCompositeOperation='source-over'; mudAmt*=.85; }
-  if(wipeT>=0){ wipeT+=dt; const k=Math.min(1,wipeT/.9), ang=Math.sin(k*Math.PI)*-105; $('#ckwp').style.opacity=1; for(const l of $('#ckwp').querySelectorAll('line')) l.style.transform=`rotate(${ang}deg)`;
-    mctx.globalCompositeOperation='destination-out'; mctx.fillStyle='rgba(0,0,0,.18)'; const W=mudc.width,H=mudc.height; mctx.beginPath(); mctx.moveTo(W*.3,H*.93); mctx.arc(W*.3,H*.93,H*.75,-Math.PI/2-(1-k)*1.8,-Math.PI/2+.15); mctx.fill(); mctx.beginPath(); mctx.moveTo(W*.65,H*.93); mctx.arc(W*.65,H*.93,H*.75,-Math.PI/2-(1-k)*1.8,-Math.PI/2+.15); mctx.fill(); mctx.globalCompositeOperation='source-over';
-    if(k>=1){ wipeT=-1; $('#ckwp').style.opacity=0; mudAmt*=.25; mctx.fillStyle='rgba(60,42,24,.35)'; mctx.fillRect(0,mudc.height*.86,mudc.width,mudc.height*.14); } } }
+  { const sp2=Math.abs(st.vel.dot(fw))*3.6; $('#ndS').setAttribute('transform',`rotate(${-135+Math.min(270,sp2*2.2)} 275 548)`); const rpm=1+(st.gear==='ridotte'?sp2/25:sp2/80)*3.2+(pad.gas?.6:0); $('#ndR').setAttribute('transform',`rotate(${-135+Math.min(270,rpm*45)} 385 548)`); $('#lt4').setAttribute('fill',st.awd?'#3c3':'#333'); $('#ltL').setAttribute('fill',st.gear==='ridotte'?'#fb3':'#433'); }
+  if(wipeT>=0){ wipeT+=dt; const k=Math.min(1,wipeT/.9), ang=Math.sin(k*Math.PI)*-112; $('#wpL').setAttribute('transform',`rotate(${ang} 250 505)`); $('#wpR').setAttribute('transform',`rotate(${ang} 610 505)`);
+    mctx.globalCompositeOperation='destination-out'; mctx.fillStyle='rgba(0,0,0,.18)'; const W=mudc.width,H=mudc.height; for(const px of [.25,.61]){ mctx.beginPath(); mctx.moveTo(W*px,H*.84); mctx.ellipse(W*px,H*.84,W*.31,H*.62,0,-.04-k*1.95,-.04); mctx.closePath(); mctx.fill(); } mctx.globalCompositeOperation='source-over';
+    if(k>=1){ wipeT=-1; $('#wpL').setAttribute('transform','rotate(0 250 505)'); $('#wpR').setAttribute('transform','rotate(0 610 505)'); mudAmt*=.25; mctx.fillStyle='rgba(60,42,24,.35)'; mctx.fillRect(0,mudc.height*.86,mudc.width,mudc.height*.14); } } }
 // ---- tutorial di guida per chi inizia (si salta quando vuoi) ----
 const TUT=[
  {t:'Benvenuto in 4x4 Off Road Piemonte',x:'Ti spiego in un minuto come si guida. Puoi saltarlo quando vuoi e rivederlo dalla pausa (II).',ok:()=>false,btn:true},
