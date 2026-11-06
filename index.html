@@ -461,6 +461,13 @@ body.incamp #awdB,body.incamp #tb{display:none!important}
  .pedal{width:clamp(84px,12vw,110px)!important;height:clamp(96px,34vh,140px)!important}
  #ctl .cen .cb{min-height:30px!important;padding:3px 8px!important;font-size:11px!important}
 }
+
+#pace{position:absolute;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 108px);z-index:3;display:flex;align-items:center;gap:10px;padding:6px 14px 6px 8px;border-radius:14px;background:rgba(20,16,6,.78);border:2px solid #f2c230;box-shadow:0 4px 18px rgba(0,0,0,.5);pointer-events:none;color:#fff;max-width:min(92vw,460px)}
+#pace b{font-size:30px;width:44px;height:44px;display:grid;place-items:center;background:#f2c230;border-radius:10px;border:2px solid #222}#pace b{line-height:1}
+#pace div{display:flex;flex-direction:column;line-height:1.1}#pace strong{font:900 17px/1.1 var(--fh,sans-serif);text-transform:uppercase;letter-spacing:.02em}
+#pace span{font:800 15px/1 var(--fb,sans-serif);color:#f2c230}#pace small{font-size:12px;opacity:.85}
+#pace.now{border-color:#ff5a3c;background:rgba(60,12,6,.85);animation:pul .3s infinite alternate}#pace.now span{color:#ff8a6c}
+@media (orientation:landscape) and (max-height:520px){ #pace{top:calc(env(safe-area-inset-top,0px) + 92px);padding:4px 12px 4px 6px} #pace b{width:36px;height:36px;font-size:22px} #pace strong{font-size:14px} #pace small{font-size:11px} }
 </style>
 
 <div id="app">
@@ -477,6 +484,7 @@ body.incamp #awdB,body.incamp #tb{display:none!important}
     <div class="pl gauge" id="gSink" hidden>Affondamento<i id="gSinkI" style="--c:#b07a45"></i></div>
     <div class="pl gauge" id="gWater" hidden>Acqua al filtro<i id="gWaterI" style="--c:#5aa6c2"></i></div>
   </div>
+  <div id="pace" hidden><b id="paceI"></b><div><strong id="paceN"></strong><span id="paceD"></span><small id="paceT"></small></div></div>
   <div id="incl" hidden><div class="ib"><i></i><b class="w0"></b><b class="w1"></b></div><span id="inclT">0°</span><em id="inclW"></em></div>
   <div id="ctl" hidden>
     <button class="pedal" id="brk">FRENO<small>tieni = retro</small></button>
@@ -999,11 +1007,12 @@ function buildWorld(id){
         { const f=inFord(s,7); if(f&&!neve){ const wet=sstep(f[0]-7,f[0]-1,s)*sstep(f[1]+7,f[1]+1,s); gc=gc.map((v,j)=>lerp(v,[.33,.3,.22][j]*(.85+n2*.3),wet*.75)); tc=tc.map((v,j)=>lerp(v,[.36,.31,.24][j],wet*.6)); } }
         let c=[lerp(gc[0],tc[0],onT),lerp(gc[1],tc[1],onT),lerp(gc[2],tc[2],onT)];
         if(ad<HALF+2){ const L=ROCKB.get(Math.floor(s/4)); if(L){ let k=0; for(const b of L){ const dd=Math.hypot(x-b.x,z-b.z)/b.r; if(dd<1.9) k=Math.max(k,1-sstep(1,1.9,dd)); } if(k>0) c=c.map(v=>v*(1-.38*k)); } }
-        let v=(.84+n2*.3)*1.18; if(ad<HALF+3){ const ha=baseH(x,z-.8), hb=baseH(x,z+.8), hl=baseH(x-.8,z), hr=baseH(x+.8,z), sl=(ha-hb)/1.6, sx=(hr-hl)/1.6, cu=(ha+hb+hl+hr-4*y)/.64; v*=clamp(1-sl*.9+sx*.35-cu*.12,.62,1.3); }
+        let v=(.84+n2*.3)*1.18; const odl=y-baseH(x,z); if(ad<HALF+3){ const HH=(xx,zz)=>{ const b=baseH(xx,zz); return ob?obsAdj(xx,zz,b,false):b; }, ha=HH(x,z-.7), hb=HH(x,z+.7), hl=HH(x-.7,z), hr=HH(x+.7,z), sl=(ha-hb)/1.4, sx=(hr-hl)/1.4, cu=(ha+hb+hl+hr-4*y)/.49; v*=clamp(1-sl*1.5+sx*.6-cu*.3,.4,1.45); if(odl<-.04) v*=1-.45*Math.min(1,-odl/.45); else if(odl>.04) v*=1+.15*Math.min(1,odl/.4); }
         col[i*3]=c[0]*v; col[i*3+1]=c[1]*v; col[i*3+2]=c[2]*v;
         { // pesi delle texture vere: 0 terra/sabbia/neve, 1 fango, 2 sassi, 3 prato (o neve)
           const rd=[0,0,0,0]; if(mud) rd[1]=1; else if(zt==='roccia'||zt==='ghiaia'||zt==='galleria') rd[2]=1; else rd[0]=1;
           if(mud){ const mp=sstep(.3,.6,fbm(x*.55,z*.55)+rutk*.4+(zt==='fangoProf'?.3:0)); rd[1]=mp; rd[0]=1-mp; }
+          if(Math.abs(odl)>.05&&ad<HALF+1.5){ const k=Math.min(1,Math.abs(odl)/.2); const tg=odl<0?1:2; for(let q=0;q<4;q++) rd[q]=lerp(rd[q],q===tg?1:0,k); }
           const snowHi=alp&&s>LEN*(TR.id==='sommelier'?.4:.45)&&n>(TR.id==='sommelier'?.5:.58);
           const off=[0,0,clf,1-clf]; if(snowHi){ off[3]=0; off[0]=0; off[2]=clf; off[3]=1-clf; }
           if(mud&&ad<HALF+4.5){ const sp=sstep(.55,.75,vnoise(x*.9,z*.9))*(1-sstep(HALF,HALF+4.5,ad)); off[1]=sp*.8; off[3]*=1-sp*.8; }
@@ -1085,6 +1094,12 @@ function buildWorld(id){
     im.count=n; im.receiveShadow=true; world.add(im); }
   // ostacoli: tronchi con corteccia e taglio chiaro, labbro di roccia sui gradini, fango nei canali
   { const bark=new THREE.MeshStandardMaterial({color:0x5a4330,roughness:1,map:groundMap}), cut=new THREE.MeshStandardMaterial({color:0xc9a06a,roughness:.9}), stone=new THREE.MeshStandardMaterial({color:0x6d6860,roughness:.95,flatShading:true}), mud=new THREE.MeshStandardMaterial({color:0x2c1d10,roughness:.25,transparent:true,opacity:.85});
+    { // cartelli gialli a bordo pista prima di ogni ostacolo e pozza
+      const TX={}, signT=t=>{ if(TX[t]) return TX[t]; const c=document.createElement('canvas'); c.width=c.height=128; const g=c.getContext('2d'); g.translate(64,64); g.rotate(Math.PI/4); g.fillStyle='#1a1a1a'; g.fillRect(-46,-46,92,92); g.fillStyle='#f2c230'; g.fillRect(-40,-40,80,80); g.rotate(-Math.PI/4); g.font='54px sans-serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(PACE({t,big:0})[0],0,4); return TX[t]=new THREE.CanvasTexture(c); };
+      const postM=new THREE.MeshStandardMaterial({color:0x6b5a44,roughness:.9}), postG=new THREE.CylinderGeometry(.05,.06,2,6);
+      for(const o of OBST.concat(PUDS.map(f=>({s:f[0],t:'pud'})))){ const ss=o.s-5, sd=((Math.floor(o.s)%2)?1:-1), x=CX(ss)+sd*(HALF+.9), z=-ss, y=height(x,z);
+        const p=new THREE.Mesh(postG,postM); p.position.set(x,y+1,z); p.castShadow=true; world.add(p);
+        const sg=new THREE.Mesh(new THREE.PlaneGeometry(1.15,1.15),new THREE.MeshBasicMaterial({map:signT(o.t),transparent:true,side:THREE.DoubleSide,alphaTest:.1})); sg.position.set(x,y+2.1,z); sg.rotation.y=Math.atan2(CX(ss+1)-CX(ss-1),2)*-1; world.add(sg); } }
     for(const o of OBST){ const cx=CX(o.s), cz=-o.s, ang=Math.atan2(CX(o.s+1)-CX(o.s-1),2);
       if(o.t==='log'){ const L=o.half*2, g=new THREE.Group(); const c=new THREE.Mesh(new THREE.CylinderGeometry(o.r,o.r*1.08,L,12,4).rotateZ(Math.PI/2),bark); g.add(c); for(const sd of [-1,1]){ const e=new THREE.Mesh(new THREE.CircleGeometry(o.r*.98,12).rotateY(sd*Math.PI/2),cut); e.position.x=sd*L/2; g.add(e); }
         for(let i=0;i<3;i++){ const br=new THREE.Mesh(new THREE.CylinderGeometry(.03,.05,.6+Math.random()*.5,5),bark); br.position.set((Math.random()-.5)*L*.8,o.r*.6,0); br.rotation.set(Math.random()-.5,0,1+Math.random()); g.add(br); }
@@ -2005,7 +2020,7 @@ function sheet(title,sub,groups,btn,done){ const S=$('#sheet'); $('#shT').textCo
 function openMenu(){ sheet('Cena con gli amici','Purcello, Mirco e Costa sono già lì coi loro 4x4. Cosa si mangia e cosa si beve? Alla festa ogni sorso dà punti nella gara, ma più bevi più barcolli quando torni a letto.',[{label:'Da mangiare',key:'food',items:FOODS},{label:'Da bere',key:'drink',items:DRINKS}],'A tavola!',s=>{
   cs.food=FOODS.find(f=>f.id===s.food); cs.drink=DRINKS.find(d=>d.id===s.drink); cs.drunk=cs.drink.alc*2; friendsDrink=true;
   const line=cs.food.id==='trote'?['Costa','«Finalmente qualcuno che apprezza il pesce!»']:cs.drink.id==='acqua'?['Purcello','«Acqua?! Ti sei perso la cassa di birra?»']:cs.drink.id==='grappa'?['Mirco','«Grappa? Domani campa giù…»']:['Purcello','«Ottima scelta. Paghi tu la prossima?»'];
-  toast(line[0],line[1]); if(cs.food.id==='trote') say('Costa','','c_pesce'); STEPS.find(x=>x.id==='cena').txt=`Cuoci ${cs.food.pl==='pancetta'?'la':'le'} ${cs.food.pl}`; setStep(cs.step+1); }); }
+  toast(line[0],line[1]); if(cs.food.id==='trote') say('Costa','','c_pesce'); STEPS.find(x=>x.id==='cena').txt=`Cuoci ${cs.food.pl==='pancetta'?'la':'le'} ${cs.food.pl}`; setStep(cs.step+1); if(STEPS[cs.step]&&STEPS[cs.step].id==='cena') setTimeout(()=>{ if(cs&&STEPS[cs.step]&&STEPS[cs.step].id==='cena') $('#actB').click(); },900); }); }
 function openMusic(){ sheet('Festa!','Si sfida chi fa più casino ballando: le mosse cadono in 4 corsie, tocchi la corsia quando la mossa entra nel cerchio in fondo. Prima c’è una prova. BEVI: più sei sbronzo più punti fai ballando, ma tornando a letto barcolli e ogni caduta costa 15 €.',[{label:'Musica',key:'mus',items:MUSIC}],'Alza il volume!',s=>showHelp('festa',()=>startParty(s.mus))); }
 
 // gara di casino a ritmo
@@ -2030,6 +2045,7 @@ function tutHit(k){ const T=cs.party.tut; if(T.y<.97){ ptFb('Aspetta: non è anc
   if(T.i>=T.seq.length){ chartGo(); return; } const kk=T.seq[T.i]; T.e.textContent=['🙌','🌀','👏','🦵','🍺 BEVI 🍺'][kk]; T.e.dataset.k=kk; T.e.classList.toggle('beer',kk===4); tutTxt(); }
 function updTut(dt){ const P=cs.party, T=P.tut, HH=$('#jdTrack').clientHeight||200; const was=T.y; T.y=Math.min(1,T.y+dt/1.3); const k=T.seq[T.i]; T.e.style.display=''; T.e.style.left=(k===4?50:12.5+k*25)+'%'; T.e.style.setProperty('top',(28+T.y*(HH-66))+'px','important'); T.h.style.left=(k===4?50:12.5+k*25)+'%'; T.h.style.display=T.y>=1?'':'none';
   document.querySelectorAll('#jdTrack .rcp u').forEach(u=>u.classList.toggle('now',T.y>=1&&(k===4||+u.dataset.k===k))); document.querySelectorAll('#jdTrack .ln').forEach(l=>l.classList.toggle('nx',k===4||+l.dataset.k===k)); if(was<1&&T.y>=1) tutTxt(); }
+const PACE=o=>{ const T={log:['🪵','Tronco di traverso','piano e dritto: prima le ruote davanti, poi dietro'],ditch:['〰️','Canale di scolo','prendilo in diagonale, una ruota alla volta'],step:o.big?['🪨','Scalino alto','ridotte, gas dolce, una ruota alla volta']:['🪨','Gradino di roccia','ridotte e gas dolce'],twist:['↯','Twist: buche alternate','piano: il mezzo si incrocia, una ruota va in aria'],camber:['⚠️','Contropendenza','piano! guarda l\'inclinometro: oltre 35° ti ribalti'],vg:['🕳️','Canale a V','a cavallo, ruote sui bordi: se ci cadi tocchi sotto'],pud:['🟤','Pozza profonda','ridotte, piano e costante: niente onda']}; return T[o.t]||['⚠️','Ostacolo','piano']; };
 const lat=()=>AC?Math.min(.25,(AC.outputLatency||0)+(AC.baseLatency||0)):0;
 const heard=()=>clk()-lat();
 function padHit(k){ const P=cs.party; if(!P||P.over||!P.ch) return; if(P.tut){ tutHit(k); return; } const now=heard(); P.dance=1; P.pose={k,t:0};
@@ -2280,6 +2296,7 @@ function parkDone(){ const P=cs.park; cs.park=null; st.pos.copy(P.p1); st.q.copy
   up.set(0,1,0).applyQuaternion(st.q); fw.set(0,0,-1).applyQuaternion(st.q); rt.set(1,0,0).applyQuaternion(st.q);
   man.position.copy(st.pos).addScaledVector(cs.rt,2.8).addScaledVector(cs.fh,1.2); man.position.y=height(man.position.x,man.position.z); man.rotation.set(0,Math.atan2(-(cs.C.x-man.position.x),-(cs.C.z-man.position.z)),0); man.visible=true;
   auThud(.4); $('#ctl').hidden=false; first=true;
+  if(!cs.resume){ cs.resume={step:STEPS.findIndex(x=>x.id==='fuoco')}; cs.quick=1; setTimeout(()=>toast('Campo già montato!','gli amici hanno scaricato, legato l\'amaca e fatto legna: tu accendi il fuoco'),400); }
   const R=cs.resume; if(R&&R.step>0){ for(const o of cs.unl){ o.visible=true; o.position.copy(o.userData.home); } if(own('tendalino')) setAwning(1); cs.resume=null; const sh=STEPS.findIndex(x=>x.id==='amaca'), le=STEPS.findIndex(x=>x.id==='legna'), po=STEPS.findIndex(x=>x.id==='porta'), fu=STEPS.findIndex(x=>x.id==='fuoco');
     if(R.step>sh){ cs.ham=9; if(KIT.riparo==='amaca'){ cs.obj.ropeA.visible=cs.obj.ropeB.visible=cs.obj.hm.visible=true; } else if(KIT.riparo==='tenda'){ const u=cs.obj.tent.userData; u.stakes.visible=u.poles.visible=u.fab.visible=u.door.visible=true; } else cs.rttT=1; }
     if(R.step>le){ cs.obj.pile.visible=false; cs.obj.tr.scale.y=.25; } if(R.step===po) man.userData.logs.visible=true; if(R.step>po) cs.obj.fireLogs.visible=true; if(R.step>fu){ cs.lit=true; cs.fire=1; }
@@ -2342,7 +2359,7 @@ function updStars(dt){ if(!cs) return; const n=cs.night||0; if(n<.6||cs.party||c
   const S=cs.star; if(S){ S.t+=dt; S.m.position.addScaledVector(S.D,dt*60); S.m.material.opacity=Math.max(0,1-S.t/1.6); if(S.t>1.6){ campGroup.remove(S.m); cs.star=null; $('#starB').hidden=true; } } }
 $('#starB').addEventListener('click',()=>{ if(!cs||!cs.star) return; const q=cs.star.t; campGroup.remove(cs.star.m); cs.star=null; $('#starB').hidden=true; const e=q<.6?20:10; save.money+=e; persist(); auBurst(4000,.06,.25,'highpass',1); toast(`🌠 Stella cadente fotografata! +${e} €`,q<.6?'scatto al volo, bravo':'presa per un pelo'); });
 function nearTarget(){ const S=STEPS[cs.step]; if(!S||!S.target) return false; const p=cs.pos[S.target]; return Math.hypot(man.position.x-p.x,man.position.z-p.z)<(S.target==='fire'?2.3:2.6); }
-$('#actB').addEventListener('click',()=>{ if(!cs||cs.mini||!nearTarget()) return; const S=STEPS[cs.step]; faceTo(cs.pos[S.target]);
+$('#actB').addEventListener('click',()=>{ if(!cs||cs.mini) return; if(!nearTarget()){ const S0=STEPS[cs.step]; if(!S0||!S0.target) return; const p=cs.pos[S0.target]; cs.dest={x:p.x,z:p.z,auto:true,near:1.6}; cs.autoAct=cs.step; return; } const S=STEPS[cs.step]; faceTo(cs.pos[S.target]);
   if(S.id==='scarica'||S.id==='smonta'){ carryDo(S.id==='smonta'); return; }
   if(S.id==='porta'){ man.userData.logs.visible=false; cs.obj.fireLogs.visible=true; cs.logsAtFire=true; auThud(.5); toast('Legna nel fuoco','adesso accendiamolo'); setStep(cs.step+1); return; }
   if(S.id==='dormi'){ showHelp('nanna',startWalk); return; }
@@ -2477,6 +2494,7 @@ function updCamp(dt){
   else if(!U.logs.visible){ U.axe.visible=false; U.saw.visible=false; }
   if(cs.walk) updWalk(dt);
   updCarry(dt);
+  if(cs.autoAct!=null){ if(cs.autoAct!==cs.step||cs.mini) cs.autoAct=null; else if(nearTarget()){ cs.autoAct=null; cs.dest=null; $('#actB').click(); } }
   if(cs.party) updParty(dt);
   updFriends(dt);
   if(cs.sleeping){ U.L.rotation.x=U.R.rotation.x=0; U.AL.rotation.x=U.AR.rotation.x=.15; U.AL.rotation.z=.3; U.AR.rotation.z=-.3; U.hips.position.y=.95; }
@@ -2485,7 +2503,7 @@ function updCamp(dt){
   const mk=cs.obj.mk; mk.userData.ar.position.y=3.4+Math.sin(cs.t*3)*.3; mk.userData.ar.visible=cs.walk?true:!nearTarget(); const pu=1+Math.sin(cs.t*4)*.08; mk.userData.ring.scale.set(pu,pu,pu); mk.userData.ring.material.opacity=.65+Math.sin(cs.t*4)*.3;
   // pulsante azione
   const S=STEPS[cs.step]; const busy=cs.walk||cs.party||!$('#sheet').hidden; const nt=S&&S.target&&nearTarget()&&!cs.mini&&!cs.sleeping&&!busy;
-  $('#actB').hidden=!nt||!!cs.unloading||!!cs.packing; if(nt) $('#actB').textContent=typeof S.action==='function'?S.action():S.action;
+  $('#actB').hidden=!S.target||!!cs.unloading||!!cs.packing||!!cs.mini||!!cs.walk||!!cs.sleeping||!!cs.party||(S.id==='dormi'&&!!cs.walkDone); { const a=typeof S.action==='function'?S.action():S.action; $('#actB').textContent=nt?a:'▶ '+a; }
   $('#goB').hidden=!(S&&S.target&&!nt&&!cs.mini&&!cs.sleeping&&!cs.dest&&!busy);
   // minigioco
   if(!cs.mini&&cs.obj.stove.userData.fl.visible&&cs.cook) cs.obj.stove.userData.fl.visible=false;
@@ -2623,7 +2641,8 @@ function frame(now){
     if(fail) failRun(fail);
     if(!st.done&&st.s>LEN) arrive();
     { const z=zoneAt(st.s); if(z!==st.zPrev){ const p=st.zPrev; if(p&&['roccia','fangoProf','acqua','ghiaccio','galleria'].includes(p.t)&&st.rescues===(st.zResc||0)&&st.s>p.b&&Math.random()<.45) gabbah('g_si',70); st.zPrev=z; st.zResc=st.rescues; } }
-    { const nx=OBST.find(o=>!o.said&&o.s-st.s<16&&o.s>st.s); if(nx){ nx.said=true; const T={log:['🪵 Tronco di traverso','piano e dritto: prima le ruote davanti, poi dietro'],ditch:['〰️ Canale di scolo','in diagonale, una ruota alla volta'],step:['🪨 Gradino di roccia','ridotte e gas dolce'],twist:['↯ Twist: buche alternate','il mezzo si incrocia e una ruota va in aria: piano, bloccaggi se li hai'],camber:['⚠️ Contropendenza','piano! guarda l\'inclinometro: oltre 35° ti ribalti'],vg:['🕳️ Canale a V','stai a cavallo con le ruote sui bordi, se ci cadi dentro tocchi sotto']}[nx.t]; if(nx.t==='step'&&nx.big) T[0]='🪨 Scalino alto'; if(nx.t==='step'&&nx.big) T[1]='ridotte, gas dolce, prima una ruota poi l\'altra'; toast(T[0],T[1]); } }
+    { const L=OBST.concat(PUDS.map(f=>({s:f[0],t:'pud',len:f[1]-f[0]}))); let nx=null; for(const o of L){ if(o.s+(o.len||3)<st.s-1) continue; if(o.s-st.s>45) continue; if(!nx||o.s<nx.s) nx=o; }
+      const E=$('#pace'); if(nx&&!st.done){ const T=PACE(nx), dd=Math.round(nx.s-st.s); E.hidden=false; E.className=nx.t; $('#paceI').textContent=T[0]; $('#paceN').textContent=T[1]; $('#paceD').textContent=dd>0?`tra ${dd} m`:'CI SEI'; $('#paceT').textContent=T[2]; E.classList.toggle('now',dd<=6); if(!nx.said&&dd<20){ nx.said=true; auTone(660,.07,.1,'square'); setTimeout(()=>auTone(880,.07,.1,'square'),110); } } else E.hidden=true; }
     if(TR.panoS&&!st.panoSaid&&st.s>TR.panoS-12){ st.panoSaid=true; toast('📸 Punto panoramico','fermati qui: puoi fare le foto col drone'); }
     $('#droneB').hidden=!(TR.panoS&&Math.abs(st.s-TR.panoS)<22&&Math.abs(sp)<1.2&&!st.done&&!st.drone&&!st.droneDone);
     if(!st.rescue) helpAhead();
@@ -2783,7 +2802,7 @@ const fmtT1=t=>`${Math.floor(t/60)}:${(t%60).toFixed(1).padStart(4,'0')}`;
 function showMsg(eye,title,text,lines,btn,stamp){ document.querySelectorAll('#msg .stamp').forEach(x=>x.remove()); if(stamp){ const st=document.createElement('div'); st.className='stamp'; st.textContent=stamp; $('#msg .wrap').prepend(st); } $('#msgEye').textContent=eye; $('#msgTitle').textContent=title; $('#msgText').textContent=text; const l=$('#msgLines'); l.innerHTML=''; l.hidden=!lines;
   for(const [a,b,cl] of lines||[]){ const d=document.createElement('div'); if(cl==='tot') d.className='tot'; const x=document.createElement('span'); x.textContent=a; const y=document.createElement('span'); y.textContent=b; if(cl&&cl!=='tot') y.className=cl; d.append(x,y); l.append(d); }
   $('#msgBtn').textContent=btn||'Torna al garage'; $('#msgCp').hidden=!lastCp; $('#msg').hidden=false; hideRunUI(); }
-function hideRunUI(){ if(ghostCar){ ghostCar.visible=false; ghostData=null; } if(tutI>=0){ tutI=-1; $('#tut').hidden=true; } if(st.drone){ st.drone=null; $('#drone').hidden=true; for(const b of document.querySelectorAll('#ctl .cen')) b.style.visibility=''; } for(const id of ['#hq','#incl','#sheet','#party','#bal','#stB','#hud','#hud2','#ctl','#obj','#actB','#goB','#tb','#mini']) $(id).hidden=true; }
+function hideRunUI(){ if(ghostCar){ ghostCar.visible=false; ghostData=null; } if(tutI>=0){ tutI=-1; $('#tut').hidden=true; } if(st.drone){ st.drone=null; $('#drone').hidden=true; for(const b of document.querySelectorAll('#ctl .cen')) b.style.visibility=''; } for(const id of ['#hq','#incl','#pace','#sheet','#party','#bal','#stB','#hud','#hud2','#ctl','#obj','#actB','#goB','#tb','#mini']) $(id).hidden=true; }
 $('#msgBtn').addEventListener('click',()=>{ $('#msg').hidden=true; lastCp=null; toGarage(); });
 let lastCp=null;
 function quickCamp(){ auInit(); askSensors(); calibrate(); $('#over').hidden=true; $('#gar').hidden=true; resumeGame({camp:1,track:save.track,meteo:save.meteo,time:0,rescues:0,dmg:{...save.dmg},step:STEPS0.findIndex(x=>x.id==='menu'),drunk:0,rank:0,misses:0,cook:null}); }
