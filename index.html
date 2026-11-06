@@ -499,10 +499,15 @@ body.incamp #skipB{display:block}
 #dTips{position:absolute;left:max(16px,env(safe-area-inset-left,0px));top:calc(env(safe-area-inset-top,0px) + 64px);background:rgba(0,0,0,.6);border-radius:12px;padding:8px 10px;color:#fff;font:700 13px/1.25 var(--fb,sans-serif);max-width:230px;pointer-events:none;backdrop-filter:blur(3px)}
 #dTips b{display:block;color:#f2c230;margin-bottom:3px;font-size:13px}#dTips div{margin:2px 0}#dTips div.ok{color:#b9f09a}#dTips small{display:block;font-weight:500;font-size:11px;opacity:.85;margin-left:20px}
 @media (orientation:landscape) and (max-height:520px){ #dTips{top:calc(env(safe-area-inset-top,0px) + 54px);font-size:11px;max-width:200px;padding:6px 8px} #dTips small{font-size:10px} }
+
+/* ritocco foto: contrasto, colori caldi, bordi scuri */
+
+#vign{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 50% 45%,transparent 55%,rgba(10,6,0,.32) 100%)}
+body.lowq #cv{filter:none}
 </style>
 
 <div id="app">
-  <canvas id="cv"></canvas>
+  <canvas id="cv"></canvas><div id="vign"></div>
   <div id="hud" hidden>
     <div class="pl spd"><b id="hS">0</b><small>KM/H</small><br><span class="gear" id="hG">ALTA</span></div>
     <div class="pl mid"><div class="t" id="hT">Sterrato</div><div class="s" id="hI">beccheggio 0° · rollio 0°</div></div>
@@ -715,13 +720,13 @@ function setTrack(id){
   OBST=[]; OBB=new Map(); { const types=TR.theme==='neve'?['ditch','twist','camber','log']:TR.theme==='alpino'?['step','ditch','twist','camber','step','vg']:TR.theme==='militare'?['ditch','twist','vg','step','camber','ditch']:['log','ditch','step','twist','camber','vg','log','step','twist'];
     let s=40+R()*20, i=0; while(s<LEN-30){ const z=zoneAt(s), z2=zoneAt(s+14); const ok=['terra','erba','ghiaia','sabbia','neve'].includes(z.t)&&z===z2&&!inFord(s,10)&&Math.abs(s-TR.panoS)>30;
       if(ok){ const t=types[i++%types.length]; const o={t,s,a:(R()-.5)*.5,half:HALF+.4};
-        if(t==='log'){ o.r=.17+R()*.1; o.half=HALF+2.4; o.off=0; }
-        if(t==='ditch'){ o.w=.55+R()*.25; o.dep=.22+R()*.12; }
+        if(t==='log'){ o.r=.12+R()*.08; o.half=HALF+2.4; o.off=0; }
+        if(t==='ditch'){ o.w=.6+R()*.25; o.dep=.15+R()*.1; }
         if(t==='step'){ o.hg=.22+R()*.18; o.len=4+R()*4; }
-        if(t==='twist'){ o.dep=.46+R()*.14; o.sd=R()<.5?1:-1; }
-        if(t==='step'&&R()<.4){ o.hg=.42+R()*.14; o.len=3+R()*2; o.big=1; }
+        if(t==='twist'){ o.dep=.34+R()*.12; o.sd=R()<.5?1:-1; }
+        if(t==='step'&&R()<.3){ o.hg=.36+R()*.1; o.len=3+R()*2; o.big=1; }
         if(t==='camber'){ o.tilt=(R()<.5?-1:1)*(.3+R()*.1); o.len=14+R()*6; }
-        if(t==='vg'){ o.dep=.5+R()*.2; o.len=12+R()*6; o.w=1.1; }
+        if(t==='vg'){ o.dep=.38+R()*.14; o.len=12+R()*6; o.w=1.1; }
         OBST.push(o); const k0=Math.floor((s-4)/4), k1=Math.floor((s+(o.len||14)+6)/4); for(let k=k0;k<=k1;k++){ if(!OBB.has(k)) OBB.set(k,[]); OBB.get(k).push(o); } s+=26+R()*22; }
       else s+=8; } }
 }
@@ -729,7 +734,7 @@ const RUFK={roccia:1.6,ghiaia:1.15,terra:1,erba:.9,fango:.7,fangoProf:.45,neve:.
 function baseH(x,z){
   const s=-z, d=x-CX(s), ad=Math.abs(d);
   let h=hsAt(s);
-  let side=Math.max(0,ad-lerp(4.2,15,sstep(LEN-6,LEN+4,s))); if(side>55) side=55+(side-55)*.45; if(s>LEN+60) side+=(s-LEN-60)*.5*sstep(0,40,ad); const sk=TR.theme==='militare'?.12:1; { let up=(Math.pow(side,1.25)*.32+fbm(x*.08,z*.08)*side*.35)*sk; const pk=TR.panoS&&d>0?sstep(-240,-110,s-TR.panoS)*sstep(240,110,s-TR.panoS):0; if(pk>0){ const dd=Math.max(0,d-6.5); let dn=-Math.min(165,Math.pow(dd,1.1)*.85)-sstep(6,14,d)*1.5; dn+=(fbm(x*.012+5,z*.012)-.5)*55*sstep(90,220,dd); up=lerp(up,dn,pk); } h+=up; }
+  let side=Math.max(0,ad-lerp(4.2,15,sstep(LEN-6,LEN+4,s))); if(side>55) side=55+(side-55)*.45; if(s>LEN+60) side+=(s-LEN-60)*.5*sstep(0,40,ad); const sk=TR.theme==='militare'?.12:1; { let up=(Math.pow(side,1.25)*.32+fbm(x*.08,z*.08)*side*.35)*sk; const pk=TR.panoS&&d>0?sstep(-330,-110,s-TR.panoS)*sstep(330,110,s-TR.panoS):0; if(pk>0){ const dd=Math.max(0,d-6.5); let dn=-Math.min(118,Math.pow(dd,1.06)*.5)-sstep(6,14,d)*1.5; dn+=(fbm(x*.012+5,z*.012)-.5)*55*sstep(90,220,dd); up=lerp(up,dn,pk); } h+=up; }
   h+=(fbm(x*.6,z*.6)-.5)*.12*(ad<HALF?1:3.2);
   { const lw=sstep(10,24,s)*sstep(LEN+20,LEN-10,s); h+=lw*((vnoise(x*.11+3,z*.11)-.5)*.75+(vnoise(x*.23-7,z*.23+5)-.5)*.35); if(ad>HALF+.8) h+=lw*sstep(HALF+.8,HALF+3,ad)*Math.max(0,vnoise(x*.35+9,z*.35-4)-.45)*1.6; }
   if(ad<HALF+.5) h-=.11*Math.exp(-Math.pow((ad-.85)/.3,2));
@@ -738,7 +743,7 @@ function baseH(x,z){
   if(ad<HALF+1.5&&s>18&&s<LEN-8){ const rk=RUFK[zt]??1, m=(1-sstep(HALF-.3,HALF+1.5,ad))*rk*sstep(18,32,s)*sstep(LEN-8,LEN-22,s);
     if(m>0) h+=m*((vnoise(x*.42+11,z*.42)-.5)*.34+(vnoise(x*.95-5,z*.95+2)-.5)*.13-.13*sstep(.7,.86,vnoise(x*.6+40,z*.6-9))+.07*sstep(.78,.9,vnoise(x*1.6+3,z*1.6+7))); }
   if(zt==='fango'||zt==='fangoProf'){ const e=sstep(0,4,s-Z.a)*sstep(0,4,Z.b-s); h-=(zt==='fangoProf'?.28:.14)*e*(1-sstep(HALF,HALF+2,ad)); }
-  for(const f of PUDS) if(s>f[0]-2&&s<f[1]+2){ const e=sstep(f[0]-2,f[0]+2,s)*sstep(f[1]+2,f[1]-2,s); h-=.24*e*(1-sstep(HALF-.6,HALF+1.4,ad)); }
+  for(const f of PUDS) if(s>f[0]-2&&s<f[1]+2){ const e=sstep(f[0]-2,f[0]+2,s)*sstep(f[1]+2,f[1]-2,s); h-=.13*e*(1-sstep(HALF-.6,HALF+1.4,ad)); }
   for(const f of FORDS) if(s>f[0]-6&&s<f[1]+6){ const e=sstep(f[0]-6,f[0]+2,s)*sstep(f[1]+6,f[1]-2,s); h-=.75*e; }
   if(Z.humps){ const e=sstep(0,3,s-Z.a)*sstep(0,3,Z.b-s), ph=(s-Z.a)/6.5+Math.sin(s*.37)*.12; h+=Z.humps*.62*Math.pow(.5-.5*Math.cos(ph*Math.PI*2),1.4)*2*e*(1-sstep(HALF+1,HALF+5,ad))*(1+.25*Math.sin(d*.9+s)); }
   if(Z.lane){ const e=sstep(Z.a-6,Z.a+2,s)*sstep(Z.b+6,Z.b-2,s); if(ad>HALF-.5) h+=Math.min(2.4,(ad-HALF+.5)*2.2+fbm(x*.9,z*.9)*.6)*e; }
@@ -762,7 +767,7 @@ function height(x,z){
 }
 const isMud=t=>t==='fango'||t==='fangoProf';
 const isSoft=t=>isMud(t)||t==='neve'||t==='sabbia';
-function wheelH(x,z,su){ let h=height(x,z); if(isSoft(su)) h-=st.sink*(su==='fangoProf'?.34:su==='neve'?.18:su==='sabbia'?.14:.2); return h; }
+function wheelH(x,z,su){ let h=height(x,z); if(isSoft(su)) h-=st.sink*(su==='fangoProf'?.27:su==='neve'?.18:su==='sabbia'?.14:.2); return h; }
 function normalAt(x,z){ const e=.15; const hx=height(x+e,z)-height(x-e,z), hz=height(x,z+e)-height(x,z-e); return new THREE.Vector3(-hx,2*e,-hz).normalize(); }
 function surfAt(x,z){
   const s=-z, d=Math.abs(x-CX(s)), zt=zoneAt(s).t;
@@ -775,7 +780,7 @@ const waterY=s=>hsAt(s)-.15;
 const GRIP={ht:{terra:1,fango:.5,fangoProf:.36,roccia:.85,acqua:.6,erba:.75,neve:.4,ghiaccio:.125,ghiaia:.82,sabbia:.55,galleria:.7},
  at:{terra:1.02,fango:.6,fangoProf:.44,roccia:.95,acqua:.66,erba:.8,neve:.48,ghiaccio:.14,ghiaia:.9,sabbia:.62,galleria:.78},
  mt:{terra:.98,fango:.72,fangoProf:.56,roccia:1.02,acqua:.7,erba:.86,neve:.56,ghiaccio:.16,ghiaia:.92,sabbia:.7,galleria:.82}};
-const CRR={terra:.015,fango:.13,fangoProf:.3,roccia:.03,acqua:.06,erba:.05,neve:.12,ghiaccio:.012,ghiaia:.03,sabbia:.1,galleria:.04};
+const CRR={terra:.015,fango:.09,fangoProf:.17,roccia:.03,acqua:.06,erba:.05,neve:.12,ghiaccio:.012,ghiaia:.03,sabbia:.1,galleria:.04};
 const tyreKey=()=>own('mt')?'mt':own('at')?'at':'ht';
 const TYRE_NAME={ht:'stradali H/T',at:'A/T',mt:'M/T tassellate'};
 function muOf(su){ let m=GRIP[tyreKey()][su]; if(WX==='pioggia'||WX==='temporale') m*=({terra:.84,erba:.8,roccia:.86,ghiaia:.88,fango:.92,fangoProf:.95,sabbia:.95})[su]||1; if(own('chains')&&(TR.theme==='neve'||TR.theme==='alpino')&&(su==='neve'||su==='ghiaccio')) m=Math.min(.8,m*(su==='ghiaccio'?3:1.5)); return m; }
@@ -783,16 +788,16 @@ function muOf(su){ let m=GRIP[tyreKey()][su]; if(WX==='pioggia'||WX==='temporale
 /* ---------- Scena ---------- */
 const cv=$('#cv');
 const ren=new THREE.WebGLRenderer({canvas:cv,antialias:true,powerPreference:'high-performance'});
-ren.setPixelRatio(Math.min(QS[save.q].pr,devicePixelRatio||1)); ren.shadowMap.enabled=true; ren.shadowMap.type=THREE.PCFSoftShadowMap;
-ren.outputColorSpace=THREE.SRGBColorSpace; ren.toneMapping=THREE.ACESFilmicToneMapping; ren.toneMappingExposure=1.0;
+ren.setPixelRatio(Math.min(QS[save.q].pr,devicePixelRatio||1)); ren.shadowMap.enabled=true; ren.shadowMap.type=THREE.PCFSoftShadowMap; if(save.q==='bassa') document.body.classList.add('lowq');
+ren.outputColorSpace=THREE.SRGBColorSpace; ren.toneMapping=THREE.ACESFilmicToneMapping; ren.toneMappingExposure=1.12;
 const scene=new THREE.Scene();
 scene.fog=new THREE.Fog(0xb9cfe0,60,250);
 const cam=new THREE.PerspectiveCamera(60,1,.1,1500);
-const hemi=new THREE.HemisphereLight(0xcfe2ff,0x5a4630,.35); scene.add(hemi);
+const hemi=new THREE.HemisphereLight(0xcfe2ff,0x6a5638,.42); scene.add(hemi);
 const sun=new THREE.DirectionalLight(0xfff0d8,2.2); sun.castShadow=QS[save.q].sh>0; ren.shadowMap.enabled=QS[save.q].sh>0; sun.shadow.mapSize.set(QS[save.q].sh||512,QS[save.q].sh||512);
 Object.assign(sun.shadow.camera,{left:-30,right:30,top:30,bottom:-30,near:1,far:160}); sun.shadow.bias=-.0006; sun.shadow.normalBias=.04;
 scene.add(sun); scene.add(sun.target);
-const SUNDIR=new THREE.Vector3(-30,26,-34).normalize(); // sole basso, davanti-sinistra: luce radente che fa ombra dietro dossi, buche e gradini
+const SUNDIR=new THREE.Vector3(-34,36,-14).normalize(); // sole basso, davanti-sinistra: luce radente che fa ombra dietro dossi, buche e gradini
 
 // texture procedurali che si ripetono: grana del terreno, rilievo, acqua, erba
 function tileNoise(N,oct,seed){ const R=rng(seed), out=new Float32Array(N*N); let amp=1,tot=0;
@@ -824,12 +829,15 @@ const TEXB=(/github\.io$/.test(location.hostname)?'':'https://ilgabbah-ux.github
 const TX={}; function tex(name,rep=true){ if(TX[name]) return TX[name]; const t=TXL.load(TEXB+name+'.jpg',()=>{ TX[name].userData.ok=1; if(terrU) terrU.uReady.value=1; }); t.colorSpace=THREE.SRGBColorSpace; if(rep){ t.wrapS=t.wrapT=THREE.RepeatWrapping; t.anisotropy=4; } TX[name]=t; return t; }
 let terrU=null; const UORG={value:new THREE.Vector3()}, UFADE={value:0};
 function fadePatch(m){ if(!m||m.userData.fadeP) return; m.userData.fadeP=1; const prev=m.onBeforeCompile; m.onBeforeCompile=(sh,r)=>{ if(prev) prev(sh,r); sh.uniforms.uFade=UFADE; sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying float vFD;').replace('#include <project_vertex>','#include <project_vertex>\n vFD=length(mvPosition.xyz);'); sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform float uFade; varying float vFD;').replace('void main() {','void main() {\n if(vFD<uFade) discard;'); }; m.needsUpdate=true; }
-setTimeout(()=>['pino','larice','sedia','frigo','tavolo','tenda'].forEach(n=>asset(n)),1500);
+setTimeout(()=>['pino','larice','cespuglio','felce','latifoglia','sedia','frigo','tavolo','tenda'].forEach(n=>asset(n)),1500);
 const ASSETB=TEXB.replace('tex/','asset/'), ASSET={}, ASSETW={};
-function asset(name){ if(ASSET[name]) return ASSET[name]; ASSET[name]=new GLTFLoader().loadAsync(ASSETB+name+'.glb').then(g=>{ let m=null; g.scene.traverse(o=>{ if(o.isMesh&&!m) m=o; }); if(!m) return null; m.updateWorldMatrix(true,false); const geo=m.geometry.clone().applyMatrix4(m.matrixWorld); geo.computeBoundingBox(); const b=geo.boundingBox; const w=Math.max(b.max.x-b.min.x,b.max.z-b.min.z); const mat=m.material; mat.side=THREE.DoubleSide; if(mat.map) mat.map.colorSpace=THREE.SRGBColorSpace; mat.envMapIntensity=.5; mat.roughness=.9; mat.metalness=0; ASSETW[name]=w; return {geo,mat,w}; }).catch(()=>null); return ASSET[name]; }
+const BBS={cespuglio:1,latifoglia:1,felce:1};
+function bbAsset(name){ return new Promise(res=>{ new THREE.TextureLoader().load(ASSETB+'bb_'+name+'.png',t=>{ t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=4; const ar=t.image.width/t.image.height; const q=new THREE.PlaneGeometry(ar,1); q.translate(0,.5,0); const q2=q.clone().rotateY(Math.PI/2), q3=q.clone().rotateY(Math.PI/4), q4=q.clone().rotateY(-Math.PI/4); const geo=mergeGeometries(name==='latifoglia'?[q,q2,q3,q4]:[q,q2]); const nn=geo.attributes.normal; for(let k=0;k<nn.count;k++){ nn.setXYZ(k,0,1,0); }
+  const mat=new THREE.MeshStandardMaterial({map:t,alphaTest:.45,side:THREE.DoubleSide,roughness:.92,metalness:0,envMapIntensity:.6}); res({geo,mat,w:ar}); },undefined,()=>res(null)); }); }
+function asset(name){ if(ASSET[name]) return ASSET[name]; if(BBS[name]) return ASSET[name]=bbAsset(name); ASSET[name]=new GLTFLoader().loadAsync(ASSETB+name+'.glb').then(g=>{ let m=null; g.scene.traverse(o=>{ if(o.isMesh&&!m) m=o; }); if(!m) return null; m.updateWorldMatrix(true,false); const geo=m.geometry.clone().applyMatrix4(m.matrixWorld); geo.computeBoundingBox(); const b=geo.boundingBox; const w=Math.max(b.max.x-b.min.x,b.max.z-b.min.z); const mat=m.material; mat.side=THREE.DoubleSide; if(mat.map) mat.map.colorSpace=THREE.SRGBColorSpace; mat.envMapIntensity=.5; mat.roughness=.9; mat.metalness=0; ASSETW[name]=w; return {geo,mat,w}; }).catch(()=>null); return ASSET[name]; }
 // sostituisce la forma geometrica con il modello 3D vero, mantenendo posizioni e misure degli alberi
 function dressAsset(G,name,h,keep,ry=0){ asset(name).then(A=>{ if(!A||!G.parent&&!G.userData.dress) return; for(const c of G.children) if(c.isMesh&&!(keep||[]).includes(c)) c.visible=false; const m=new THREE.Mesh(A.geo,A.mat); m.scale.setScalar(h); m.rotation.y=ry; m.castShadow=true; m.receiveShadow=true; G.add(m); }); }
-function swapToAsset(im,name,xzFit,tint){ asset(name).then(A=>{ if(!A||!im.parent) return; const g=A.geo.clone(); const k=xzFit/A.w; g.scale(k,1,k); im.geometry.dispose(); im.geometry=g; im.material=A.mat; const c=new THREE.Color(); for(let i=0;i<im.count;i++){ const v=.82+Math.random()*.3; if(tint) c.setRGB(v*tint[0],v*tint[1],v*tint[2]); else c.setRGB(v,v,v); im.setColorAt(i,c); } im.instanceColor.needsUpdate=true; }); }
+function swapToAsset(im,name,xzFit,tint,o){ asset(name).then(A=>{ if(!A||!im.parent) return; const g=A.geo.clone(); const k=xzFit/A.w; g.scale(k,(o&&o.sy)||1,k); if(o&&o.ty) g.translate(0,o.ty,0); im.geometry.dispose(); im.geometry=g; im.material=A.mat; const c=new THREE.Color(); for(let i=0;i<im.count;i++){ const v=.82+Math.random()*.3; if(tint) c.setRGB(v*tint[0],v*tint[1],v*tint[2]); else c.setRGB(v,v,v); im.setColorAt(i,c); } im.instanceColor.needsUpdate=true; }); }
 const skyU={top:{value:new THREE.Color('#4f86c6')},bot:{value:new THREE.Color('#e4dcc8')},sunDir:{value:SUNDIR.clone()},sunCol:{value:new THREE.Color(1,.93,.8)},sunSize:{value:1},cloud:{value:.5},cloudCol:{value:new THREE.Color(1,1,1)},time:{value:0},photo:{value:null},photoK:{value:0}};
 const skyMat=new THREE.ShaderMaterial({uniforms:skyU,side:THREE.BackSide,depthWrite:false,fog:false,
  vertexShader:'varying vec3 vD; void main(){ vD=position; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }',
@@ -981,7 +989,7 @@ function sceneryFor(RT){ const ST=STY[TR.id]||{}, W=world, M=new THREE.Matrix4()
   if(ST.tree==='misto'){ const N=Math.round(900*QS[save.q].trees/2400), im=new THREE.InstancedMesh(leafGeometry(),new THREE.MeshStandardMaterial({vertexColors:true,roughness:.9,flatShading:true,envMapIntensity:.5}),N); let n=0;
     for(let k=0;k<N*3&&n<N;k++){ const s=-30+RT()*(LEN+100), d=(RT()<.5?-1:1)*(HALF+3+Math.pow(RT(),1.5)*55); if(!free(s,d)) continue; const x=CX(s)+d, z=-s, h=5+RT()*6;
       M.compose(P.set(x,baseH(x,z)-.1,z),Q.setFromEuler(new THREE.Euler(0,RT()*6,0)),S.set(h*.5,h,h*.5)); im.setMatrixAt(n,M); col.setHSL(.17+RT()*.1,.4+RT()*.2,.3+RT()*.12); im.setColorAt(n++,col); if(Math.abs(d)<20) TREES.push({x,z,r:.3}); }
-    im.count=n; im.castShadow=true; im.receiveShadow=true; W.add(im); }
+    im.count=n; im.castShadow=true; im.receiveShadow=true; W.add(im); swapToAsset(im,'latifoglia',1.9,[.95,1,.9]); }
   // campo militare: new jersey di cemento, sacchetti di sabbia, recinzione con filo spinato e torretta
   if(ST.militare){ const cem=new THREE.MeshStandardMaterial({color:0xa9a59a,roughness:.95}), sac=new THREE.MeshStandardMaterial({color:0x8c7b55,roughness:1}), leg=new THREE.MeshStandardMaterial({color:0x4a4f42,roughness:.8,metalness:.3});
     const jg=new THREE.CylinderGeometry(.18,.42,.8,4,1); jg.rotateY(Math.PI/4); jg.scale(1,1,4.2); const ji=new THREE.InstancedMesh(jg,cem,120); let n=0;
@@ -1053,15 +1061,15 @@ function buildWorld(id){
         i++; } }
     const idx=[]; for(let r=0;r<nr-1;r++) for(let c=0;c<nc-1;c++){ const a=r*nc+c,b=a+1,d2=a+nc,e=d2+1; idx.push(a,b,d2,b,e,d2); }
     const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(pos,3)); g.setAttribute('color',new THREE.BufferAttribute(col,3)); g.setAttribute('uv',new THREE.BufferAttribute(uv,2)); g.setAttribute('sw',new THREE.BufferAttribute(swA,4)); g.setIndex(idx); g.computeVertexNormals();
-    const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({vertexColors:true,map:groundMap,roughness:neve?.8:.96,metalness:0,envMapIntensity:.32}));
+    const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({vertexColors:true,map:groundMap,roughness:neve?.8:.96,metalness:0,envMapIntensity:.55}));
     { const T0=tex(TR.theme==='militare'?'t_sabbia':neve?'t_neve':'t_terra'), T1=tex('t_fango'), T2=tex('t_sassi'), T3=tex(neve?'t_neve':'t_erba');
-      terrU={uO:UORG,uT0:{value:T0},uT1:{value:T1},uT2:{value:T2},uT3:{value:T3},uReady:{value:[T0,T1,T2,T3].every(t=>t.userData.ok)?1:0}};
+      terrU={uO:UORG,uT4:{value:tex('t_parete')},uT0:{value:T0},uT1:{value:T1},uT2:{value:T2},uT3:{value:T3},uReady:{value:[T0,T1,T2,T3].every(t=>t.userData.ok)?1:0}};
       m.material.onBeforeCompile=sh=>{ Object.assign(sh.uniforms,terrU);
       sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nattribute vec4 sw; uniform vec3 uO; varying vec4 vSW; varying vec3 vWP; varying vec3 vWN; varying vec4 vA,vB,vC,vD; varying vec2 vE;').replace('#include <project_vertex>','#include <project_vertex>\n vSW=sw; vec3 wp=(modelMatrix*vec4(transformed,1.0)).xyz; vWP=wp; vWN=normalize(mat3(modelMatrix)*objectNormal);\n vA=vec4(wp.xz/3.2-floor(uO.xz/3.2), wp.xz/2.6-floor(uO.xz/2.6)+vec2(.37,.11)); vB=vec4(wp.xz/4.0-floor(uO.xz/4.0), wp.xz/3.0-floor(uO.xz/3.0)); vC=vec4(wp.zy/4.0-floor(uO.zy/4.0), wp.xy/4.0-floor(uO.xy/4.0)); vD=vec4(wp.xz/2.5-floor(uO.xz/2.5), wp.zy/2.5-floor(uO.zy/2.5)); vE=wp.xy/2.5-floor(uO.xy/2.5);');
-      sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform sampler2D uT0,uT1,uT2,uT3; uniform float uReady; varying vec4 vSW; varying vec3 vWP; varying vec3 vWN; varying vec4 vA,vB,vC,vD; varying vec2 vE; float gH=0.;').replace('#include <map_fragment>',`
+      sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform sampler2D uT0,uT1,uT2,uT3,uT4; uniform float uReady; varying vec4 vSW; varying vec3 vWP; varying vec3 vWN; varying vec4 vA,vB,vC,vD; varying vec2 vE; float gH=0.;').replace('#include <map_fragment>',`
         vec3 bw=pow(abs(normalize(vWN)),vec3(4.0)); bw/=bw.x+bw.y+bw.z;
         vec3 t0=texture2D(uT0,vA.xy).rgb, t1=texture2D(uT1,vA.zw).rgb, t3=texture2D(uT3,vB.xy).rgb;
-        vec3 t2=texture2D(uT2,vB.zw).rgb*bw.y+texture2D(uT2,vC.xy).rgb*bw.x+texture2D(uT2,vC.zw).rgb*bw.z;
+        vec3 t2=texture2D(uT2,vB.zw).rgb*bw.y+texture2D(uT4,vC.xy).rgb*bw.x+texture2D(uT4,vC.zw).rgb*bw.z;
         vec4 w=max(vSW,vec4(0.)); float ws=w.x+w.y+w.z+w.w+1e-4; w/=ws;
         vec3 tc=t0*w.x+t1*w.y+t2*w.z+t3*w.w; gH=dot(tc,vec3(.3,.5,.2))*(w.x*.6+w.y*.8+w.z*1.4+w.w*.4);
         vec3 old=(texture2D(map,vD.xy).rgb*bw.y+texture2D(map,vD.zw).rgb*bw.x+texture2D(map,vE).rgb*bw.z);
@@ -1098,8 +1106,8 @@ function buildWorld(id){
     const w=new THREE.Mesh(g,mt); w.position.set(CX(sm),wy,-sm); world.add(w); waters.push(w); }
   // massi sul tracciato e massi decorativi
   { const mat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.92,flatShading:true,envMapIntensity:.45});
-    { const RT2={value:tex('t_sassi')}; mat.onBeforeCompile=sh=>{ sh.uniforms.uRk=RT2; sh.uniforms.uO=UORG; sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform vec3 uO; varying vec3 vRP; varying vec3 vRN;').replace('#include <project_vertex>','#include <project_vertex>\n vRP=(modelMatrix*vec4(transformed,1.0)).xyz-floor(uO/1.6)*1.6; vRN=normalize(mat3(modelMatrix)*objectNormal);');
-      sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform sampler2D uRk; varying vec3 vRP; varying vec3 vRN;').replace('#include <color_fragment>','#include <color_fragment>\n{ vec3 bw=pow(abs(vRN),vec3(4.)); bw/=bw.x+bw.y+bw.z; vec3 t=texture2D(uRk,vRP.zy/1.6).rgb*bw.x+texture2D(uRk,vRP.xz/1.6).rgb*bw.y+texture2D(uRk,vRP.xy/1.6).rgb*bw.z; float l=dot(t,vec3(.33)); diffuseColor.rgb*=mix(vec3(1.),t/max(.25,l)*.62+l*.55,.85)*1.25; }'); }; }
+    { const RT2={value:tex('t_sassi')}, RT3={value:tex('t_parete')}; mat.onBeforeCompile=sh=>{ sh.uniforms.uRk=RT2; sh.uniforms.uRp=RT3; sh.uniforms.uO=UORG; sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform vec3 uO; varying vec3 vRP; varying vec3 vRN;').replace('#include <project_vertex>','#include <project_vertex>\n vRP=(modelMatrix*vec4(transformed,1.0)).xyz-floor(uO/1.6)*1.6; vRN=normalize(mat3(modelMatrix)*objectNormal);');
+      sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform sampler2D uRk,uRp; varying vec3 vRP; varying vec3 vRN;').replace('#include <color_fragment>','#include <color_fragment>\n{ vec3 bw=pow(abs(vRN),vec3(4.)); bw/=bw.x+bw.y+bw.z; vec3 t=texture2D(uRp,vRP.zy/1.6).rgb*bw.x+texture2D(uRk,vRP.xz/1.6).rgb*bw.y+texture2D(uRp,vRP.xy/1.6).rgb*bw.z; float l=dot(t,vec3(.33)); diffuseColor.rgb*=mix(vec3(1.),t/max(.25,l)*.62+l*.55,.85)*1.25; }'); }; }
     const RR=rng(5);
     const TONES=TR.theme==='militare'?[[.5,.44,.36],[.42,.38,.33]]:TR.theme==='castagni'?[[.62,.6,.57],[.5,.49,.47]]:[[.24,.23,.22],[.2,.2,.21],[.29,.25,.21],[.33,.31,.28]];
     const rockGeo=r=>{ let g=new THREE.IcosahedronGeometry(r,r>.5?2:1); g.deleteAttribute('normal'); g.deleteAttribute('uv'); g=mergeVertices(g); const p=g.attributes.position, o1=RR()*50, o2=RR()*50, sq=.7+RR()*.35;
@@ -1155,7 +1163,7 @@ function buildWorld(id){
       if(Math.abs(d)<20) TREES.push({x,z,r:.22+r*.04});
       n++; }
     im.count=n; im.castShadow=true; im.receiveShadow=true; world.add(im);
-    if(TR.theme!=='castagni') swapToAsset(im,(STY[TR.id]||{}).tree==='larice'?'larice':'pino',1.9,neve?[1.25,1.3,1.35]:null); }
+    if(TR.theme!=='castagni') swapToAsset(im,(STY[TR.id]||{}).tree==='larice'?'larice':'pino',1.9,neve?[1.25,1.3,1.35]:null); else swapToAsset(im,'latifoglia',1.9,[.9,1,.85]); }
   TREEB=new Map(); for(const t of TREES){ const k=Math.floor(-t.z/4); if(!TREEB.has(k)) TREEB.set(k,[]); TREEB.get(k).push(t); }
   // pioppi ai bordi del campo militare
   if(TR.theme==='militare'){ const geo=leafGeometry(); const N=380; const im=new THREE.InstancedMesh(geo,new THREE.MeshStandardMaterial({vertexColors:true,roughness:.9,flatShading:true,envMapIntensity:.5}),N);
@@ -1170,7 +1178,11 @@ function buildWorld(id){
     const M=new THREE.Matrix4(), Q=new THREE.Quaternion(), S=new THREE.Vector3(), P=new THREE.Vector3(), col=new THREE.Color(); let n=0;
     for(let k=0;k<2000&&n<700;k++){ const s=-20+RT()*(LEN+60), d=(RT()<.5?-1:1)*(HALF+1.3+Math.pow(RT(),1.4)*30); if(inFord(s,5)&&Math.abs(d)<20) continue; if(TR.treeline&&s>LEN*(TR.treeline+.15)) continue; if(zoneAt(s).t==='galleria') continue; if(s>LEN-12&&s<LEN+40&&Math.abs(d)<19) continue; const x=CX(s)+d, z=-s, r=.35+RT()*.8;
       M.compose(P.set(x,baseH(x,z)+r*.3,z),Q.setFromEuler(new THREE.Euler(0,RT()*6,0)),S.set(r*1.3,r*.8,r*1.2)); bm.setMatrixAt(n,M); col.setHSL(.2+RT()*.1,.3+RT()*.2,.1+RT()*.08); bm.setColorAt(n++,col); }
-    bm.count=n; bm.castShadow=true; bm.receiveShadow=true; world.add(bm);
+    bm.count=n; bm.castShadow=true; bm.receiveShadow=true; world.add(bm); if(!neve) swapToAsset(bm,'cespuglio',2.3,[.85,.95,.8],{sy:2.2,ty:-.36});
+    if(!neve&&TR.theme!=='militare'){ const fm=new THREE.InstancedMesh(new THREE.BufferGeometry(),new THREE.MeshStandardMaterial(),420); let nf=0;
+      for(let k=0;k<1600&&nf<420;k++){ const s=-10+RT()*(LEN+20), d=(RT()<.5?-1:1)*(HALF+.8+Math.pow(RT(),1.8)*9); if(inWet(s,4)) continue; if(zoneAt(s).t==='galleria') continue; if(s>LEN-12&&s<LEN+40&&Math.abs(d)<19) continue; const x=CX(s)+d, z=-s, h=.5+RT()*.6;
+        M.compose(P.set(x,baseH(x,z)-.04,z),Q.setFromEuler(new THREE.Euler(0,RT()*6,0)),S.set(h,h,h)); fm.setMatrixAt(nf++,M); }
+      fm.count=nf; fm.receiveShadow=true; world.add(fm); swapToAsset(fm,'felce',1,[.85,.95,.8]); }
     const q=new THREE.PlaneGeometry(.75,.55); q.translate(0,.275,0); const q2=q.clone(); q2.rotateY(Math.PI/2); const gg=mergeGeometries([q,q2]);
     const nn=gg.attributes.normal; for(let k=0;k<nn.count;k++) nn.setXYZ(k,0,1,0);
     grassMat=new THREE.MeshStandardMaterial({map:grassTex,alphaTest:.45,side:THREE.DoubleSide,roughness:.95});
@@ -1185,7 +1197,7 @@ function buildWorld(id){
         M.compose(P.set(x,height(x,z)-.05,z),Q.setFromEuler(new THREE.Euler(0,RT()*6,0)),S.set(sc*.8,sc*(1.1+RT()*.7),sc*.8)); T2.setMatrixAt(m,M); col.setHSL(dryG?.12+RT()*.05:.19+RT()*.07,dryG?.32:.4,.42+RT()*.2); T2.setColorAt(m++,col); }
       T2.count=m; T2.receiveShadow=true; world.add(T2); }
   }
-  if(TR.panoS){ const ps=TR.panoS, y=hsAt(ps)-168, vf=new THREE.Mesh(new THREE.PlaneGeometry(4000,4000).rotateX(-Math.PI/2),new THREE.MeshStandardMaterial({color:neve?0xdfe6ee:0x4d6a35,roughness:1})); vf.position.set(CX(ps)+1700,y,-ps); world.add(vf); }
+  if(TR.panoS){ const ps=TR.panoS, y=hsAt(ps)-122, vt=tex('valle'); vt.wrapS=vt.wrapT=THREE.MirroredRepeatWrapping; vt.repeat.set(3.2,3.2); const vf=new THREE.Mesh(new THREE.PlaneGeometry(4000,4000).rotateX(-Math.PI/2),new THREE.MeshStandardMaterial({color:neve?0xdfe6ee:0xffffff,map:neve?null:vt,roughness:1,envMapIntensity:.4})); vf.position.set(CX(ps)+1700,y,-ps); world.add(vf); }
   // foschia nelle valli: veli bassi dove il terreno scende sotto la pista
   if(save.q!=='bassa'&&!neve){ const RM=rng(77+TR.id.length), mat=new THREE.MeshBasicMaterial({map:blobTex,color:TR.night?0x55606e:0xe8edf0,transparent:true,opacity:WX==='nebbia'||WX==='pioggia'?.5:.32,depthWrite:false,fog:true}); const mist=[]; 
     for(let k=0;k<400&&mist.length<26;k++){ const ss=RM()*LEN, d=(RM()<.5?-1:1)*(28+RM()*90), x=CX(ss)+d, z=-ss, h=baseH(x,z); if(h>hsAt(ss)-3) continue; const sz=30+RM()*45, m=new THREE.Mesh(new THREE.PlaneGeometry(sz,sz*.7).rotateX(-Math.PI/2),mat); m.position.set(x,h+2+RM()*4,z); m.rotation.y=RM()*6; m.renderOrder=2; world.add(m); mist.push(m); }
@@ -1548,7 +1560,7 @@ function physStep(dt,inp){
     if(x<=0||t<0){ st.comp[i]=lerp(st.comp[i],0,.2); if(thr) st.spin[i]+=thr*dt*14; continue; }
     x=Math.min(x,LN+.05);
     P.copy(mount).addScaledVector(up,-t);
-    let n=normalAt(P.x,P.z); if(ED[i]){ const fh=new V(fw.x,0,fw.z).normalize(), cx=P.x+fh.x*ED[i], cz=P.z+fh.z*ED[i], cy=wheelH(cx,cz,su0), ctr=P.clone().addScaledVector(up,RW); const nn=ctr.sub(new V(cx,cy,cz)).normalize(); if(nn.y>.35) n=n.clone().lerp(nn,.45).normalize(); P.x+=fh.x*ED[i]*.7; P.z+=fh.z*ED[i]*.7; }
+    let n=normalAt(P.x,P.z); if(ED[i]){ const fh=new V(fw.x,0,fw.z).normalize(), cx=P.x+fh.x*ED[i], cz=P.z+fh.z*ED[i], cy=wheelH(cx,cz,su0), ctr=P.clone().addScaledVector(up,RW); const nn=ctr.sub(new V(cx,cy,cz)).normalize(); if(nn.y>.35) n=n.clone().lerp(nn,.35).normalize(); P.x+=fh.x*ED[i]*.7; P.z+=fh.z*ED[i]*.7; }
     const su=surfAt(P.x,P.z); surf=su; st.wsurf[i]=su;
     const r=P.clone().sub(st.pos);
     const vp=new V().copy(st.w).cross(r).add(st.vel);
@@ -1576,7 +1588,7 @@ function physStep(dt,inp){
     let fx=drive[i], fy=-vs*16000;
     const stopCap=Math.abs(vl)*MASS/4/dt*.5;
     if(brake) fx+=-Math.sign(vl)*Math.min(5200,stopCap);
-    fx+=-Math.sign(vl)*Math.min(N*(CRR[su]+(isSoft(su)?st.sink*(thr<0?.14:.3):0))*(thr<0&&isSoft(su)?.7:1),stopCap);
+    fx+=-Math.sign(vl)*Math.min(N*(CRR[su]+(isSoft(su)?st.sink*(thr<0?.12:.2):0))*(thr<0&&isSoft(su)?.7:1),stopCap);
     if(low&&!thr) fx+=-Math.sign(vl)*Math.min(ENG.eb,stopCap);
     if(su==='acqua') fx+=-vl*Math.abs(vl)*120;
     const mag=Math.hypot(fx,fy); let slip=0;
@@ -1592,15 +1604,15 @@ function physStep(dt,inp){
     // remata: avanti-indietro alternati compattano il fango e il mezzo si libera un po' alla volta
     { const sg=Math.sign(thr); if(sg){ if(st.rkSg&&sg!==st.rkSg&&st.time-st.rkT<3.5&&st.rkHold>.35&&softW&&st.sink>.05){ st.sink=Math.max(0,st.sink-.13); st.vel.addScaledVector(fw,sg*1.1); st.rocks=(st.rocks||0)+1; if(st.rocks%2===1) toast('Dondola!','avanti e indietro: il fango si compatta e il mezzo esce'); auThud(.35); } if(sg!==st.rkSg){ st.rkHold=0; } st.rkSg=sg; st.rkT=st.time; st.rkHold=(st.rkHold||0)+dt; } }
     if(softW){ if(thr<0) st.sink=Math.max(0,st.sink-dt*(asp>.15?.35:.12));
-      else if(asp>4&&slip<.15) st.sink=Math.max(0,st.sink-dt*.18);
-      else if(thr>0&&(slip>.15||asp<2.5)) st.sink=Math.min(1,st.sink+dt*(deep?.3:.16)*snowK*(.4+slip)*(softW/4)*(pressure===0?1.3:pressure===2?.75:1)*(own('g33')?.85:1)*Math.pow(MASS/2100,.8)); }
+      else if(asp>2.2&&slip<.3) st.sink=Math.max(0,st.sink-dt*.15);
+      else if(thr>0&&(slip>.15||asp<2.5)) st.sink=Math.min(1,st.sink+dt*(deep?.13:.1)*snowK*(.25+slip)*(asp>2.2?.35:1)*(softW/4)*(pressure===0?1.3:pressure===2?.75:1)*(own('g33')?.85:1)*Math.pow(MASS/2100,.8)); }
     else st.sink=Math.max(0,st.sink-dt*.6);
     { const mudN=st.wsurf.filter((w,i)=>st.contact[i]&&isMud(w)).length; if(mudN) st.tmud=Math.min(1,(st.tmud||0)+dt*mudN*.03*(.4+slip*2)*(own('mt')?.55:1)); else st.tmud=Math.max(0,(st.tmud||0)-dt*(.02+asp*.012)*(own('mt')?2:1)); if(st.tmud>.6&&!st.tmudSaid){ st.tmudSaid=1; toast('Gomme impastate di fango','sul duro tengono meno: un po\' di velocità le pulisce'+(own('mt')?'':' · le M/T si puliscono da sole')); } if(st.tmud<.2) st.tmudSaid=0; }
     { let ss=0; for(let i=0;i<4;i++) if(st.contact[i]&&st.slip[i]>.55) ss++; if(ss>=2&&thr>.85&&st.gear==='ridotte'&&(st.surf==='roccia'||st.surf==='ghiaia')){ st.axT=(st.axT||0)+dt; if(st.axT>1.2){ st.dmg.semiassi+=dt*4*semiK; if(!st.axSaid){ st.axSaid=1; toast('Crack! Semiassi sotto sforzo','in ridotte sui sassi dosa il gas: le ruote che slittano spaccano i giunti'); auBurst(300,.2,.4,'lowpass',2); } } } else st.axT=Math.max(0,(st.axT||0)-dt*2); }
     if(st.surf==='roccia'&&asp>4.6){ const o=(asp-4.6)*dt; st.dmg.gomme+=o*1.6*gomK; st.dmg.coppa+=o*1.2*(own('plate')?.3:1); }
     if(pressure===2&&(st.surf==='terra')&&asp>12) st.dmg.gomme+=dt*.9;
     const sc=-st.pos.z, gc=height(st.pos.x,st.pos.z), depth=waterY(sc)-gc;
-    if(inWet(sc,2)&&depth>0){ F.addScaledVector(st.vel,-depth*(inPud(sc,2)?2700:2600)); if(inPud(sc,2)&&depth>.22&&!st.pudSaid){ st.pudSaid=1; toast('🟤 Pozza profonda','acqua e fango fino alle portiere: piano e costante, senza fare l\'onda'); } const wave=depth+asp*3.6*.022, lim=own('snorkel')?1.75:.9; if(wave>lim) st.water=Math.min(1,st.water+dt*(wave-lim)*3.2); st.inWater=depth; } else st.inWater=0; }
+    if(inWet(sc,2)&&depth>0){ F.addScaledVector(st.vel,-depth*(inPud(sc,2)?1900:2600)); if(inPud(sc,2)&&depth>.22&&!st.pudSaid){ st.pudSaid=1; toast('🟤 Pozza profonda','acqua e fango fino alle portiere: piano e costante, senza fare l\'onda'); } const wave=depth+asp*3.6*.022, lim=own('snorkel')?1.75:.9; if(wave>lim) st.water=Math.min(1,st.water+dt*(wave-lim)*3.2); st.inWater=depth; } else st.inWater=0; }
   // scocca: punti che non devono entrare nel terreno
   for(const [bx,by,bz] of [[-.95,-.35,-2.2],[.95,-.35,-2.2],[-.95,-.35,2.2],[.95,-.35,2.2],[0,-.45,0],[-.9,1.15,0],[.9,1.15,0],[0,1.3,-1],[0,1.3,1]]){
     const P=new V(bx*VS[0],by*VS[1],bz*VS[2]).applyQuaternion(st.q).add(st.pos); const gh=height(P.x,P.z); const pen=gh-P.y;
@@ -2493,7 +2505,7 @@ function clearCamp(){ rtt.userData.lidP.rotation.x=0; rtt.userData.tela.scale.y=
   $('#obj').hidden=true; $('#actB').hidden=true; $('#goB').hidden=true; $('#mini').hidden=true; $('#lowB').hidden=false;
   $('#gas').firstChild.textContent='GAS'; $('#gas').querySelector('small').textContent='acceleratore'; $('#brk').firstChild.textContent='FRENO'; $('#brk').querySelector('small').textContent='tieni = retro'; }
 // cielo: 0 giorno · .45 tramonto · 1 notte   [t, alto, orizzonte, sole, ambiente, colore sole, nuvole]
-const SKY=[[0,'4f86c6','e4dcc8',2.7,.26,'fff0d8','ffffff'],[.45,'2c3656','e2864a',1.1,.25,'ffb070','f0b48a'],[1,'03060f','141c33',.04,.05,'8899ff','2a3348']];
+const SKY=[[0,'4f86c6','e4dcc8',2.6,.42,'fff0d8','ffffff'],[.45,'2c3656','e2864a',1.1,.25,'ffb070','f0b48a'],[1,'03060f','141c33',.04,.05,'8899ff','2a3348']];
 const hexc=h=>new THREE.Color('#'+h);
 const stars=(()=>{ const g=new THREE.BufferGeometry(), p=new Float32Array(1400*3); const R=rng(77); for(let i=0;i<1400;i++){ const a=R()*Math.PI*2, e=R()*1.3+.08; p[i*3]=Math.cos(a)*Math.cos(e)*420; p[i*3+1]=Math.sin(e)*420; p[i*3+2]=Math.sin(a)*Math.cos(e)*420; } g.setAttribute('position',new THREE.BufferAttribute(p,3)); const m=new THREE.Points(g,new THREE.PointsMaterial({color:0xffffff,size:1.6,sizeAttenuation:false,transparent:true,opacity:0,fog:false,depthWrite:false})); scene.add(m); return m; })();
 let skyNow=-1;
@@ -2693,6 +2705,7 @@ function frame(now){ UORG.value.copy(cam.position);
     { const z=zoneAt(st.s); if(z!==st.zPrev){ const p=st.zPrev; if(p&&['roccia','fangoProf','acqua','ghiaccio','galleria'].includes(p.t)&&st.rescues===(st.zResc||0)&&st.s>p.b&&Math.random()<.45) gabbah('g_si',70); st.zPrev=z; st.zResc=st.rescues; } }
     { if(!TR._pudO) TR._pudO=PUDS.map(f=>({s:f[0],t:'pud',len:f[1]-f[0]})); const L=OBST.concat(TR._pudO); let nx=null; for(const o of L){ if(o.s+(o.len||3)<st.s-1) continue; if(o.s-st.s>45) continue; if(!nx||o.s<nx.s) nx=o; }
       const E=$('#pace'); if(nx&&!st.done&&!st.drone){ const T=PACE(nx), dd=Math.round(nx.s-st.s); E.hidden=false; E.className=nx.t; $('#paceI').textContent=T[0]; $('#paceN').textContent=T[1]; $('#paceD').textContent=dd>0?`tra ${dd} m`:'CI SEI'; $('#paceT').textContent=T[2]; E.classList.toggle('now',dd<=6); if(!nx.said&&dd<20){ nx.said=true; auTone(660,.07,.1,'square'); setTimeout(()=>auTone(880,.07,.1,'square'),110); } } else E.hidden=true; }
+    if(TR.panoS&&!st.drone&&WX!=='nebbia'){ if(!st.fog0) st.fog0=[scene.fog.near,scene.fog.far]; const k=1-sstep(50,170,Math.abs(st.s-TR.panoS)); scene.fog.far=lerp(st.fog0[1],Math.max(st.fog0[1],750),k); scene.fog.near=lerp(st.fog0[0],Math.max(st.fog0[0],110),k); }
     if(TR.panoS&&!st.panoSaid&&st.s>TR.panoS-12){ st.panoSaid=true; toast('📸 Punto panoramico','fermati qui: puoi fare le foto col drone'); }
     $('#droneB').hidden=!(TR.panoS&&Math.abs(st.s-TR.panoS)<22&&Math.abs(sp)<1.2&&!st.done&&!st.drone&&!st.droneDone);
     if(!st.rescue) helpAhead();
@@ -2900,7 +2913,7 @@ function ghostUpd(dt){ if(st.done) return; st.ghT+=dt; if(st.ghT>=.25){ st.ghT-=
   if(!ghostCar||!ghostData) return; const F=ghostData.f, f=st.time/.25, i=Math.floor(f); if(i>=F.length-1){ ghostCar.visible=false; return; } ghostCar.visible=true; const a=F[i], b=F[i+1], k=f-i;
   ghostCar.position.set(lerp(a[0],b[0],k)/1000,lerp(a[1],b[1],k)/1000,lerp(a[2],b[2],k)/1000); ghostCar.quaternion.set(a[3]/1000,a[4]/1000,a[5]/1000,a[6]/1000).normalize().slerp(new THREE.Quaternion(b[3]/1000,b[4]/1000,b[5]/1000,b[6]/1000).normalize(),k);
   const gs=-ghostCar.position.z; st.ghGap=gs-st.s; }
-function startRun(){ rtt.userData.lidP.rotation.x=0; rtt.userData.tela.scale.y=.001; cam.clearViewOffset(); shS=-1; if(cs) clearCamp(); setTimeout(()=>{ if(st.running&&!campMode&&save.musGuida!==false&&AC) { if(TRACK_MP3[save.track]) mp3Start(TRACK_MP3[save.track],.32); else musicStart(TRACK_SONG[save.track]||'rock',.2); } },600); WX=save.meteo; if(WX==='random'){ const ks=Object.keys(METEO).filter(k=>k!=='random'), w=ks.map(k=>k==='sereno'?3:k==='temporale'?1:1.6); let r=Math.random()*w.reduce((a,b)=>a+b,0), q=0; while(r>w[q]){ r-=w[q]; q++; } WX=ks[q]; st.wxRnd=true; setTimeout(()=>toast('🎲 Meteo a sorpresa',METEO[WX].ic+' '+METEO[WX].n+' · '+METEO[WX].txt),900); } else st.wxRnd=false; if(builtTrack!==save.track) buildWorld(save.track); else { scene.fog.near=TR.theme==='neve'?25:60; scene.fog.far=TR.theme==='neve'?150:TR.theme==='alpino'?320:250; } applyUpgrades(); pressure=save.pressure;
+function startRun(){ st.fog0=null; rtt.userData.lidP.rotation.x=0; rtt.userData.tela.scale.y=.001; cam.clearViewOffset(); shS=-1; if(cs) clearCamp(); setTimeout(()=>{ if(st.running&&!campMode&&save.musGuida!==false&&AC) { if(TRACK_MP3[save.track]) mp3Start(TRACK_MP3[save.track],.32); else musicStart(TRACK_SONG[save.track]||'rock',.2); } },600); WX=save.meteo; if(WX==='random'){ const ks=Object.keys(METEO).filter(k=>k!=='random'), w=ks.map(k=>k==='sereno'?3:k==='temporale'?1:1.6); let r=Math.random()*w.reduce((a,b)=>a+b,0), q=0; while(r>w[q]){ r-=w[q]; q++; } WX=ks[q]; st.wxRnd=true; setTimeout(()=>toast('🎲 Meteo a sorpresa',METEO[WX].ic+' '+METEO[WX].n+' · '+METEO[WX].txt),900); } else st.wxRnd=false; if(builtTrack!==save.track) buildWorld(save.track); else { scene.fog.near=TR.theme==='neve'?25:60; scene.fog.far=TR.theme==='neve'?150:TR.theme==='alpino'?320:250; } applyUpgrades(); pressure=save.pressure;
   $('#hud').hidden=false; $('#hud2').hidden=false; $('#ctl').hidden=false; $('#tb').hidden=false; $('#lowB').hidden=false;
   clearSplats(); placeFriendCars(); for(const o of OBST) o.said=false; TR._pudO=null; st.pudSaid=0; Object.assign(st,{chk:null,uprig:null,drone:null,droneDone:false,panoSaid:false,awd:true,progS:0,progT:0,running:true,done:false,rescue:null,time:0,dirt:save.dirt||0,water:0,sink:0,rescues:0,paused:false,gear:'alta',dmg:{...save.dmg}}); reset(4); campMode=false; ghostStart(); clearRuts(); skyNow=-1; setSky(TR.night?1:0); lightsUpd(); $('#hq').hidden=false; setTimeout(()=>{ if(!save.tutDone) tutStart(); else showHelp('guida'); },400); }
 // pausa
