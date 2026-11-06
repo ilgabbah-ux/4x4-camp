@@ -746,7 +746,7 @@ function obsAdj(x,z,h,logs){ const s=-z, O=OBB.get(Math.floor(s/4)); if(!O) retu
   return h; }
 function height(x,z){
   let h=baseH(x,z); const s=-z, k=Math.floor(s/4), L=ROCKB.get(k);
-  if(L) for(const b of L){ const dx=x-b.x, dz=z-b.z, q=dx*dx+dz*dz; if(q<b.r*b.r){ const c=Math.cos(Math.sqrt(q)/b.r*Math.PI/2); h=Math.max(h, baseH(b.x,b.z)+b.r*.8*c*c); } }
+  if(L) for(const b of L){ const dx=x-b.x, dz=z-b.z, q=dx*dx+dz*dz; const R2=b.r*b.r*.95; if(q<R2){ h=Math.max(h, baseH(b.x,b.z)-b.r*.08+Math.sqrt(R2-q)*.92); } }
   h=obsAdj(x,z,h,true);
   return h;
 }
@@ -1109,7 +1109,7 @@ function buildWorld(id){
       g.setAttribute('color',new THREE.BufferAttribute(c,3)); return g; };
     const lerp3=(a,b,t)=>a.map((v,i)=>lerp(v,b[i],t));
     const RG=[]; const put=(g,x,y,z,rx,ry,rz)=>{ g.applyMatrix4(new THREE.Matrix4().compose(new V(x,y,z),new THREE.Quaternion().setFromEuler(new THREE.Euler(rx,ry,rz)),new V(1,1,1))); RG.push(g); };
-    for(const b of ROCKS) put(rockGeo(b.r*1.08),b.x,baseH(b.x,b.z)-b.r*.05,b.z,0,RR()*6,0);
+    for(const b of ROCKS) put(rockGeo(b.r*.98),b.x,baseH(b.x,b.z)-b.r*.12,b.z,0,RR()*6,0);
     for(let k=0;k<110;k++){ const s=-20+RR()*(LEN+60), d=(RR()<.5?-1:1)*(5+RR()*26); if(inFord(s,8)&&Math.abs(d)<22) continue; if(s>LEN-12&&s<LEN+40&&Math.abs(d)<19) continue; const x=CX(s)+d, z=-s, r=.4+RR()*1.6;
       put(rockGeo(r),x,baseH(x,z)-r*.25,z,RR(),RR()*6,RR()); }
     { const m=new THREE.Mesh(mergeGeometries(RG),mat); m.castShadow=true; m.receiveShadow=true; world.add(m); }
@@ -1410,7 +1410,7 @@ const ckpit=(()=>{ const G=new THREE.Group(); G.visible=false; car.add(G);
   return {G,sw,nS,nR}; })();
 let first=true; const camPos=new THREE.Vector3(), camLook=new THREE.Vector3();
 const st={pos:new V(),vel:new V(),q:new THREE.Quaternion(),w:new V(),steer:0,gear:'alta',spin:[0,0,0,0],comp:[0,0,0,0],contact:[0,0,0,0],slip:[0,0,0,0],dspin:[0,0,0,0],cp:[new V(),new V(),new V(),new V()],cn:[new V(),new V(),new V(),new V()],surf:'terra',time:0,running:false,s:0,done:false,stuckT:0,sink:0,water:0,dmg:{gomme:0,coppa:0,semiassi:0,carrozzeria:0},wsurf:['terra','terra','terra','terra'],bumpT:[0,0,0,0],rescues:0,mode:'drive',winch:null,paused:false};
-let MASS=2100; const I=new V(4300,4400,2200), I0=I.clone(), K=26000, CD=2400;
+let MASS=2100; const I=new V(4300,4400,2200), I0=I.clone(), K=20500, CD=3900;
 const VEHS={terrano:{n:'Terrano II Black Edition',sub:'nero, alzato, snorkel, barra LED e gomme tassellate · modello 3D vero',price:0,sc:[1,1,1],mass:2100,p:1.05,col:null,model:'gabbah_terrano'},
  linus_terrano:{n:'Terrano 2.7 TD',sub:'nero infangato, 2.7 TDi, snorkel, gomme tassellate e fari sul portellone',price:900,sc:[1,1,1],mass:1950,p:1.02,col:null,model:'terrano_nero'},
  costa_terrano:{n:'Terrano grigio',sub:'argento con fascioni grigi, portapacchi e il Minion sulla ruota di scorta: affidabile, mai una rottura',price:800,sc:[1,1,1],mass:1900,p:.98,col:null,model:'terrano_grigio',tough:.85},
@@ -1465,7 +1465,7 @@ function applyUpgrades(){
   if(own('v6')){ fa*=1.22; fl*=1.18; va*=1.08; }
   if(own('shortlow')){ fl*=1.3; vl=5.5; eb=3800; }
   applyVehicle(); fa*=VEH.p; fl*=VEH.p; if(!VEH.p) fa=8200; ENG={fa,va,fl,vl,eb};
-  { const MI=VEH.model&&VMOD[VEH.model]; const brw=MI&&MI.root?(VEH.model==='terrano'?.44:MI.rw):0; RW=brw?(own('g33')?brw+.03:brw):(own('g33')?.445:.41); } LN=(own('lift')?.47:.42)+(VEH.lift||0);
+  { const MI=VEH.model&&VMOD[VEH.model]; const brw=MI&&MI.root?(VEH.model==='terrano'?.44:MI.rw):0; RW=brw?(own('g33')?brw+.03:brw):(own('g33')?.445:.41); } LN=(own('lift')?.55:.5)+(VEH.lift||0);
   for(const g of wheels) if(g){ for(const o of g.userData.hero||[]) o.scale.setScalar(RW/.41); if(g.userData.terr) g.userData.terr.scale.set(TIRE_W*(own('g33')?1.08:1),RW,RW); }
   if(curRoot){ const MI=VMOD[VEH.model]; curRoot.position.y=(heroWY??(MOUNTY-LN+.12))-MI.cz*MI.k; curRoot.userData.by0=curRoot.position.y; }
   const isT2=VEH.model==='terrano'; rtt.visible=own('maggiolina'); ledMesh.visible=own('led')&&!isT2; winchMesh.visible=own('winch'); snorkMesh.visible=own('snorkel')&&!isT2; winchMesh.position.z=-2.44*VS[2]; snorkMesh.scale.set(...VS);
@@ -1539,7 +1539,7 @@ function physStep(dt,inp){
     const su0=surfAt(mount.x,mount.z);
     for(let it=0;it<4;it++){ P.copy(mount).addScaledVector(up,-t); const gh=wheelH(P.x,P.z,su0); t+=(P.y-gh)/Math.max(.3,up.y); }
     // gomma tonda: se davanti o dietro c'è un gradino/tronco/sasso più alto, la ruota ci appoggia sopra prima di arrivarci col centro
-    const ED=(st.edge=st.edge||[0,0,0,0]); ED[i]=0; { const kk=Math.floor(-P.z/4); if(!window.__noTire&&(OBB.get(kk)||OBB.get(kk+1)||OBB.get(kk-1))){ const fh=new V(fw.x,0,fw.z).normalize(), gh0=wheelH(P.x,P.z,su0); let best=gh0, bdx=0; for(const k of [-.7,-.4,.4,.7]){ const dx=k*RW, qx=P.x+fh.x*dx, qz=P.z+fh.z*dx; const g=wheelH(qx,qz,su0)-(RW-Math.sqrt(RW*RW-dx*dx)); if(g>best+.004){ best=g; bdx=dx; } } if(best>gh0){ t-=(best-gh0)/Math.max(.3,up.y); ED[i]=bdx; } } }
+    const ED=(st.edge=st.edge||[0,0,0,0]); ED[i]=0; { const kk=Math.floor(-P.z/4); if(!window.__noTire&&(OBB.get(kk)||OBB.get(kk+1)||OBB.get(kk-1)||ROCKB.get(kk))){ const fh=new V(fw.x,0,fw.z).normalize(), gh0=wheelH(P.x,P.z,su0); let best=gh0, bdx=0; for(const k of [-.7,-.4,.4,.7]){ const dx=k*RW, qx=P.x+fh.x*dx, qz=P.z+fh.z*dx; const g=wheelH(qx,qz,su0)-(RW-Math.sqrt(RW*RW-dx*dx)); if(g>best+.004){ best=g; bdx=dx; } } if(best>gh0){ t-=(best-gh0)/Math.max(.3,up.y); ED[i]=bdx; } } }
     const dist=t-RW;
     let x=LN-dist; st.contact[i]=0; st.dspin[i]=0;
     if(x<=0||t<0){ st.comp[i]=lerp(st.comp[i],0,.2); if(thr) st.spin[i]+=thr*dt*14; continue; }
@@ -1550,7 +1550,7 @@ function physStep(dt,inp){
     const r=P.clone().sub(st.pos);
     const vp=new V().copy(st.w).cross(r).add(st.vel);
     const vComp=-vp.dot(up);
-    let Fs=K*x+CD*clamp(vComp,-3,3); if(x>LN-.06) Fs+=90000*(x-(LN-.06)); Fs=clamp(Fs,0,22000);
+    let Fs=K*x+CD*clamp(vComp,-3,3)*(vComp<0?1.35:1); if(x>LN-.06) Fs+=90000*(x-(LN-.06)); Fs=clamp(Fs,0,22000);
     if(x>LN-.07&&vComp>2.5&&st.time-st.bumpT[i]>.5){ st.bumpT[i]=st.time; const k=vComp-2.5; st.dmg.semiassi+=k*3.5*semiK; st.dmg.gomme+=k*2.5*gomK; if(k>.8) hit(vComp*1.6); }
     if(vComp>1.6&&st.time-(st.thudT||0)>.25){ st.thudT=st.time; st.thud=Math.min(1,(vComp-1.6)/3); }
     st.comp[i]=x; st.contact[i]=1; contacts++; st.cp[i].copy(P); st.cn[i].copy(n);
