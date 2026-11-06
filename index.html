@@ -817,13 +817,13 @@ function setTrack(id){
   OBST=[]; OBB=new Map(); { const types=TR.theme==='neve'?['ditch','twist','camber','log']:TR.theme==='alpino'?['step','ditch','twist','camber','step','vg']:TR.theme==='militare'?['ditch','twist','vg','step','camber','ditch']:['log','ditch','step','twist','camber','vg','log','step','twist'];
     let s=40+R()*20, i=0; while(s<LEN-30){ const z=zoneAt(s), z2=zoneAt(s+14); const ok=['terra','erba','ghiaia','sabbia','neve'].includes(z.t)&&z===z2&&!inFord(s,10)&&Math.abs(s-TR.panoS)>30;
       if(ok){ const t=types[i++%types.length]; const o={t,s,a:(R()-.5)*.5,half:HALF+.4};
-        if(t==='log'){ o.r=.13+R()*.1; o.half=HALF+2.4; o.off=0; }
-        if(t==='ditch'){ o.w=.6+R()*.25; o.dep=.15+R()*.1; }
-        if(t==='step'){ o.hg=.22+R()*.18; o.len=4+R()*4; }
-        if(t==='twist'){ o.dep=.34+R()*.12; o.sd=R()<.5?1:-1; }
-        if(t==='step'&&R()<.3){ o.hg=.36+R()*.1; o.len=3+R()*2; o.big=1; }
+        if(t==='log'){ o.r=.15+R()*.1; o.half=HALF+2.4; o.off=0; }
+        if(t==='ditch'){ o.w=.6+R()*.25; o.dep=.22+R()*.12; }
+        if(t==='step'){ o.hg=.28+R()*.16; o.len=4+R()*4; }
+        if(t==='twist'){ o.dep=.4+R()*.14; o.sd=R()<.5?1:-1; }
+        if(t==='step'&&R()<.3){ o.hg=.44+R()*.1; o.len=3+R()*2; o.big=1; }
         if(t==='camber'){ o.tilt=(R()<.5?-1:1)*(.3+R()*.1); o.len=14+R()*6; }
-        if(t==='vg'){ o.dep=.38+R()*.14; o.len=12+R()*6; o.w=1.1; }
+        if(t==='vg'){ o.dep=.44+R()*.14; o.len=12+R()*6; o.w=1.1; }
         OBST.push(o); const k0=Math.floor((s-4)/4), k1=Math.floor((s+(o.len||14)+6)/4); for(let k=k0;k<=k1;k++){ if(!OBB.has(k)) OBB.set(k,[]); OBB.get(k).push(o); } s+=26+R()*22; }
       else s+=8; } }
 }
@@ -1691,7 +1691,7 @@ function physStep(dt,inp){
   if(revMode) thr=-.8; else { thr=inp.gas; if(inp.brk&&!revMode) brake=1; }
   if(low&&save.crawl!==false&&thr>0&&!revMode){ const tgt=.6+inp.gas*((save.lowFast?Math.max(2.5,ENG.vl*.97):2.5)-.6); st.crawlI=clamp((st.crawlI||0)+(tgt-sp)*dt*1.4,0,1); thr=clamp((tgt-sp)*.9+.22+st.crawlI,0,1); } else st.crawlI=0;
   const q2=Math.max(0,thr>0?sp/vmax:-sp/(vmax*(low?.6:.3)));
-  const Fe=thr*Fmax*Math.max(0,1-q2*q2);
+  const lugK=low||thr<=0||!(st.el&&st.el.some(e=>e>.07))?1:lerp(.55,1,sstep(.4,2.6,Math.abs(sp))); const Fe=thr*Fmax*Math.max(0,1-q2*q2)*lugK; st.lug=lugK<.7&&thr>.6?(st.lug||0)+dt:0;
   // sterzo: più rapido e con più angolo, si chiude meno con la velocità
   const maxSt=.7/(1+Math.abs(sp)/12);
   const yawRate=st.w.dot(up); const tgt=inp.steer*maxSt+clamp(yawRate*.05*Math.sign(sp||1),-.07,.07)*(Math.abs(inp.steer)<.4?1:.2);
@@ -1705,10 +1705,12 @@ function physStep(dt,inp){
     const su0=surfAt(mount.x,mount.z);
     for(let it=0;it<4;it++){ P.copy(mount).addScaledVector(up,-t); const gh=wheelH(P.x,P.z,su0); t+=(P.y-gh)/Math.max(.3,up.y); }
     // gomma tonda: se davanti o dietro c'è un gradino/tronco/sasso più alto, la ruota ci appoggia sopra prima di arrivarci col centro
-    const ED=(st.edge=st.edge||[0,0,0,0]); ED[i]=0; { const kk=Math.floor(-P.z/4); if(!window.__noTire&&(OBB.get(kk)||OBB.get(kk+1)||OBB.get(kk-1)||ROCKB.get(kk))){ const fh=new V(fw.x,0,fw.z).normalize(), gh0=wheelH(P.x,P.z,su0); let best=gh0, bdx=0; for(const k of [-.85,-.7,-.55,-.4,-.25,.25,.4,.55,.7,.85]){ const dx=k*RW, qx=P.x+fh.x*dx, qz=P.z+fh.z*dx; const g=wheelH(qx,qz,su0)-(RW-Math.sqrt(RW*RW-dx*dx)); if(g>best+.004){ best=g; bdx=dx; } } const EL=(st.el=st.el||[0,0,0,0]), tg=Math.max(0,best-gh0); EL[i]+=(tg-EL[i])*(tg>EL[i]?Math.min(1,dt*9):Math.min(1,dt*30)); if(EL[i]>.002){ t-=EL[i]/Math.max(.3,up.y); ED[i]=bdx; } } else if(st.el) st.el[i]=0; }
+    const ED=(st.edge=st.edge||[0,0,0,0]); ED[i]=0; { const kk=Math.floor(-P.z/4); if(!window.__noTire&&(OBB.get(kk)||OBB.get(kk+1)||OBB.get(kk-1)||ROCKB.get(kk))){ const fh=new V(fw.x,0,fw.z).normalize(), gh0=wheelH(P.x,P.z,su0); let best=gh0, bdx=0; for(const k of [-.85,-.7,-.55,-.4,-.25,.25,.4,.55,.7,.85]){ const dx=k*RW, qx=P.x+fh.x*dx, qz=P.z+fh.z*dx; const g=wheelH(qx,qz,su0)-(RW-Math.sqrt(RW*RW-dx*dx)); if(g>best+.004){ best=g; bdx=dx; } } const EL=(st.el=st.el||[0,0,0,0]), tg=Math.max(0,best-gh0); if(tg>EL[i]){ const vfw=Math.abs(st.vel.dot(fh)), dv=(st.dv&&st.dv[i])||0, Fz=(st.fz&&st.fz[i])||5000; const climb=thr>0||thr<0?.55*clamp(dv/(Fz*.55+1),0,1.3)*(tg>RW*1.3?.15:1):0; EL[i]=Math.min(tg,EL[i]+(vfw*1.9+climb+.02)*dt); } else EL[i]+=(tg-EL[i])*Math.min(1,dt*30); /* la gomma sale sull'ostacolo solo se avanza */ if(EL[i]>.002){ t-=EL[i]/Math.max(.3,up.y); ED[i]=bdx; } (st.gap=st.gap||[0,0,0,0])[i]=bdx?Math.max(0,tg-EL[i])*(OBB.get(kk)||OBB.get(kk+1)||OBB.get(kk-1)?1:.45):0; (st.gdir=st.gdir||[0,0,0,0])[i]=Math.sign(bdx); } else if(st.el) st.el[i]=0; }
     const dist=t-RW;
     let x=LN-dist; st.contact[i]=0; st.dspin[i]=0;
-    if(x<=0||t<0){ st.comp[i]=lerp(st.comp[i],0,.2); if(thr) st.spin[i]+=thr*dt*14; continue; }
+    const xd=i>=2&&!VEH.indepR&&!window.__noAx?clamp(st.comp[i===2?3:2]-.24,0,.26)*.9:0; // ponte rigido dietro: se una ruota sale, l'altra scende e resta a terra
+    const xs=x; if(x<=0&&x>-xd&&t>=0) x=.02;
+    if(x<=0||t<0){ st.comp[i]=lerp(st.comp[i],-xd,.2); if(thr) st.spin[i]+=thr*dt*14; continue; }
     x=Math.min(x,LN+.05);
     P.copy(mount).addScaledVector(up,-t);
     let n=normalAt(P.x,P.z); if(ED[i]){ const fh=new V(fw.x,0,fw.z).normalize(), cx=P.x+fh.x*ED[i], cz=P.z+fh.z*ED[i], cy=wheelH(cx,cz,su0), ctr=P.clone().addScaledVector(up,RW); const nn=ctr.sub(new V(cx,cy,cz)).normalize(); if(nn.y>.3) n=n.clone().lerp(nn,.8).normalize(); P.x+=fh.x*ED[i]*.85; P.z+=fh.z*ED[i]*.85; }
@@ -1719,7 +1721,7 @@ function physStep(dt,inp){
     let Fs=K*x+CD*clamp(vComp,-3,3)*(vComp<0?1.35+sstep(.25,.45,x)*1.4:1); if(x>LN-.08){ const bx=x-(LN-.08); Fs+=bx*bx*1.2e6+CD*1.6*clamp(vComp,0,3)*sstep(0,.04,bx); } Fs=clamp(Fs,0,24000);
     if(x>LN-.07&&vComp>2.5&&st.time-st.bumpT[i]>.5){ st.bumpT[i]=st.time; const k=vComp-2.5; st.dmg.semiassi+=k*3.5*semiK; st.dmg.gomme+=k*2.5*gomK; if(k>.8) hit(vComp*1.6); }
     if(vComp>1.6&&st.time-(st.thudT||0)>.25){ st.thudT=st.time; st.thud=Math.min(1,(vComp-1.6)/3); }
-    st.comp[i]=x; st.contact[i]=1; contacts++; st.cp[i].copy(P); st.cn[i].copy(n);
+    st.comp[i]=xs<.02?xs:x; st.contact[i]=1; contacts++; st.cp[i].copy(P); st.cn[i].copy(n);
     const wf=new V().copy(fw); if(W.f) wf.applyAxisAngle(up,-st.steer);
     wf.addScaledVector(n,-wf.dot(n)).normalize(); const ws=new V().crossVectors(wf,n).normalize();
     const mu=muOf(su)*gripMul(su)*(isSoft(su)?1-.5*st.sink:1)*(isSoft(su)?1:1-.28*(st.tmud||0));
@@ -1746,6 +1748,8 @@ function physStep(dt,inp){
     if(mag>lim){ slip=1-lim/mag; fx*=lim/mag; fy*=lim/mag; }
     st.slip[i]=Math.max(slip||(ab>lim*1.02?.5:0),st.dspin[i]?.65:0);
     const f=new V().addScaledVector(n,Fs).addScaledVector(wf,fx).addScaledVector(ws,fy);
+    { const gp=st.gap&&st.gap[i]; if(gp>.03&&st.gdir[i]){ const fh2=new V(fw.x,0,fw.z).normalize(), vin=st.vel.dot(fh2)*st.gdir[i]; f.addScaledVector(fh2,-st.gdir[i]*Math.min(16000,(gp-.03)*90000+Math.max(0,vin)*6000)); if(vin>1.7&&gp>.1&&st.time-(st.wallHit||-9)>.8){ st.wallHit=st.time; const k=vin-1.7; st.dmg.semiassi+=k*5*semiK; st.dmg.gomme+=k*3*gomK; hit(vin*1.5); if(st.time-(st.wallSaid||-99)>20){ st.wallSaid=st.time; toast('Botta sullo scalino!','sugli ostacoli alti si arriva piano, in ridotte: col colpo rompi semiassi e gomme'); } } } }
+    (st.dv=st.dv||[0,0,0,0])[i]=Math.abs(drive[i]); (st.fz=st.fz||[0,0,0,0])[i]=Fs;
     F.add(f); T.add(new V().crossVectors(r,f));
     st.spin[i]+=vl/RW*dt*(1+st.slip[i]*2)+(st.dspin[i]?thr*dt*10:0);
   }
@@ -1780,16 +1784,17 @@ function physStep(dt,inp){
     const r=hook.clone().sub(st.pos); const vrel=new V().copy(st.w).cross(r).add(st.vel).dot(dv);
     const ext=d-W.len; W.load=ext>0?clamp(ext*90000-vrel*9000,0,53000):0;
     if(W.load>0){ const f=dv.clone().multiplyScalar(W.load); F.add(f); T.add(new V().crossVectors(r,f)); } }
+  if(st.lug>1.4&&st.time-(st.lugT||-99)>30){ st.lugT=st.time; toast('In alta non tira','a passo d\'uomo sugli ostacoli il motore si siede: fermati e metti le RIDOTTE'); }
   // aria
   F.addScaledVector(st.vel,-st.vel.length()*1.1);
   // integrazione
   st.vel.addScaledVector(F,dt/MASS); if(st.vel.y>5) st.vel.y=5; const vl2=st.vel.length(); if(vl2>30) st.vel.multiplyScalar(30/vl2); st.pos.addScaledVector(st.vel,dt);
   const qi=st.q.clone().invert(); const tb=T.applyQuaternion(qi); const wb=st.w.clone().applyQuaternion(qi);
-  wb.x+=tb.x/I.x*dt; wb.y+=tb.y/I.y*dt; wb.z+=tb.z/I.z*dt; wb.multiplyScalar(1-1.2*dt);
+  wb.x+=tb.x/I.x*dt; wb.y+=tb.y/I.y*dt; wb.z+=tb.z/I.z*dt; wb.x*=1-.4*dt; wb.z*=1-.4*dt; wb.y*=1-1.1*dt;
   wb.x=clamp(wb.x,-2.5,2.5); wb.z=clamp(wb.z,-2.5,2.5); wb.y=clamp(wb.y,-2.5,2.5);
   { const upb=new V(0,1,0).applyQuaternion(qi); const roll=Math.atan2(upb.x,upb.y), pitch=Math.atan2(-upb.z,upb.y);
-    if(Math.abs(roll)>.55) wb.z+= -Math.sign(roll)*(Math.abs(roll)-.55)*2.6*dt*(st.contacts>=2?1:.35);
-    if(Math.abs(pitch)>.55) wb.x+= Math.sign(pitch)*(Math.abs(pitch)-.55)*3*dt; }
+    if(Math.abs(roll)>.7) wb.z+= -Math.sign(roll)*(Math.abs(roll)-.7)*1.6*dt*(st.contacts>=2?1:.3);
+    if(Math.abs(pitch)>.7) wb.x+= Math.sign(pitch)*(Math.abs(pitch)-.7)*2*dt; }
   st.w.copy(wb.applyQuaternion(st.q));
   const wq=new THREE.Quaternion(st.w.x,st.w.y,st.w.z,0).multiply(st.q);
   st.q.x+=.5*wq.x*dt; st.q.y+=.5*wq.y*dt; st.q.z+=.5*wq.z*dt; st.q.w+=.5*wq.w*dt; st.q.normalize();
@@ -1807,8 +1812,8 @@ function bodyDyn(dt){ const R=curRoot||carRoot; if(!R) return; if(!R.userData.by
   const al=a.dot(fw), at=a.dot(rt), av=a.dot(up);
   // colpi delle ruote: quanto in fretta si comprimono davanti/dietro e sinistra/destra
   let df=0, dr=0, dl=0, dR=0; for(let i=0;i<4;i++){ const d=(st.comp[i]-BD.cmp[i])/Math.max(dt,1e-3); BD.cmp[i]=st.comp[i]; const v=clamp(d,-6,6); if(i<2) df+=v; else dr+=v; if(i%2) dR+=v; else dl+=v; }
-  const tp=clamp(-al*.011+(df-dr)*.018,-.12,.12), tr=clamp(at*.013+(dl-dR)*.016,-.12,.12), th=clamp(-av*.004-(df+dr)*.01,-.08,.08);
-  const k=95, c=9; BD.vp+=((tp-BD.p)*k-BD.vp*c)*dt; BD.p+=BD.vp*dt; BD.vr+=((tr-BD.r)*k-BD.vr*c)*dt; BD.r+=BD.vr*dt; BD.vh+=((th-BD.h)*120-BD.vh*10)*dt; BD.h+=BD.vh*dt;
+  const tp=clamp(-al*.006+(df-dr)*.004,-.045,.045), tr=clamp(at*.007+(dl-dR)*.004,-.045,.045), th=clamp(-av*.002-(df+dr)*.003,-.03,.03);
+  const k=110, c=17; BD.vp+=((tp-BD.p)*k-BD.vp*c)*dt; BD.p+=BD.vp*dt; BD.vr+=((tr-BD.r)*k-BD.vr*c)*dt; BD.r+=BD.vr*dt; BD.vh+=((th-BD.h)*120-BD.vh*10)*dt; BD.h+=BD.vh*dt;
 }
 function vib(ms){ if(save.vib!==false&&navigator.vibrate) try{ navigator.vibrate(ms); }catch(_){} }
 function hit(v,kind){ const now=performance.now(); if(now-hitT<700) return; hitT=now; vib(Math.min(120,30+v*18)); if(v>3.5) gabbah('g_gamba',25); shake=Math.min(.5,v*.08); if(kind==='tree') toast('Albero!','occhio ai tronchi'); else if(kind==='car') toast('Il 4x4 di un amico!','parcheggia più in là'); else if(v>3) toast('Botta!','più piano sui sassi: rompi gomme e semiassi'); auThud(Math.min(1,v/6)); }
@@ -2851,7 +2856,7 @@ function frame(now){ UORG.value.copy(cam.position);
           if(asp>.6&&R()<dt*(.6+asp*.5)) addRing(c.x+(R()-.5)*.4,wy+.03,c.z+(R()-.5)*.4,.3+asp*.06);
           if(pdW) st.dirt=Math.min(1,(st.dirt||0)+dt*.05*asp); else st.dirt=Math.max(0,(st.dirt||0)-dt*.06*asp); }
         else if(su&&!isSoft(su)&&su!=='acqua'&&sl>.45&&(pad.gas||0)>.5&&R()<dt*14){ emit(c.clone().addScaledVector(up,-.25),fw.clone().multiplyScalar(-dir*(1+R())).addScaledVector(up,.8+R()).addScaledVector(rt,(R()-.5)*1.5),su==='roccia'?[.62,.6,.58]:[.7,.63,.52],{k:4,s:.8+R()*.6,g:2.4,a:.3,life:1.4}); if(R()<dt*6) emit(c.clone(),fw.clone().multiplyScalar(-dir*3).addScaledVector(up,2.5+R()*2),[.42,.4,.37],{k:1,s:.07,life:.9}); }
-        else if(su&&(su==='terra'||su==='roccia'||su==='ghiaia'||su==='sabbia')&&TR.theme!=='neve'&&asp>3&&R()<dt*asp*(W.f?1.2:3.2)&&WX!=='pioggia'&&WX!=='temporale') emit(c.clone().addScaledVector(up,-.3).addScaledVector(rt,(R()-.5)*.6),fw.clone().multiplyScalar(-dir*(1.2+R())).addScaledVector(up,.5+R()*.5).addScaledVector(rt,(R()-.5)*1.2),R()<.5?[.74,.66,.52]:[.8,.73,.6],{k:4,s:1+R()*.9,g:2.6,a:.24,life:2.2});
+        else if(su&&(su==='terra'||su==='roccia'||su==='ghiaia'||su==='sabbia')&&TR.theme!=='neve'&&asp>3&&R()<dt*asp*(W.f?.9:2.3)&&WX!=='pioggia'&&WX!=='temporale') emit(c.clone().addScaledVector(up,-.3).addScaledVector(rt,(R()-.5)*.6),fw.clone().multiplyScalar(-dir*(1.2+R())).addScaledVector(up,.5+R()*.5).addScaledVector(rt,(R()-.5)*1.2),R()<.5?[.74,.66,.52]:[.8,.73,.6],{k:4,s:1+R()*.9,g:2.6,a:.15,life:2});
       }
       // onda davanti al muso nel guado
       if(inW&&asp>1.8){ const b=new V(0,-.3,-2.45*dir).applyQuaternion(st.q).add(st.pos); let n=asp*asp*6*dt; if(R()<n%1) n++;
@@ -2889,8 +2894,13 @@ function frame(now){ UORG.value.copy(cam.position);
   }
   // grafica auto
   car.position.copy(st.pos); car.quaternion.copy(st.q); if(st.running&&!campMode) bodyDyn(dt); else bodyDyn(0);
-  for(let i=0;i<4;i++){ const g=wheels[i]; if(!g) continue; const W=WH[i]; const y=MOUNTY-(LN-st.comp[i]); g.position.set(W.vx??W.x,clamp(y,MOUNTY-LN,MOUNTY-.02),W.vz??W.z); g.rotation.set(0,W.f?-st.steer:0,0); { const sq=st.contact[i]?clamp((st.comp[i]-.17)/(LN-.17),0,1):0; const lo=pressure===2?.12:pressure===0?.04:.07; g.scale.set(1+sq*lo*.5,1-sq*lo,1); g.position.y-=sq*lo*RW*.5; } g.userData.spin.rotation.x=-st.spin[i]; }
+  for(let i=0;i<4;i++){ const g=wheels[i]; if(!g) continue; const W=WH[i]; const y=MOUNTY-(LN-st.comp[i]); g.position.set(W.vx??W.x,clamp(y,MOUNTY-LN-.26,MOUNTY-.02),W.vz??W.z); g.rotation.set(0,W.f?-st.steer:0,0); { const sq=st.contact[i]?clamp((st.comp[i]-.17)/(LN-.17),0,1):0; const lo=pressure===2?.12:pressure===0?.04:.07; g.scale.set(1+sq*lo*.5,1-sq*lo,1); g.position.y-=sq*lo*RW*.5; } g.userData.spin.rotation.x=-st.spin[i]; }
   if(BD.p||BD.r||BD.h){ const qe=new THREE.Quaternion().setFromEuler(new THREE.Euler(BD.p,0,-BD.r)), qi=qe.clone().invert(); car.quaternion.multiply(qe); car.position.addScaledVector(up,BD.h); for(const g of wheels) if(g){ g.position.y-=BD.h; g.position.applyQuaternion(qi); g.quaternion.premultiply(qi); } }
+  { // ponte posteriore rigido e semiassi anteriori: si vede l'incrocio
+    if(!car.userData.axle){ const am=new THREE.MeshStandardMaterial({color:0x1d1e20,roughness:.6,metalness:.4}); const ax=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,1,10).rotateZ(Math.PI/2),am); const df=new THREE.Mesh(new THREE.SphereGeometry(.2,14,10),am); df.scale.set(1,.9,1.15); ax.add(df); const sh=[0,1].map(()=>{ const m=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,1,8).rotateZ(Math.PI/2),am); car.add(m); return m; }); const fdf=new THREE.Mesh(new THREE.BoxGeometry(.34,.22,.3),am); car.add(ax,fdf); car.userData.axle={ax,sh,fdf}; }
+    const A=car.userData.axle, g2=wheels[2], g3=wheels[3], g0=wheels[0], g1=wheels[1]; const vis=!!(g2&&g3)&&!campMode; A.ax.visible=A.fdf.visible=vis; for(const m of A.sh) m.visible=vis;
+    if(vis){ const a=g2.position, b=g3.position, d=b.clone().sub(a), L=d.length(); A.ax.position.copy(a).add(b).multiplyScalar(.5); A.ax.scale.set(L*.9,1,1); A.ax.quaternion.setFromUnitVectors(new V(1,0,0),d.normalize()); A.ax.children[0].scale.set(1/(L*.9),.9,1.15);
+      const fc=new V(0,MOUNTY-LN*.5+.04,(g0.position.z+g1.position.z)/2); A.fdf.position.copy(fc); [g0,g1].forEach((g,j)=>{ const p=g.position, dd=p.clone().sub(fc), LL=dd.length(); const m=A.sh[j]; m.position.copy(p).add(fc).multiplyScalar(.5); m.scale.set(LL*.85,1,1); m.quaternion.setFromUnitVectors(new V(1,0,0),dd.normalize()); }); } }
   if(st.thud){ shake=Math.max(shake,st.thud*.22); auThud(.2+st.thud*.6); if(st.thud>.25) vib(Math.round(20+st.thud*60)); st.thud=0; }
   // camera: dietro, vicina, bassa sulle ruote
   const fh=new V(fw.x,0,fw.z).normalize(); if(!isFinite(fh.x)) fh.set(0,0,-1); const rh=new V(-fh.z,0,fh.x);
