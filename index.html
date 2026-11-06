@@ -374,6 +374,7 @@ body.incamp .pedal{display:none}
 @keyframes stampIn{0%{transform:rotate(-12deg) scale(2.4);opacity:0}100%{transform:rotate(-12deg) scale(1);opacity:.88}}
 #objT{font-size:20px!important}
 #toast b,#toast strong{font-family:var(--fdirt)}
+#unhB{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 45% + 52px);font-family:var(--fd);font-size:15px;padding:9px 14px;border-radius:12px;background:#6a2a22;color:#fff;box-shadow:0 4px 0 #3a120e;z-index:3}
 #treeB{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 45%);font-family:var(--fd);font-size:15px;padding:9px 14px;border-radius:12px;background:#2e5a3c;color:#fff;box-shadow:0 4px 0 #173020;z-index:3}
 #starB{position:absolute;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 130px);font-family:var(--fd);font-size:18px;padding:10px 18px;border-radius:14px;background:#2a3d7a;color:#fff6d8;box-shadow:0 4px 0 #121c3d,0 0 18px #9fb4ff;z-index:6;animation:pul .5s infinite alternate}
 
@@ -485,6 +486,12 @@ body.incamp #awdB,body.incamp #tb{display:none!important}
 #mini.gauge .mgo.hit{transform:translateY(4px) scale(.96);box-shadow:0 2px 0 #7a2a0c!important}
 #mini.gauge.inzone .mgo{animation:pul .3s infinite alternate;background:radial-gradient(circle at 50% 35%,#b6f08a,#4f9a2a 70%)!important;box-shadow:0 6px 0 #2a5a14,0 0 26px #9ef06a!important}
 @media (orientation:landscape) and (max-height:520px){ #mini.gauge{min-height:118px;padding-right:126px!important} #miniG,#miniG .gd,#miniG .gf{width:120px!important} #miniG .gf{height:120px!important;-webkit-mask:radial-gradient(circle,transparent 36px,#000 37px);mask:radial-gradient(circle,transparent 36px,#000 37px)} #miniG .gd{height:64px} #miniG .nd{left:58px;height:56px} #mini.mash #miniG .gd{height:120px} #mini.gauge .mgo{width:108px!important;height:108px!important;font-size:15px!important} #miniG b{font-size:32px} }
+
+#shareP{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.72);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:14px;backdrop-filter:blur(4px)}
+#shareP[hidden]{display:none}#shareP b{font:900 20px/1.1 var(--fh,sans-serif);color:#f2c230;text-transform:uppercase}
+#shareP img{max-width:min(92vw,820px);max-height:62vh;border:4px solid #fff;border-radius:6px;box-shadow:0 10px 40px rgba(0,0,0,.6);transform:rotate(-1.2deg)}
+#shareP div{display:flex;gap:10px}#shareP button{font:800 18px/1 var(--fb,sans-serif);padding:12px 20px;border-radius:12px;border:0;background:#25d366;color:#fff;box-shadow:0 4px 0 #128c4a}#shareP button.ghost{background:#333;box-shadow:0 4px 0 #111}
+@media (orientation:landscape) and (max-height:520px){ #shareP img{max-height:58vh} }
 </style>
 
 <div id="app">
@@ -555,7 +562,7 @@ body.incamp #awdB,body.incamp #tb{display:none!important}
   <div id="tb" hidden><button id="camB" aria-label="Cambia inquadratura">CAM</button><button id="pauB" aria-label="Pausa">II</button><button id="recB" aria-label="Registra il giro">REC</button></div>
   <div id="tasks" hidden></div><canvas id="mmap" width="180" height="180" hidden></canvas><div id="obj" class="pl" hidden><div class="on"><b id="objT"></b><span id="objN"></span></div><small id="objS"></small></div>
   <div id="joy" hidden><i></i></div>
-  <button id="actB" hidden></button><button id="treeB" hidden>🌲 Altro albero</button><button id="starB" hidden>🌠 Fotografa la stella!</button><button id="reqB" hidden></button><div id="reqC" hidden></div>
+  <button id="actB" hidden></button><button id="treeB" hidden>🌲 Altro albero</button><button id="unhB" hidden>✖ Sgancia verricello</button><button id="starB" hidden>🌠 Fotografa la stella!</button><button id="reqB" hidden></button><div id="reqC" hidden></div>
   <button id="goB" class="cb" hidden>Vai al segno giallo</button>
   <div id="mini" hidden>
     <div id="miniF"></div>
@@ -1053,7 +1060,7 @@ function buildWorld(id){
         vec3 old=(texture2D(map,vWP.xz/2.5).rgb*bw.y+texture2D(map,vWP.zy/2.5).rgb*bw.x+texture2D(map,vWP.xy/2.5).rgb*bw.z);
         vec3 tint=mix(vec3(1.),clamp(vColor*1.9,0.,1.4),.45);
         diffuseColor.rgb=mix(diffuseColor.rgb*old, tc*tint*diffuse, uReady);`).replace('#include <color_fragment>','if(uReady<.5) diffuseColor.rgb*=vColor;').replace('#include <normal_fragment_maps>','#include <normal_fragment_maps>\n if(uReady>.5){ vec3 sx=dFdx(-vViewPosition), sy=dFdy(-vViewPosition); vec3 R1=cross(sy,normal), R2=cross(normal,sx); float fd=dot(sx,R1); float bx=dFdx(gH), by=dFdy(gH); vec3 gr=sign(fd)*(bx*R1+by*R2); normal=normalize(abs(fd)*normal-gr*1.6); }').replace('#include <aomap_fragment>','#include <aomap_fragment>\n if(uReady>.5){ float ao=smoothstep(.12,.55,gH); reflectedLight.indirectDiffuse*=mix(.55,1.05,ao); reflectedLight.directDiffuse*=mix(.75,1.0,ao); }'); }; }
-    m.receiveShadow=true; m.castShadow=QS[save.q].sh>0; world.add(m); window.__terrain=m; }
+    m.receiveShadow=true; world.add(m); window.__terrain=m; }
   // fango lucido e ghiaccio a specchio sopra le zone
   for(const z of ZONES){ if(!isMud(z.t)) continue;
     const ds=[]; for(let d=-HALF-.8;d<=HALF+.8;d+=.3) ds.push(d); const P=[], A=[], U=[]; let nr=0;
@@ -1115,7 +1122,7 @@ function buildWorld(id){
     { // cartelli gialli a bordo pista prima di ogni ostacolo e pozza
       const TX={}, signT=t=>{ if(TX[t]) return TX[t]; const c=document.createElement('canvas'); c.width=c.height=128; const g=c.getContext('2d'); g.translate(64,64); g.rotate(Math.PI/4); g.fillStyle='#1a1a1a'; g.fillRect(-46,-46,92,92); g.fillStyle='#f2c230'; g.fillRect(-40,-40,80,80); g.rotate(-Math.PI/4); g.font='54px sans-serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(PACE({t,big:0})[0],0,4); return TX[t]=new THREE.CanvasTexture(c); };
       const postM=new THREE.MeshStandardMaterial({color:0x6b5a44,roughness:.9}), postG=new THREE.CylinderGeometry(.05,.06,2,6);
-      for(const o of OBST.concat(PUDS.map(f=>({s:f[0],t:'pud'})))){ const ss=o.s-5, sd=((Math.floor(o.s)%2)?1:-1), x=CX(ss)+sd*(HALF+.9), z=-ss, y=height(x,z);
+      if(false) for(const o of OBST.concat(PUDS.map(f=>({s:f[0],t:'pud'})))){ const ss=o.s-5, sd=((Math.floor(o.s)%2)?1:-1), x=CX(ss)+sd*(HALF+.9), z=-ss, y=height(x,z);
         const p=new THREE.Mesh(postG,postM); p.position.set(x,y+1,z); p.castShadow=true; world.add(p);
         const sg=new THREE.Mesh(new THREE.PlaneGeometry(1.15,1.15),new THREE.MeshBasicMaterial({map:signT(o.t),transparent:true,side:THREE.DoubleSide,alphaTest:.1})); sg.position.set(x,y+2.1,z); sg.rotation.y=Math.atan2(CX(ss+1)-CX(ss-1),2)*-1; world.add(sg); } }
     for(const o of OBST){ const cx=CX(o.s), cz=-o.s, ang=Math.atan2(CX(o.s+1)-CX(o.s-1),2);
@@ -1744,14 +1751,14 @@ function attachWinch(){
   toast('Fascia sull\'albero','tieni premuto Verricello per tirare'); auBurst(900,.25,.2,'bandpass',2); return true;
 }
 function nextTree(){ const W=st.winch, C=st.winchC; if(!W||!C||C.length<2||W.pull) return; st.winchI=(st.winchI+1)%C.length; const b=C[st.winchI], t=b.t, a=new V(t.x,height(t.x,t.z)+.7,t.z), hk=HOOK.clone().applyQuaternion(st.q).add(st.pos), dn=hk.distanceTo(a); Object.assign(W,{anchor:a,len:dn,d:dn,tree:t,load:0}); strap.position.copy(a); strap.scale.setScalar((t.r+.06)/.32); toast(`🌲 Albero ${st.winchI+1} di ${C.length}`,`a ${Math.round(b.d)} m · tieni premuto Verricello per tirare`); auBurst(900,.2,.15,'bandpass',2); }
-function dropWinch(msg){ $('#treeB').hidden=true; if(!st.winch) return; st.winch=null; cable.visible=false; strap.visible=false; if(msg) toast(msg[0],msg[1]); }
+function dropWinch(msg){ $('#treeB').hidden=true; $('#unhB').hidden=true; if(!st.winch) return; st.winch=null; cable.visible=false; strap.visible=false; if(msg) toast(msg[0],msg[1]); }
 { const b=$('#winB'); let downT=0;
   b.addEventListener('pointerdown',e=>{ e.preventDefault(); auInit(); downT=performance.now(); if(st.winch) st.winch.pull=true; else if(attachWinch()) {} try{ b.setPointerCapture(e.pointerId); }catch(_){} });
   for(const t of ['pointerup','pointercancel','lostpointercapture']) b.addEventListener(t,()=>{ if(st.winch) st.winch.pull=false; }); }
 addEventListener('keydown',e=>{ const k=e.key.toLowerCase(); if(k==='v'&&!e.repeat){ if(st.winch) st.winch.pull=true; else attachWinch(); } if(k==='p'&&!e.repeat) cyclePressure(); if(k==='c'&&!e.repeat) cycleCam(); if(k==='q'&&!e.repeat&&st.running) toggleAwd(); });
 addEventListener('keyup',e=>{ if(e.key.toLowerCase()==='v'&&st.winch) st.winch.pull=false; });
-$('#treeB').addEventListener('click',nextTree);
-function updWinch(dt){ const W=st.winch; $('#treeB').hidden=!(W&&!W.pull&&(st.winchC||[]).length>1&&W.load<2000); if(!W) return;
+$('#treeB').addEventListener('click',nextTree); $('#unhB').addEventListener('click',()=>{ dropWinch(['Verricello sganciato','cavo riavvolto e fascia tolta']); $('#unhB').hidden=true; auBurst(900,.2,.15,'bandpass',2); });
+function updWinch(dt){ const W=st.winch; $('#treeB').hidden=!(W&&!W.pull&&(st.winchC||[]).length>1&&W.load<2000); $('#unhB').hidden=!(W&&!W.pull); if(!W) return;
   cable.material.color.setRGB(.6+Math.min(1,W.load/45000)*.35,.63-Math.min(1,W.load/45000)*.3,.65-Math.min(1,W.load/45000)*.35);
   const hook=HOOK.clone().applyQuaternion(st.q).add(st.pos); const slack=Math.max(0,W.len-W.d);
   const mid=hook.clone().lerp(W.anchor,.5); mid.y-=Math.min(1.2,slack*.6+.05);
@@ -2717,11 +2724,11 @@ function showroom(dt){ if(builtTrack!==save.track){ buildWorld(save.track); shS=
 { const el=$('#show3d'); el.addEventListener('pointerdown',e=>{ shDrag={x:e.clientX,a:shA}; try{el.setPointerCapture(e.pointerId);}catch(_){} }); el.addEventListener('pointermove',e=>{ if(shDrag) shA=shDrag.a-(e.clientX-shDrag.x)/120; }); for(const t of ['pointerup','pointercancel']) el.addEventListener(t,()=>{ shDrag=null; }); }
 // ---- drone fotografico al punto panoramico ----
 const dpad={up:false,dn:false};
-function startDrone(){ setTimeout(()=>showHelp('drone',null,true),50); const fh0=new V(fw.x,0,fw.z).normalize();
+function startDrone(){ setTimeout(()=>showHelp('drone',null,true),50); st.dFog=[scene.fog.near,scene.fog.far]; scene.fog.near=WX==='nebbia'?35:Math.max(scene.fog.near,140); scene.fog.far=WX==='nebbia'?260:Math.max(scene.fog.far,900); if(cam.far<1500){ cam.far=1500; cam.updateProjectionMatrix(); } const fh0=new V(fw.x,0,fw.z).normalize();
   st.drone={t:0,bat:60,shots:[],orb:Math.atan2(-fh0.x,-fh0.z)+Math.PI+.6,dist:9,h:4,drift:new V(),wind:new V(),gT:0,aim:new THREE.Vector2(),aimT:new THREE.Vector2(),pos:new V(),prev:null,spd:0,liveT:0,lastShot:-9};
   $('#drone').hidden=false; for(const id of ['#hud','#hud2','#tb','#hq']) $(id).hidden=true; for(const b of document.querySelectorAll('#ctl .cen')) b.style.visibility='hidden'; $('#dPics').innerHTML=''; document.querySelectorAll('.dvf u').forEach(u=>u.classList.remove('on')); $('.dvf .u0').classList.add('on'); toast('Drone in volo','60 secondi di batteria · 3 foto'); auBurst(5200,.8,.08,'bandpass',4); }
-function endDrone(){ const D=st.drone; if(!D) return; st.drone=null; st.droneDone=true; $('#drone').hidden=true; for(const id of ['#hud','#hud2','#tb','#hq']) $(id).hidden=false; for(const b of document.querySelectorAll('#ctl .cen')) b.style.visibility='';
-  const best=D.shots.reduce((a,b)=>b.sc>a?b.sc:a,0); if(best>0){ const eu=Math.round(best*1.8); save.money+=eu; persist(); st.droneEur=eu; toast(`Foto migliore: ${best}/100 ${'★'.repeat(Math.max(1,Math.round(best/20)))}`,`+${eu} € · la mandi sul gruppo`); if(best>=80) gabbah('g_si',0); } else toast('Nessuna foto','il drone è tornato a casa'); first=true; }
+function endDrone(){ const D=st.drone; if(!D) return; st.drone=null; if(st.dFog){ scene.fog.near=st.dFog[0]; scene.fog.far=st.dFog[1]; st.dFog=null; } st.droneDone=true; $('#drone').hidden=true; for(const id of ['#hud','#hud2','#tb','#hq']) $(id).hidden=false; for(const b of document.querySelectorAll('#ctl .cen')) b.style.visibility='';
+  const best=D.shots.reduce((a,b)=>b.sc>a?b.sc:a,0); if(best>0){ const eu=Math.round(best*1.8); save.money+=eu; persist(); st.droneEur=eu; const bs=D.shots.reduce((a,b)=>!a||b.sc>a.sc?b:a,null); st.bestPhoto=bs&&bs.card; showShare(bs&&bs.card,best,eu); if(best>=80) gabbah('g_si',0); } else toast('Nessuna foto','il drone è tornato a casa'); first=true; }
 // il drone gira attorno al fuoristrada: sterzo = orbita, GAS = avvicina, FRENO = allontana, ▲▼ = quota. Tocchi un incrocio per mettere lì il mezzo.
 function updDrone(dt){ const D=st.drone, I=readInput(); D.t+=dt; D.bat-=dt;
   D.gT-=dt; if(D.gT<0){ D.gT=1.5+Math.random()*2.5; const k=TR.theme==='alpino'?1.3:1; D.wind.set((Math.random()-.5)*2.6*k,(Math.random()-.5)*.6,(Math.random()-.5)*2.6*k); }
@@ -2746,10 +2753,24 @@ function droneScore(){ const D=st.drone; cam.updateMatrixWorld(true); const pc=s
     sc=Math.round(100*(.27*thirds+.2*sizeS+.23*open+.08*alt+.12*steady+.1*clamp(ang,0,1)));
     if(thirds<.45) why.push('tocca un incrocio delle linee'); if(sizeS<.6) why.push(size<.08?'troppo lontano: GAS per avvicinarti':'troppo vicino: FRENO per allontanarti'); if(open<.5) why.push('poco panorama: sali ▲ o gira verso la valle'); if(steady<.5) why.push('mosso: aspetta che il vento cali'); if(ang<.35) why.push('gira attorno: più bello di tre quarti'); }
   return {sc,why}; }
+function showShare(c,best,eu){ let E=$('#shareP'); if(!E){ E=document.createElement('div'); E.id='shareP'; document.body.append(E); }
+  E.innerHTML=''; E.hidden=false; const h=document.createElement('b'); h.textContent=`Foto migliore ${best}/100 · +${eu} €`; const im=document.createElement('img'); if(c) im.src=c.toDataURL('image/jpeg',.7);
+  const sb=document.createElement('button'); sb.textContent='📤 Manda al gruppo'; sb.onclick=()=>{ sharePhoto(c); }; const cb=document.createElement('button'); cb.className='ghost'; cb.textContent='Continua'; cb.onclick=()=>{ E.hidden=true; };
+  const row=document.createElement('div'); row.append(sb,cb); E.append(h,im,row); }
+function photoCard(sc){ const W=1600, H=Math.round(W*cv.height/cv.width), c=document.createElement('canvas'); c.width=W; c.height=H; const g=c.getContext('2d'); g.drawImage(cv,0,0,W,H);
+  const gr=g.createLinearGradient(0,H*.72,0,H); gr.addColorStop(0,'rgba(0,0,0,0)'); gr.addColorStop(1,'rgba(0,0,0,.75)'); g.fillStyle=gr; g.fillRect(0,H*.6,W,H*.4);
+  const vg=g.createRadialGradient(W/2,H/2,H*.35,W/2,H/2,W*.7); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,.35)'); g.fillStyle=vg; g.fillRect(0,0,W,H);
+  g.textBaseline='alphabetic'; g.fillStyle='#f2c230'; g.font=`900 ${Math.round(H*.07)}px "Rubik Mono One","Bebas Neue",Impact,sans-serif`; g.fillText('4X4 OFF ROAD PIEMONTE',W*.04,H*.88);
+  g.fillStyle='#fff'; g.font=`700 ${Math.round(H*.038)}px "Barlow Condensed",Arial,sans-serif`; g.fillText(`${TR.name} · ${VEH.n} · 📸 ${sc}/100 ${'★'.repeat(Math.max(1,Math.round(sc/20)))}`,W*.04,H*.945);
+  g.textAlign='right'; g.font=`600 ${Math.round(H*.028)}px "Barlow Condensed",Arial,sans-serif`; g.fillStyle='rgba(255,255,255,.8)'; g.fillText(new Date().toLocaleDateString('it-IT')+' · ilgabbah-ux.github.io/4x4-camp',W*.96,H*.945);
+  return c; }
+function sharePhoto(c){ if(!c){ toast('Foto non disponibile','riprova a scattare'); return; } c.toBlob(b=>{ if(!b) return; const f=new File([b],`4x4-drone-${Date.now()}.jpg`,{type:'image/jpeg'});
+  const dl=()=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=f.name; document.body.append(a); a.click(); a.remove(); toast('Foto salvata','la trovi nei download: mandala sul gruppo'); };
+  if(navigator.canShare&&navigator.canShare({files:[f]})) navigator.share({files:[f],title:'4x4 Off Road Piemonte',text:`Foto col drone su ${TR.name} 🚙📸 · gioca anche tu: ilgabbah-ux.github.io/4x4-camp`}).catch(()=>{}); else dl(); },'image/jpeg',.9); }
 function droneShot(){ const D=st.drone; if(!D||D.shots.length>=3) return; const {sc,why}=droneScore();
-  ren.render(scene,cam); let url=''; try{ url=cv.toDataURL('image/jpeg',.6); }catch(e){}
-  D.shots.push({sc,url}); D.lastShot=D.t; auBurst(4000,.06,.25,'highpass',1); const fl=$('#dFlash'); fl.classList.remove('go'); void fl.offsetWidth; fl.classList.add('go');
-  const box=document.createElement('div'); if(url){ const im=document.createElement('img'); im.src=url; box.append(im); } box.append(sc+'/100'); $('#dPics').prepend(box);
+  ren.render(scene,cam); let url='', card=null; try{ url=cv.toDataURL('image/jpeg',.6); card=photoCard(sc); }catch(e){}
+  D.shots.push({sc,url,card}); D.lastShot=D.t; auBurst(4000,.06,.25,'highpass',1); const fl=$('#dFlash'); fl.classList.remove('go'); void fl.offsetWidth; fl.classList.add('go');
+  const box=document.createElement('div'); if(url){ const im=document.createElement('img'); im.src=url; box.append(im); } box.append(sc+'/100 · 📤'); box.style.cursor='pointer'; box.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); sharePhoto(card); }); $('#dPics').prepend(box);
   toast(`📸 ${sc}/100 ${'★'.repeat(Math.max(1,Math.round(sc/20)))}`,why.length?why.join(' · '):'foto da copertina!'); }
 document.querySelectorAll('.dvf u').forEach(u=>u.addEventListener('pointerdown',e=>{ e.preventDefault(); const D=st.drone; if(!D) return; D.aimT.set(+u.dataset.x,+u.dataset.y); document.querySelectorAll('.dvf u').forEach(q=>q.classList.toggle('on',q===u)); }));
 $('#droneB').addEventListener('click',startDrone); $('#dShot').addEventListener('click',droneShot); $('#dEnd').addEventListener('click',endDrone);
