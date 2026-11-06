@@ -730,7 +730,7 @@ body.partyOn #skipB,body.partyOn #toast,body.partyOn #hq{display:none!important}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 79</small>
+      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 80</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -2811,7 +2811,7 @@ addEventListener('resize',resize); resize();
 let tun=0, sunBase=2.2, hemiBase=.35;
 function lightsUpd(){ const n=TR&&(TR.night||tun>.25||WX==='temporale'||WX==='nebbia')&&!campMode;
   for(const m of carLamps.head) m.emissiveIntensity=n?3:0; for(const m of carLamps.tail) m.emissiveIntensity=(st.brkOn?4:n?1.2:0)*(campMode?0:1);
-  { const led=own('led'); for(const l of lights.L) l.intensity=n?(led?260:200):0; for(const g of lights.glow){ g.visible=!campMode&&!!TR; g.material.opacity=n?1:.55; g.scale.setScalar(n?.75:.38); } beamMat.uniforms.k.value=n?(WX==='nebbia'||WX==='temporale'||tun>.25?1.4:.8):0; for(const b of lights.beam||[]) b.visible=!!n; ledBar.intensity=n&&led?420:0; ledMesh.material.emissiveIntensity=n&&led?2.5:0; } }
+  { const led=own('led'); const dayK=TR&&!TR.night&&tun<.25?.3:1; for(const l of lights.L) l.intensity=n?(led?260:200)*dayK:0; for(const g of lights.glow){ g.visible=!campMode&&!!TR; g.material.opacity=n?1:.55; g.scale.setScalar(n?.75:.38); } beamMat.uniforms.k.value=n?(tun>.25?1.4:WX==='nebbia'?1.1:TR&&TR.night?.8:.45):0; for(const b of lights.beam||[]) b.visible=!!n; ledBar.intensity=n&&led?420*dayK:0; ledMesh.material.emissiveIntensity=n&&led?2.5:0; } }
 function worldAnim(dt){ skyU.time.value+=dt;
   { const f=new V(0,0,-1).applyQuaternion(st.q); carU.value.set(st.pos.x,st.pos.z,Math.atan2(f.x,f.z),0); }
   { const U=world.userData; if(U.mist) for(const m of U.mist){ m.position.x+=Math.sin(skyU.time.value*.05+m.rotation.y)*dt*.4; }
