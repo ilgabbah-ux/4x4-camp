@@ -746,7 +746,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 91</small>
+      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 92</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -816,7 +816,7 @@ const TRACKS={
 const ORDER=['colle','bassa','lombardore','mombracco','neve','jafferau','sommelier'];
 const PANO={colle:'giù in fondo la valle e le borgate',bassa:'lassù si vedono girare le pale del mulino',lombardore:'la pianura del Canavese fino alle Alpi',mombracco:'il Monviso proprio davanti',neve:'le luci del paese laggiù',jafferau:'Bardonecchia sotto di te',sommelier:'il ghiacciaio sopra la testa'};
 ORDER.forEach((id,i)=>{ if(i>0) TRACKS[id].locked=()=>!save.done[ORDER[i-1]]; });
-const HALF=3.3;
+const HALF=3.3; const OSIDE=o=>Math.max(2.6,o.t==='log'?Math.min(o.half,HALF+1.2):o.t==='camber'?HALF+1.6:o.t==='vg'?HALF+.4:(o.half||HALF));
 let OBST=[], OBB=new Map(); let PUDS=[]; let TR, ZONES, LEN, FORDS=[], HS, ROCKS=[], ROCKB=new Map(), TREES=[], TREEB=new Map(), PH=[0,0,0], AMP=[7,3.5,1.2];
 const zoneAt=s=>{for(const z of ZONES) if(s<z.b) return z; return ZONES[ZONES.length-1];};
 const LABEL={terra:'Sterrato',fango:'Fango',fangoProf:'Fango profondo',roccia:'Pietraia',acqua:'Guado',erba:'Fuori traccia',neve:'Neve fresca',ghiaccio:'Ghiaccio',ghiaia:'Ghiaione',sabbia:'Sabbia',galleria:'Galleria'};
@@ -838,11 +838,11 @@ function setTrack(id){
   OBST=[]; OBB=new Map(); { const types=TR.theme==='neve'?['ditch','twist','camber','log']:TR.theme==='alpino'?['step','ditch','twist','camber','step','vg']:TR.theme==='militare'?['ditch','twist','vg','step','camber','ditch']:['log','ditch','step','twist','camber','vg','log','step','twist'];
     let s=40+R()*20, i=0; while(s<LEN-30){ const z=zoneAt(s), z2=zoneAt(s+14); const ok=['terra','erba','ghiaia','sabbia','neve'].includes(z.t)&&z===z2&&!inFord(s,10)&&Math.abs(s-TR.panoS)>30;
       if(ok){ const t=types[i++%types.length]; const o={t,s,a:(R()-.5)*.5,half:HALF+.4};
-        if(t==='log'){ o.r=.15+R()*.1; o.half=HALF+2.4; o.off=0; }
+        if(t==='log'){ o.r=.22+R()*.12; o.half=HALF+2.4; o.off=0; }
         if(t==='ditch'){ o.w=.6+R()*.25; o.dep=.22+R()*.12; }
-        if(t==='step'){ o.hg=.28+R()*.16; o.len=4+R()*4; }
+        if(t==='step'){ o.hg=.36+R()*.2; o.len=4+R()*4; }
         if(t==='twist'){ o.dep=.4+R()*.14; o.sd=R()<.5?1:-1; }
-        if(t==='step'&&R()<.3){ o.hg=.44+R()*.1; o.len=3+R()*2; o.big=1; }
+        if(t==='step'&&R()<.3){ o.hg=.56+R()*.1; o.len=3+R()*2; o.big=1; }
         if(t==='camber'){ o.tilt=(R()<.5?-1:1)*(.3+R()*.1); o.len=14+R()*6; }
         if(t==='vg'){ o.dep=.44+R()*.14; o.len=12+R()*6; o.w=1.1; }
         OBST.push(o); const k0=Math.floor((s-4)/4), k1=Math.floor((s+(o.len||14)+6)/4); for(let k=k0;k<=k1;k++){ if(!OBB.has(k)) OBB.set(k,[]); OBB.get(k).push(o); } s+=26+R()*22; }
@@ -918,6 +918,7 @@ ren.setPixelRatio(Math.min(QS[save.q].pr,devicePixelRatio||1)); ren.shadowMap.en
 ren.outputColorSpace=THREE.SRGBColorSpace; ren.toneMapping=THREE.ACESFilmicToneMapping; ren.toneMappingExposure=1.12;
 const scene=new THREE.Scene();
 scene.fog=new THREE.Fog(0xb9cfe0,60,250);
+THREE.ShaderChunk.fog_fragment=THREE.ShaderChunk.fog_fragment.replace('fogColor, fogFactor )','fogColor, fogFactor * 0.62 )');
 const cam=new THREE.PerspectiveCamera(60,1,.1,1500);
 const hemi=new THREE.HemisphereLight(0xcfe2ff,0x6a5638,.42); scene.add(hemi);
 const sun=new THREE.DirectionalLight(0xfff0d8,2.2); sun.castShadow=QS[save.q].sh>0; ren.shadowMap.enabled=QS[save.q].sh>0; sun.shadow.mapSize.set(QS[save.q].sh||512,QS[save.q].sh||512);
@@ -1116,7 +1117,7 @@ const STY={
  jafferau:{far:260,mid:170,near:80,snow:.45,rock:0x7a756d,slope:0x6b6a48,haze:0xcfd9e4,tree:'larice',ghiaione:1},
  sommelier:{far:300,mid:200,near:100,snow:.32,rock:0x6e6c68,haze:0xd5e0ea,tree:'larice',ghiaione:1,ghiacciaio:1}};
 function sceneryFor(RT){ const ST=STY[TR.id]||{}, W=world, M=new THREE.Matrix4(), Q=new THREE.Quaternion(), S=new THREE.Vector3(), P=new THREE.Vector3(), col=new THREE.Color();
-  const free=(s,d)=>!(s<36&&Math.abs(d)<17)&&!(inFord(s,6)&&Math.abs(d)<22)&&!(s>LEN-14&&s<LEN+42&&Math.abs(d)<22)&&!(TR.panoS&&d>0&&Math.abs(s-TR.panoS)<120&&d<45)&&zoneAt(s).t!=='galleria';
+  const free=(s,d)=>!(s<36&&Math.abs(d)<17)&&!(inFord(s,6)&&Math.abs(d)<22)&&!(s>LEN-14&&s<LEN+42&&Math.abs(d)<22)&&!(TR.panoS&&d>0&&Math.abs(s-TR.panoS)<120&&d<(TR.theme==='militare'?95:45))&&zoneAt(s).t!=='galleria';
   // vigne sui pendii (Rivoli-Pinerolo): filari di pali e chioma verde, a gruppi
   if(ST.vigne){ const N=900, im=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.9}),N), pm=new THREE.InstancedMesh(new THREE.CylinderGeometry(.04,.05,1.6,5),new THREE.MeshStandardMaterial({color:0x6b5a44,roughness:1}),N); let n=0, k=0;
     for(let v=0;v<14&&n<N;v++){ const s0=20+RT()*(LEN-40), side=RT()<.5?-1:1, d0=side*(16+RT()*22); if(!free(s0,d0)) continue; for(let row=0;row<8&&n<N;row++){ const d=d0+side*row*2.4; for(let s=s0;s<s0+22&&n<N;s+=4){ const x=CX(s)+d, z=-s, y=baseH(x,z), ang=Math.atan2(CX(s+1)-CX(s-1),2);
@@ -1299,6 +1300,10 @@ function buildWorld(id){
       if(false) for(const o of OBST.concat(PUDS.map(f=>({s:f[0],t:'pud'})))){ const ss=o.s-5, sd=((Math.floor(o.s)%2)?1:-1), x=CX(ss)+sd*(HALF+.9), z=-ss, y=height(x,z);
         const p=new THREE.Mesh(postG,postM); p.position.set(x,y+1,z); p.castShadow=true; world.add(p);
         const sg=new THREE.Mesh(new THREE.PlaneGeometry(1.15,1.15),new THREE.MeshBasicMaterial({map:signT(o.t),transparent:true,side:THREE.DoubleSide,alphaTest:.1})); sg.position.set(x,y+2.1,z); sg.rotation.y=Math.atan2(CX(ss+1)-CX(ss-1),2)*-1; world.add(sg); } }
+    // massi ai lati di ogni ostacolo: non si gira intorno, si passa sopra
+    { const BR=rng(911), bl=[]; for(const o of OBST){ if(o.t==='pud') continue; const L=Math.max(2.5,(o.len||2)), hw=OSIDE(o); for(let u=-1.5;u<=L+1.5;u+=1.6) for(const sd of [-1,1]){ const ss=o.s+u, x=CX(ss)+sd*(hw+1.15+BR()*.5), z=-ss; bl.push([x,z,.7+BR()*.55,BR()*6.3]); } }
+      const put=(geo,mat)=>{ const im=new THREE.InstancedMesh(geo,mat,bl.length), M=new THREE.Matrix4(), Q=new THREE.Quaternion(); bl.forEach(([x,z,k,r],i)=>{ Q.setFromAxisAngle(new V(0,1,0),r); M.compose(new V(x,baseH(x,z)-.12*k,z),Q,new V(k,k*.85,k)); im.setMatrixAt(i,M); }); im.castShadow=true; im.receiveShadow=true; world.add(im); return im; };
+      if(bl.length){ const tmp=put(new THREE.DodecahedronGeometry(.6,1),stone); asset('masso1').then(A=>{ if(!A||!tmp.parent) return; const g=A.geo.clone(); g.computeBoundingBox(); const bb=g.boundingBox, c=bb.getCenter(new V()); g.translate(-c.x,-bb.min.y,-c.z); const k=1.25/A.w; g.scale(k,k,k); world.remove(tmp); put(g,A.mat); }); } }
     for(const o of OBST){ const cx=CX(o.s), cz=-o.s, ang=Math.atan2(CX(o.s+1)-CX(o.s-1),2);
       if(o.t==='log'){ const L=o.half*2, g=new THREE.Group(); const c=new THREE.Mesh(new THREE.CylinderGeometry(o.r,o.r*1.08,L,12,4).rotateZ(Math.PI/2),bark); g.add(c); for(const sd of [-1,1]){ const e=new THREE.Mesh(new THREE.CircleGeometry(o.r*.98,12).rotateY(sd*Math.PI/2),cut); e.position.x=sd*L/2; g.add(e); }
         for(let i=0;i<3;i++){ const br=new THREE.Mesh(new THREE.CylinderGeometry(.03,.05,.6+Math.random()*.5,5),bark); br.position.set((Math.random()<.5?-1:1)*(L/2-.3-Math.random()*1.2),o.r*.6,0); br.rotation.set(Math.random()-.5,0,1+Math.random()); g.add(br); }
@@ -1315,7 +1320,7 @@ function buildWorld(id){
     const M=new THREE.Matrix4(), Q=new THREE.Quaternion(), S=new THREE.Vector3(), P=new THREE.Vector3(), col=new THREE.Color(); let n=0;
     for(let k=0;k<N*3&&n<N;k++){ const s=-30+RT()*(LEN+100), side=RT()<.5?-1:1, d=side*(HALF+2.2+Math.pow(RT(),1.6)*60);
       if(inFord(s,6)&&Math.abs(d)<22) continue; if(s>LEN-12&&s<LEN+40&&Math.abs(d)<19) continue; if(s<36&&Math.abs(d)<17) continue;
-      if(TR.treeline&&s>LEN*TR.treeline+RT()*40) continue; if(zoneAt(s).t==='galleria'&&Math.abs(d)<12) continue; if(d>0&&Math.abs(s-TR.panoS)<120&&d<45) continue;
+      if(TR.treeline&&s>LEN*TR.treeline+RT()*40) continue; if(zoneAt(s).t==='galleria'&&Math.abs(d)<12) continue; if(d>0&&Math.abs(s-TR.panoS)<120&&d<(TR.theme==='militare'?95:45)) continue;
       const x=CX(s)+d, z=-s, y=baseH(x,z), h=(TR.theme==='castagni'?7:6)+RT()*10, r=TR.theme==='castagni'?h*(.45+RT()*.15):1.2+RT()*1.5+h*.04;
       M.compose(P.set(x,y-.15,z),Q.setFromEuler(new THREE.Euler(0,RT()*6,0)),S.set(r,h,r)); im.setMatrixAt(n,M);
       const TT=(STY[TR.id]||{}).tree; if(neve) col.setRGB(.92+RT()*.08,.94+RT()*.06,.96+RT()*.04); else if(TT==='larice') { if(RT()<.45) col.setHSL(.09+RT()*.05,.55+RT()*.2,.42+RT()*.12); else col.setHSL(.22+RT()*.08,.3+RT()*.2,.3+RT()*.12); } else if(TR.theme==='alpino') col.setHSL(.2+RT()*.1,.3+RT()*.2,.32+RT()*.14); else if(TR.id==='bassa') col.setHSL(.29+RT()*.06,.3+RT()*.2,.24+RT()*.12); else col.setHSL(.24+RT()*.1,.22+RT()*.22,.3+RT()*.16); im.setColorAt(n,col);
@@ -1372,7 +1377,7 @@ function buildWorld(id){
         M.compose(P.set(x,height(x,z)-.05,z),Q.setFromEuler(new THREE.Euler(0,RT()*6,0)),S.set(sc*.8,sc*(1.1+RT()*.7),sc*.8)); T2.setMatrixAt(m,M); col.setHSL(dryG?.12+RT()*.05:.19+RT()*.07,dryG?.32:.4,.42+RT()*.2); T2.setColorAt(m++,col); }
       T2.count=m; T2.receiveShadow=true; world.add(T2); }
   }
-  if(TR.panoS){ const ps=TR.panoS, y=hsAt(ps)-122, vt=tex('valle'); vt.wrapS=vt.wrapT=THREE.MirroredRepeatWrapping; vt.repeat.set(3.2,3.2); const vf=new THREE.Mesh(new THREE.PlaneGeometry(4000,4000).rotateX(-Math.PI/2),new THREE.MeshStandardMaterial({color:neve?0xdfe6ee:0xffffff,map:neve?null:vt,roughness:1,envMapIntensity:.4})); vf.position.set(CX(ps)+1700,y,-ps); world.add(vf); }
+  if(TR.panoS){ const ps=TR.panoS, y=hsAt(ps)-(TR.theme==='militare'?26:122), vt=tex('valle'); vt.wrapS=vt.wrapT=THREE.MirroredRepeatWrapping; vt.repeat.set(3.2,3.2); const vf=new THREE.Mesh(new THREE.PlaneGeometry(4000,4000).rotateX(-Math.PI/2),new THREE.MeshStandardMaterial({color:neve?0xdfe6ee:0xffffff,map:neve?null:vt,roughness:1,envMapIntensity:.4})); vf.position.set(CX(ps)+1700,y,-ps); world.add(vf); }
   // foschia nelle valli: veli bassi dove il terreno scende sotto la pista
   if(save.q!=='bassa'&&!neve){ const RM=rng(77+TR.id.length), mat=new THREE.MeshBasicMaterial({map:blobTex,color:TR.night?0x55606e:0xe8edf0,transparent:true,opacity:WX==='nebbia'||WX==='pioggia'?.5:.32,depthWrite:false,fog:true}); const mist=[]; 
     for(let k=0;k<400&&mist.length<26;k++){ const ss=RM()*LEN, d=(RM()<.5?-1:1)*(28+RM()*90), x=CX(ss)+d, z=-ss, h=baseH(x,z); if(h>hsAt(ss)-3) continue; const sz=30+RM()*45, m=new THREE.Mesh(new THREE.PlaneGeometry(sz,sz*.7).rotateX(-Math.PI/2),mat); m.position.set(x,h+2+RM()*4,z); m.rotation.y=RM()*6; m.renderOrder=2; m.material=mat.clone(); m.userData.op=mat.opacity; world.add(m); mist.push(m); }
@@ -1602,26 +1607,33 @@ const ckpit=(()=>{ const G=new THREE.Group(); G.visible=false; car.add(G);
   const hub=new THREE.Mesh(new THREE.CylinderGeometry(.055,.065,.05,20),dk); hub.rotation.x=Math.PI/2; sw.add(hub);
   for(const a of [Math.PI/2+.1,-Math.PI/2-.1,Math.PI*1.5+Math.PI/2]){ const sp=new THREE.Mesh(new THREE.BoxGeometry(.15,.035,.02),dk); sp.position.set(Math.cos(a)*.1,Math.sin(a)*.1,0); sp.rotation.z=a; sw.add(sp); }
   const col=new THREE.Mesh(new THREE.CylinderGeometry(.03,.04,.3,10),dk); col.position.set(-.36,.15,-.55); col.rotation.x=-.42+Math.PI/2; G.add(col);
+  // cofano visto da dentro: curvo, con la presa d'aria, e i parafanghi ai lati
+  const hoodM=new THREE.MeshStandardMaterial({color:0x1d1e20,roughness:.45,metalness:.35,envMapIntensity:.9});
+  const hood=new THREE.Mesh(new THREE.BoxGeometry(1.62,.08,1.5),hoodM); hood.position.set(0,.3,-1.78); hood.rotation.x=.06; G.add(hood);
+  { const bulge=new THREE.Mesh(new THREE.CylinderGeometry(.9,.9,1.5,24,1,false,-.5,1),hoodM); bulge.rotation.set(Math.PI/2,0,0); bulge.scale.set(1,1,.08); bulge.position.set(0,.3,-1.78); G.add(bulge); }
+  for(const sd of [-1,1]){ const f=new THREE.Mesh(new THREE.BoxGeometry(.16,.14,1.45),hoodM); f.position.set(sd*.86,.32,-1.8); G.add(f); }
+  box(.5,.04,.1,dk,0,.36,-1.35); // presa d'aria
+  box(1.5,.03,.06,dk,0,.31,-1.04); // spazzole
   G.traverse(o=>{ if(o.isMesh){ o.castShadow=false; o.receiveShadow=true; } });
-  return {G,sw,nS,nR}; })();
+  return {G,sw,nS,nR,hood}; })();
 let first=true; const camPos=new THREE.Vector3(), camLook=new THREE.Vector3();
 const st={pos:new V(),vel:new V(),q:new THREE.Quaternion(),w:new V(),steer:0,gear:'alta',spin:[0,0,0,0],comp:[0,0,0,0],contact:[0,0,0,0],slip:[0,0,0,0],dspin:[0,0,0,0],cp:[new V(),new V(),new V(),new V()],cn:[new V(),new V(),new V(),new V()],surf:'terra',time:0,running:false,s:0,done:false,stuckT:0,sink:0,water:0,dmg:{gomme:0,coppa:0,semiassi:0,carrozzeria:0},wsurf:['terra','terra','terra','terra'],bumpT:[0,0,0,0],rescues:0,mode:'drive',winch:null,paused:false};
 let MASS=2100; const I=new V(4300,4400,2200), I0=I.clone(), K=20500, CD=3900;
-const VEHS={terrano:{tyre:'mt',n:'Terrano II Black Edition',sub:'nero, alzato, snorkel, barra LED e gomme tassellate · modello 3D vero',price:0,sc:[1,1,1],mass:2100,p:1.05,col:null,model:'gabbah_terrano'},
- linus_terrano:{tyre:'mt',n:'Terrano 2.7 TD',sub:'nero infangato, 2.7 TDi, snorkel, gomme tassellate e fari sul portellone',price:900,sc:[1,1,1],mass:1950,p:1.02,col:null,model:'terrano_nero'},
- costa_terrano:{tyre:'at',n:'Terrano grigio',sub:'argento con fascioni grigi, portapacchi e il Minion sulla ruota di scorta: affidabile, mai una rottura',price:800,sc:[1,1,1],mass:1900,p:.98,col:null,model:'terrano_grigio',tough:.85},
- purcello_pajero:{tyre:'at',n:'Pajero Sport',sub:'argento, portapacchi con la ruota e fari LED: quello che ti tira fuori dal fango',price:1600,sc:[1,1,1],mass:2050,p:1.12,col:null,model:'pajero_sport'},
- linus_wrangler:{tyre:'mt',lockF:true,n:'Wrangler Rubicon 37"',sub:'grigio, soft top, gomme da 37, verricello e barra LED: si arrampica ovunque',price:3800,sc:[1,1,1],mass:2100,p:1.25,col:null,model:'rubicon_grigio',lockR:true,lift:.04},
- giacu_wrangler:{tyre:'mt',lockF:true,n:'Wrangler Rubicon verde acido',sub:'verde acido, hard top, snorkel, barra LED, verricello e gomme da 37: il re delle pietraie',price:4500,sc:[1,1,1],mass:2050,p:1.3,col:null,model:'wrangler_verde',lockR:true,lift:.05},
- gusta_cherokee:{tyre:'at',vk:1.08,n:'Grand Cherokee 4.0',sub:'ZJ 4.0 V6 nero, gomme AT: comodo, potente, va forte nel fango',price:2200,sc:[1,1,1],mass:1750,p:1.18,col:null,model:'zj_cherokee'},
- renard_sorento:{tyre:'ht',vk:1.06,n:'Sorento',sub:'SUV comodo: bene sullo sterrato, nel fango profondo soffre',price:1200,sc:[1,1,1],mass:1950,p:1.02,col:null,model:'sorento_ref',lift:-.02},
- stefano_landcruiser:{tyre:'mt',n:'Land Cruiser BJ',sub:'BJ bianco a 3 porte, snorkel, verricello e gomme da fango: indistruttibile',price:3600,sc:[1,1,1],mass:1950,p:1.05,col:null,model:'bj_bianco',lockR:true,tough:.7},
- daniel_patrol:{tyre:'at',vk:1.04,n:'Patrol mimetico',sub:'mimetico rosso: pesante, potentissimo, sospensioni lunghe',price:5200,sc:[1,1,1],mass:2600,p:1.45,col:null,model:'camo_patrol',tough:.75,lift:.03},
- terrano_serie:{tyre:'ht',n:'Terrano Bull',sub:'grigio, bull bar e pedane: di serie, onesto e leggero. Da elaborare tutto',price:1200,sc:[1,1,1],mass:1800,p:.9,col:null,model:'terrano_serie'},
- xj_trial:{tyre:'mt',n:'Jeepsy',sub:'nero opaco con riga arancio, presa d\'aria sul cofano e gomme tassellate: corto di passo e cattivo',price:2600,sc:[1,1,1],mass:1650,p:1.05,col:null,model:'xj_trial',tough:.9},
- samurai:{tyre:'at',vk:0.85,n:'Samurai giallo',sub:'piccolo, leggerissimo, soft top e barra LED: passa dove gli altri si incastrano',price:1500,sc:[1,1,1],mass:1050,p:.56,col:null,model:'samurai'},
- pajero_corto:{tyre:'at',n:'Pajero corto',sub:'tre porte infangato con taniche e portapacchi: corto, agile, robusto',price:2400,sc:[1,1,1],mass:1850,p:1.12,col:null,model:'pajero_corto',tough:.85},
- grenadier:{tyre:'at',lockF:true,n:'Grenadier',sub:'verde scuro, telaio a longheroni e ponti rigidi: il fuoristrada moderno più duro',price:6000,sc:[1,1,1],mass:2650,p:1.45,col:null,model:'grenadier',lockR:true,tough:.7,lift:.02},
+const VEHS={terrano:{hood:1447704,tyre:'mt',n:'Terrano II Black Edition',sub:'nero, alzato, snorkel, barra LED e gomme tassellate · modello 3D vero',price:0,sc:[1,1,1],mass:2100,p:1.05,col:null,model:'gabbah_terrano'},
+ linus_terrano:{hood:1710618,tyre:'mt',n:'Terrano 2.7 TD',sub:'nero infangato, 2.7 TDi, snorkel, gomme tassellate e fari sul portellone',price:900,sc:[1,1,1],mass:1950,p:1.02,col:null,model:'terrano_nero'},
+ costa_terrano:{hood:10132896,tyre:'at',n:'Terrano grigio',sub:'argento con fascioni grigi, portapacchi e il Minion sulla ruota di scorta: affidabile, mai una rottura',price:800,sc:[1,1,1],mass:1900,p:.98,col:null,model:'terrano_grigio',tough:.85},
+ purcello_pajero:{hood:10988205,tyre:'at',n:'Pajero Sport',sub:'argento, portapacchi con la ruota e fari LED: quello che ti tira fuori dal fango',price:1600,sc:[1,1,1],mass:2050,p:1.12,col:null,model:'pajero_sport'},
+ linus_wrangler:{hood:7040624,tyre:'mt',lockF:true,n:'Wrangler Rubicon 37"',sub:'grigio, soft top, gomme da 37, verricello e barra LED: si arrampica ovunque',price:3800,sc:[1,1,1],mass:2100,p:1.25,col:null,model:'rubicon_grigio',lockR:true,lift:.04},
+ giacu_wrangler:{hood:9420578,tyre:'mt',lockF:true,n:'Wrangler Rubicon verde acido',sub:'verde acido, hard top, snorkel, barra LED, verricello e gomme da 37: il re delle pietraie',price:4500,sc:[1,1,1],mass:2050,p:1.3,col:null,model:'wrangler_verde',lockR:true,lift:.05},
+ gusta_cherokee:{hood:1184274,tyre:'at',vk:1.08,n:'Grand Cherokee 4.0',sub:'ZJ 4.0 V6 nero, gomme AT: comodo, potente, va forte nel fango',price:2200,sc:[1,1,1],mass:1750,p:1.18,col:null,model:'zj_cherokee'},
+ renard_sorento:{hood:8027520,tyre:'ht',vk:1.06,n:'Sorento',sub:'SUV comodo: bene sullo sterrato, nel fango profondo soffre',price:1200,sc:[1,1,1],mass:1950,p:1.02,col:null,model:'sorento_ref',lift:-.02},
+ stefano_landcruiser:{hood:15000284,tyre:'mt',n:'Land Cruiser BJ',sub:'BJ bianco a 3 porte, snorkel, verricello e gomme da fango: indistruttibile',price:3600,sc:[1,1,1],mass:1950,p:1.05,col:null,model:'bj_bianco',lockR:true,tough:.7},
+ daniel_patrol:{hood:9058858,tyre:'at',vk:1.04,n:'Patrol mimetico',sub:'mimetico rosso: pesante, potentissimo, sospensioni lunghe',price:5200,sc:[1,1,1],mass:2600,p:1.45,col:null,model:'camo_patrol',tough:.75,lift:.03},
+ terrano_serie:{hood:9080208,tyre:'ht',n:'Terrano Bull',sub:'grigio, bull bar e pedane: di serie, onesto e leggero. Da elaborare tutto',price:1200,sc:[1,1,1],mass:1800,p:.9,col:null,model:'terrano_serie'},
+ xj_trial:{hood:1710618,tyre:'mt',n:'Jeepsy',sub:'nero opaco con riga arancio, presa d\'aria sul cofano e gomme tassellate: corto di passo e cattivo',price:2600,sc:[1,1,1],mass:1650,p:1.05,col:null,model:'xj_trial',tough:.9},
+ samurai:{hood:15319589,tyre:'at',vk:0.85,n:'Samurai giallo',sub:'piccolo, leggerissimo, soft top e barra LED: passa dove gli altri si incastrano',price:1500,sc:[1,1,1],mass:1050,p:.56,col:null,model:'samurai'},
+ pajero_corto:{hood:7035461,tyre:'at',n:'Pajero corto',sub:'tre porte infangato con taniche e portapacchi: corto, agile, robusto',price:2400,sc:[1,1,1],mass:1850,p:1.12,col:null,model:'pajero_corto',tough:.85},
+ grenadier:{hood:3095340,tyre:'at',lockF:true,n:'Grenadier',sub:'verde scuro, telaio a longheroni e ponti rigidi: il fuoristrada moderno più duro',price:6000,sc:[1,1,1],mass:2650,p:1.45,col:null,model:'grenadier',lockR:true,tough:.7,lift:.02},
  base:{tyre:'ht',hide:1,n:'Ranger 2.5 TD',sub:'il tuo 4x4 di serie: onesto e robusto',price:0,sc:[1,1,1],mass:2100,p:1,col:null},
  grillo:{tyre:'at',vk:0.88,model:'jimny_verde',n:'Jimny 1.5',sub:'piccolo e leggero (in stile Jimny): stretto, galleggia nel fango, poco motore',price:1800,sc:[.88,.96,.82],mass:1200,p:.58,col:0xd8c23a},
  bisonte:{tyre:'at',hide:1,n:'Bisonte 110',sub:'squadrato all\'inglese (in stile Defender): più alto e più forte',price:3500,sc:[1.02,1.04,1.06],mass:2250,p:1.25,col:0x3d5a3a,lift:.03},
@@ -1736,7 +1748,7 @@ function physStep(dt,inp){
     const su0=surfAt(mount.x,mount.z);
     for(let it=0;it<4;it++){ P.copy(mount).addScaledVector(up,-t); const gh=wheelH(P.x,P.z,su0); t+=(P.y-gh)/Math.max(.3,up.y); }
     // gomma tonda: se davanti o dietro c'è un gradino/tronco/sasso più alto, la ruota ci appoggia sopra prima di arrivarci col centro
-    const ED=(st.edge=st.edge||[0,0,0,0]); ED[i]=0; { const kk=Math.floor(-P.z/4); if(!window.__noTire&&(OBB.get(kk)||OBB.get(kk+1)||OBB.get(kk-1)||ROCKB.get(kk))){ const fh=new V(fw.x,0,fw.z).normalize(), gh0=wheelH(P.x,P.z,su0); let best=gh0, bdx=0; for(const k of [-.85,-.7,-.55,-.4,-.25,.25,.4,.55,.7,.85]){ const dx=k*RW, qx=P.x+fh.x*dx, qz=P.z+fh.z*dx; const g=wheelH(qx,qz,su0)-(RW-Math.sqrt(RW*RW-dx*dx)); if(g>best+.004){ best=g; bdx=dx; } } const EL=(st.el=st.el||[0,0,0,0]), tg=Math.max(0,best-gh0); if(tg>EL[i]){ const vfw=Math.abs(st.vel.dot(fh)), dv=(st.dv&&st.dv[i])||0, Fz=(st.fz&&st.fz[i])||5000; const climb=thr>0||thr<0?(.32*clamp(dv/(Fz*.5+1),0,1.4)+Math.abs(thr)*(low?.42:.16)*clamp(muOf(su0),.3,1.1))*(tg>RW*1.3?.15:1)*(st.dspin&&st.dspin[i]?.35:1)*Math.pow(RW/.43,1.5):0; if(climb>.08&&tg-EL[i]>.04){ (st.climbW=st.climbW||[0,0,0,0])[i]=st.time; } EL[i]=Math.min(tg,EL[i]+(vfw*1.9+climb+.02)*dt); } else EL[i]+=(tg-EL[i])*Math.min(1,dt*30); /* la gomma sale sull'ostacolo solo se avanza */ if(EL[i]>.002){ t-=EL[i]/Math.max(.3,up.y); ED[i]=bdx; } (st.gap=st.gap||[0,0,0,0])[i]=bdx?Math.max(0,tg-EL[i])*(OBB.get(kk)||OBB.get(kk+1)||OBB.get(kk-1)?1:.45):0; (st.gdir=st.gdir||[0,0,0,0])[i]=Math.sign(bdx); } else if(st.el) st.el[i]=0; }
+    const ED=(st.edge=st.edge||[0,0,0,0]); ED[i]=0; { const kk=Math.floor(-P.z/4); if(!window.__noTire&&(OBB.get(kk)||OBB.get(kk+1)||OBB.get(kk-1)||ROCKB.get(kk))){ const fh=new V(fw.x,0,fw.z).normalize(), gh0=wheelH(P.x,P.z,su0); let best=gh0, bdx=0; for(const k of [-.85,-.7,-.55,-.4,-.25,.25,.4,.55,.7,.85]){ const dx=k*RW, qx=P.x+fh.x*dx, qz=P.z+fh.z*dx; const g=wheelH(qx,qz,su0)-(RW-Math.sqrt(RW*RW-dx*dx)); if(g>best+.004){ best=g; bdx=dx; } } const EL=(st.el=st.el||[0,0,0,0]), tg=Math.max(0,best-gh0); if(tg>EL[i]){ const vfw=Math.abs(st.vel.dot(fh)), dv=(st.dv&&st.dv[i])||0, Fz=(st.fz&&st.fz[i])||5000; const climb=thr>0||thr<0?(.32*clamp(dv/(Fz*.5+1),0,1.4)+Math.abs(thr)*(low?.42:.16)*clamp(muOf(su0),.3,1.1))*(tg>RW*1.6?.15:1)*(st.dspin&&st.dspin[i]?.35:1)*Math.pow(RW/.43,1.5):0; if(climb>.08&&tg-EL[i]>.04){ (st.climbW=st.climbW||[0,0,0,0])[i]=st.time; } EL[i]=Math.min(tg,EL[i]+(vfw*1.9+climb+.02)*dt); } else EL[i]+=(tg-EL[i])*Math.min(1,dt*30); /* la gomma sale sull'ostacolo solo se avanza */ if(EL[i]>.002){ t-=EL[i]/Math.max(.3,up.y); ED[i]=bdx; } (st.gap=st.gap||[0,0,0,0])[i]=bdx?Math.max(0,tg-EL[i])*(OBB.get(kk)||OBB.get(kk+1)||OBB.get(kk-1)?1:.45):0; (st.gdir=st.gdir||[0,0,0,0])[i]=Math.sign(bdx); } else if(st.el) st.el[i]=0; }
     const dist=t-RW;
     let x=LN-dist; st.contact[i]=0; st.dspin[i]=0;
     const xd=i>=2&&!VEH.indepR&&!window.__noAx?clamp(st.comp[i===2?3:2]-.24,0,.26)*.9:0; // ponte rigido dietro: se una ruota sale, l'altra scende e resta a terra
@@ -1779,7 +1791,7 @@ function physStep(dt,inp){
     if(mag>lim){ slip=1-lim/mag; fx*=lim/mag; fy*=lim/mag; }
     st.slip[i]=Math.max(slip||(ab>lim*1.02?.5:0),st.dspin[i]?.65:0);
     const f=new V().addScaledVector(n,Fs).addScaledVector(wf,fx).addScaledVector(ws,fy);
-    { const gp=st.gap&&st.gap[i]; if(gp>.03&&st.gdir[i]){ const fh2=new V(fw.x,0,fw.z).normalize(), vin=st.vel.dot(fh2)*st.gdir[i]; f.addScaledVector(fh2,-st.gdir[i]*Math.min(16000,(gp-.03)*90000+Math.max(0,vin)*6000)); if(i<2&&gp>.06&&vin>.5&&st.time-(st.kickT||0)>.7){ st.kickT=st.time; st.steer=clamp(st.steer+(WH[i].x<0?-1:1)*Math.min(.22,.07+vin*.06),-.7,.7); vib(30); shake=Math.max(shake,.06+vin*.03); } if(vin>1.2&&gp>.08&&st.time-(st.wallHit||-9)>.8){ st.wallHit=st.time; const k=vin-1.0; st.dmg.semiassi+=k*5*semiK; st.dmg.gomme+=k*3*gomK; hit(vin*1.5); if(st.time-(st.wallSaid||-99)>20){ st.wallSaid=st.time; toast('Botta sullo scalino!','sugli ostacoli alti si arriva piano, in ridotte: col colpo rompi semiassi e gomme'); } } } }
+    { const gp=st.gap&&st.gap[i]; if(gp>.03&&st.gdir[i]){ const fh2=new V(fw.x,0,fw.z).normalize(), vin=st.vel.dot(fh2)*st.gdir[i]; f.addScaledVector(fh2,-st.gdir[i]*Math.min(Math.max(4000,(st.fz&&st.fz[i]||5000)*1.4),(gp-.03)*38000+Math.max(0,vin)*9000)); if(i<2&&gp>.06&&vin>.5&&st.time-(st.kickT||0)>.7){ st.kickT=st.time; st.steer=clamp(st.steer+(WH[i].x<0?-1:1)*Math.min(.22,.07+vin*.06),-.7,.7); vib(30); shake=Math.max(shake,.06+vin*.03); } if(vin>1.2&&gp>.08&&st.time-(st.wallHit||-9)>.8){ st.wallHit=st.time; const k=vin-1.0; st.dmg.semiassi+=k*5*semiK; st.dmg.gomme+=k*3*gomK; hit(vin*1.5); if(st.time-(st.wallSaid||-99)>20){ st.wallSaid=st.time; toast('Botta sullo scalino!','sugli ostacoli alti si arriva piano, in ridotte: col colpo rompi semiassi e gomme'); } } } }
     (st.dv=st.dv||[0,0,0,0])[i]=Math.abs(drive[i]); (st.fz=st.fz||[0,0,0,0])[i]=Fs;
     F.add(f); T.add(new V().crossVectors(r,f));
     st.spin[i]+=vl/RW*dt*(1+st.slip[i]*2)+(st.dspin[i]?thr*dt*10:0);
@@ -1816,7 +1828,7 @@ function physStep(dt,inp){
       const vn=vp.dot(n); const Fn=clamp(60000*Math.min(pen,.3)-7000*vn,0,16000); const vt=vp.clone().addScaledVector(n,-vn); const f=n.clone().multiplyScalar(Fn).addScaledVector(vt,-Math.min(Fn*.6/(vt.length()+1e-3),4000));
       F.add(f); T.add(new V().crossVectors(r,f)); { const vts=vt.length(); if(by<0&&vts>.6&&st.time-(st.scrT||0)>.07){ st.scrT=st.time; st.scrape=1; const rk=st.surf==='roccia'||st.surf==='ghiaia'; for(let q=0;q<(rk?4:2);q++) emit(P.clone(),vt.clone().multiplyScalar(-.3).add(new V((Math.random()-.5)*2,1+Math.random()*2,(Math.random()-.5)*2)),rk?[1,.75,.3]:[.35,.27,.18],{k:1,s:rk?.035:.09,life:rk?.35:.8,a:1}); if(st.time-(st.scrS||0)>.18){ st.scrS=st.time; vib(rk?25:12); auBurst(rk?3200:900,.14,.22,rk?'highpass':'bandpass',2); } if(st.time-(st.scrTo||-99)>12&&pen>.04){ st.scrTo=st.time; toast(own('plate')?'Gratti sotto · la piastra protegge':'Gratti col sottoscocca!',own('plate')?'la coppa è al sicuro':'occhio alla coppa dell\'olio: in officina c\'è la piastra'); } } } if(by<0&&vn<-.7&&st.time-(st.bellyT||0)>.5){ st.bellyT=st.time; auThud(Math.min(1,-vn/2.2)); shake=Math.max(shake,Math.min(.35,-vn*.13)); vib(35+Math.min(60,-vn*25)); } if(vn<-1.5&&st.time-(st.bodyT||0)>.6){ st.bodyT=st.time; if(by<0) st.dmg.coppa+=Math.abs(vn)*3*(own('plate')?.3:1); else st.dmg.carrozzeria+=Math.abs(vn)*4*(own('sliders')?.5:1); hit(Math.abs(vn)); } } }
   // limiti del tracciato: niente gite fuori strada nello scenario (dirupi, valle sotto il belvedere)
-  { const sc=clamp(-st.pos.z,0,LEN), d=st.pos.x-CX(sc), ad=Math.abs(d), LIM=HALF+7.5; if(ad>LIM){ const sg=Math.sign(d), pen=Math.min(ad-LIM,2), vo=st.vel.x*sg; F.x+=-sg*(pen*60000+Math.max(0,vo)*9000); if(st.time-(st.offSaid||-99)>8){ st.offSaid=st.time; toast('Resta sul tracciato','oltre ci sono dirupi e bosco fitto: torna sulla traccia'); } } }
+  { const sc=clamp(-st.pos.z,0,LEN), d=st.pos.x-CX(sc), ad=Math.abs(d); let LIM=HALF+7.5; for(const o of OBST){ if(o.t==='pud') continue; if(sc>o.s-3&&sc<o.s+Math.max(2.5,o.len||2)+3){ LIM=Math.min(LIM,OSIDE(o)-.85); } } if(ad>LIM){ const sg=Math.sign(d), pen=Math.min(ad-LIM,2), vo=st.vel.x*sg; F.x+=-sg*(pen*60000+Math.max(0,vo)*9000); if(st.time-(st.offSaid||-99)>8){ st.offSaid=st.time; toast('Resta sul tracciato','oltre ci sono dirupi e bosco fitto: torna sulla traccia'); } } }
   // alberi
   // galleria: pareti di roccia vere, non si sale sui muri
   if(zoneAt(st.s).t==='galleria'){ for(const o of [-1.7,0,1.7]) for(const l of [-.95,.95]){ const px=st.pos.x+fw.x*o+rt.x*l, pz=st.pos.z+fw.z*o+rt.z*l, d=px-CX(-pz), lim=3.05; if(Math.abs(d)>lim){ const nx=-Math.sign(d), pen=Math.min(.35,Math.abs(d)-lim), vn=st.vel.x*nx; F.x+=(140000*pen-(vn<0?16000*vn:0))*nx; if(vn<-2.2&&performance.now()-hitT>700){ st.dmg.carrozzeria+=-vn*3*(own('sliders')?.5:1); hit(-vn,'wall'); } } } }
@@ -2063,22 +2075,27 @@ function auBurst(f,dur,vol,type,q,f2,when){ if(!AC) return; const s=AC.createBuf
 function auTone(f,dur,vol,type,f2){ if(!AC) return; const o=AC.createOscillator(), g=AC.createGain(), t=AC.currentTime; o.type=type||'sine'; o.frequency.setValueAtTime(f,t); if(f2) o.frequency.exponentialRampToValueAtTime(f2,t+dur); g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.001,t+dur); o.connect(g); g.connect(M); o.start(t); o.stop(t+dur+.05); }
 function auThud(k){ auBurst(110,.3*k+.1,.9*k,'lowpass',.8); auTone(65,.25,.5*k,'sine',38); }
 let grainAcc={mud:0,water:0,grav:0,rock:0};
+const ENGS={dsl4:{dsl:1,cyl:4,idle:780,red:4300,up:2900,down:1450,turbo:1},dsl6:{dsl:1,cyl:6,idle:680,red:4200,up:2800,down:1350,turbo:1},pet4:{dsl:0,cyl:4,idle:850,red:6300,up:4300,down:2000},pet6:{dsl:0,cyl:6,idle:700,red:5600,up:3900,down:1800}};
+const VENG={terrano:'dsl4',linus_terrano:'dsl4',costa_terrano:'dsl4',purcello_pajero:'dsl4',linus_wrangler:'pet6',giacu_wrangler:'pet6',gusta_cherokee:'pet6',renard_sorento:'dsl4',stefano_landcruiser:'dsl4',daniel_patrol:'dsl6',terrano_serie:'dsl4',xj_trial:'pet6',samurai:'pet4',pajero_corto:'dsl4',grenadier:'dsl6',base:'dsl4',grillo:'pet4',bisonte:'dsl4',orso:'dsl6'};
+function engSpec(){ const k=own('v6')?'dsl6':(VENG[prevVeh||save.veh]||'dsl4'); return ENGS[k]; }
 function auUpd(inp,sp,dt){
   if(!eng) return; const t=AC.currentTime, low=st.gear==='ridotte', asp=Math.abs(sp), slip=Math.max(...st.slip);
-  let rpm; // 1 = minimo
-  if(slip>.35&&inp.gas) rpm=3.6;
-  else if(low) rpm=1+Math.min(1,asp/7)*2.6;
-  else { const gN=Math.min(4,Math.floor(asp/5.2)); rpm=1+((asp-gN*5.2)/5.2)*2.2+gN*.25; if(st.gN!=null&&gN!==st.gN&&inp.gas){ auBurst(140,.06,.18,'lowpass',2); if(gN>st.gN){ st.rpm=Math.max(1,(st.rpm||1)-.9); auBurst(2400,.18,.05,'highpass',1); } } st.gN=gN; }
-  if(inp.gas) rpm+=.35; rpm=Math.min(4.2,rpm);
-  st.rpm=lerp(st.rpm||1,rpm,.12);
-  const fr=st.rpm*(own('v6')?.82:1); eng.src.playbackRate.setTargetAtTime(fr,t,.05);
-  eng.o1.frequency.setTargetAtTime(25*fr,t,.05); eng.o2.frequency.setTargetAtTime(12.5*fr*1.004,t,.05);
-  eng.sub.frequency.setTargetAtTime(110+st.rpm*55+(inp.gas?60:0),t,.08);
-  eng.flt.frequency.setTargetAtTime(260+st.rpm*(inp.gas?160:90),t,.06);
-  eng.g.gain.setTargetAtTime(.16+(inp.gas?.12:0)+st.rpm*.02,t,.06);
-  eng.g2.gain.setTargetAtTime(.32+(inp.gas?.2:0)+st.rpm*.03+(own('v6')?.08:0),t,.06);
-  turbo.o.frequency.setTargetAtTime(1300+st.rpm*450,t,.1); turbo.g.gain.setTargetAtTime(inp.gas?(own('turbo')?.0035:.0012)*st.rpm:0,t,.2); if(st.gasPrev&&!inp.gas&&st.rpm>2.3) auBurst(3000,.22,own('turbo')?.12:.05,'highpass',1); st.gasPrev=!!inp.gas;
-  if(low&&inp.gas&&asp<3) eng.g2.gain.setTargetAtTime(.62+st.rpm*.04,t,.08);
+  // motore vero: giri dal rapporto (marcia, ridotte, ponte) e dal diametro delle ruote; diesel o benzina, 4 o 6 cilindri
+  const E=engSpec(), GR=[4.1,2.35,1.5,1.0,.8], AX=4.6*(low?(own('shortlow')?4.0:2.6):1), idle=E.idle, red=E.red;
+  const wsp=Math.max(asp,slip>.35&&inp.gas?asp+slip*(low?1.2:3):0), wr=wsp/(2*Math.PI*RW)*60*AX; // giri ruota x ponte
+  let g=st.gI??0; if(!low){ if(wr*GR[g]>E.up&&g<4){ g++; st.shiftT=st.time; if(inp.gas){ auBurst(140,.06,.18,'lowpass',2); auBurst(2400,.14,.04,'highpass',1); } } else if(g>0&&wr*GR[g]<E.down) g--; } else g=0; st.gI=g;
+  let rpmR=wr*GR[g]; const clutch=Math.max(0,1-wsp/(low?.8:2.2)); rpmR=Math.max(rpmR,idle+(inp.gas||0)*(low?900:1400)*clutch); if(st.time-(st.shiftT||-9)<.25&&!low) rpmR*=.82;
+  if(rpmR>red){ rpmR=red-Math.random()*220; }
+  const load=clamp((inp.gas||0)*(1.2-Math.min(1,asp/(low?7:22)))+(st.sink||0)*.5+Math.max(0,-up.z*fw.y)*0,0,1);
+  st.rpmR=lerp(st.rpmR||idle,rpmR,.15); st.rpm=st.rpmR/idle; st.load=lerp(st.load||0,inp.gas?load:0,.1);
+  const fire=st.rpmR/60*E.cyl/2, fr=fire/25; eng.src.playbackRate.setTargetAtTime(fr,t,.04);
+  eng.o1.frequency.setTargetAtTime(fire,t,.04); eng.o2.frequency.setTargetAtTime(fire/2*1.004,t,.04);
+  const L=st.load, nr=st.rpmR/red;
+  eng.sub.frequency.setTargetAtTime((E.dsl?90:130)+nr*(E.dsl?260:520)+L*80,t,.08);
+  eng.flt.frequency.setTargetAtTime((E.dsl?240:380)+nr*(E.dsl?900:1800)*(.55+L*.45),t,.06);
+  eng.g.gain.setTargetAtTime((E.dsl?.2:.09)+L*(E.dsl?.18:.1)+nr*.08,t,.06);
+  eng.g2.gain.setTargetAtTime((E.dsl?.3:.38)+L*.28+nr*.18+(E.cyl>4?.06:0),t,.06);
+  const tb=E.turbo||own('turbo'); turbo.o.frequency.setTargetAtTime(900+nr*3400,t,.12); turbo.g.gain.setTargetAtTime(tb&&inp.gas?(own('turbo')?.006:.0028)*nr*(.4+L):0,t,.25); if(tb&&st.gasPrev&&!inp.gas&&nr>.55) auBurst(3200,.25,own('turbo')?.12:.05,'highpass',1); st.gasPrev=!!inp.gas;
   { const W=st.winch; AC.win.o.frequency.setTargetAtTime(70+(W?W.load:0)/53000*60,t,.1); auSet(AC.win,W&&W.pull?.08:0); }
   // ruote
   let mudW=0, watW=0, grvW=0, rocW=0; for(let i=0;i<4;i++){ if(!st.contact[i]) continue; const w=st.wsurf[i]; if(isSoft(w)) mudW++; else if(w==='acqua') watW++; else if(w==='roccia') rocW++; else grvW++; }
@@ -2962,6 +2979,13 @@ function frame(now){ UORG.value.copy(cam.position);
       const sc0=-st.pos.z, inW=inWet(sc0,2)&&st.inWater>0, wy=inW?waterY(sc0):0, pdW=inPud(sc0,2);
       for(let i=0;i<4;i++){ const W=WH[i]; const c=new V(W.x,MOUNTY-(LN-st.comp[i]),W.z).applyQuaternion(st.q).add(st.pos); const su=st.contact[i]?st.wsurf[i]:null; const sl=st.slip[i];
         const ts=asp*(1+sl*2.5)+sl*6; const side=Math.sign(W.x);
+        // ruota che slitta col gas: getto di materiale lanciato dal battistrada (fango a zolle, terra e sassi, polvere, acqua)
+        if(su&&sl>.32&&(pad.gas||0)>.25){ const wc=c.clone().addScaledVector(up,-RW*.55), n=Math.min(6,Math.floor(st.ea[4]=(st.ea[4]||0)+dt*(18+sl*70)*(W.f?.8:1))); st.ea[4]-=n;
+          for(let q=0;q<n;q++){ const back=fw.clone().multiplyScalar(-dir*(3+sl*6+R()*3)).addScaledVector(up,1.5+R()*3.5).addScaledVector(rt,side*(R()*1.6)+(R()-.5)*1.2);
+            if(isMud(su)||su==='fangoProf'){ emit(wc.clone().addScaledVector(fw,-dir*RW*.6),back,R()<.5?[.2,.13,.07]:[.3,.2,.11],{k:1,s:.07+R()*.12,life:1.2}); if(R()<.12) addSplat(wc.x-fw.x*dir*(2+R()*3),baseH(wc.x,wc.z),wc.z-fw.z*dir*(2+R()*3),.25+R()*.3,[.25,.17,.09]); }
+            else if(su==='acqua'){ emit(wc.clone(),back.multiplyScalar(.8),[.82,.9,.94],{k:2,s:.08+R()*.14,a:.8,life:1}); }
+            else if(su==='neve'||su==='ghiaccio'){ emit(wc.clone(),back.multiplyScalar(.7),[.95,.97,1],{k:2,s:.06+R()*.1,a:.9,life:1.1}); }
+            else { emit(wc.clone(),back,R()<.6?[.4,.33,.25]:[.55,.5,.44],{k:1,s:.03+R()*.05,life:.9}); if(R()<.45) emit(wc.clone().addScaledVector(up,.2),back.multiplyScalar(.25),su==='roccia'?[.6,.58,.55]:[.68,.6,.48],{k:4,s:.9+R()*.9,g:2.2,a:.28,life:1.6}); } } }
         if(su&&!isSoft(su)&&su!=='acqua'&&((st.climbW&&st.time-st.climbW[i]<.15)||(st.el&&st.el[i]>.04&&sl>.25))&&R()<dt*26){ const ch=c.clone().addScaledVector(up,-RW*.6).addScaledVector(fw,dir*RW*.5); emit(ch,fw.clone().multiplyScalar(-dir*(1.5+R()*2.5)).addScaledVector(up,1.2+R()*2.2).addScaledVector(rt,(R()-.5)*2),R()<.5?[.36,.34,.31]:[.5,.46,.4],{k:1,s:.035+R()*.05,g:0,life:.9}); if(R()<.35) emit(ch,fw.clone().multiplyScalar(-dir*.8).addScaledVector(up,.7),[.62,.58,.52],{k:4,s:.5+R()*.4,g:2,a:.22,life:1.1}); }
         if(su&&isSoft(su)&&ts>.8){ const neve=su==='neve'; st.ea[i]+=dt*(ts*7+sl*45); 
           while(st.ea[i]>1){ st.ea[i]--; const p=c.clone().addScaledVector(fw,-dir*.3).addScaledVector(up,.15+R()*.25).addScaledVector(rt,side*(.05+R()*.15));
@@ -3038,13 +3062,13 @@ function frame(now){ UORG.value.copy(cam.position);
   else if(camMode===0){ const ob=OBST.some(o=>st.s>o.s-8&&st.s<o.s+(o.len||14)+4)||st.surf==='roccia'; const asp0=Math.abs(st.vel.dot(fw)); st.camTech=lerp(st.camTech||0,ob&&asp0<4?1:0,1-Math.pow(.25,dt)); const ct=st.camTech; want=st.pos.clone().addScaledVector(fh,-9+ct*3.2).add(new V(0,4.2-ct*1.9,0)).addScaledVector(rh,ct*1.6); look=st.pos.clone().addScaledVector(fh,5-ct*2.5).add(new V(0,.6-ct*.2,0)); }
   else if(camMode===1){ want=st.pos.clone().addScaledVector(fh,-5.6).add(new V(0,2.3,0)); look=st.pos.clone().addScaledVector(fh,6).add(new V(0,.7,0)); clr=1.1; }
   else if(camMode===2){ want=st.pos.clone().addScaledVector(fh,-3.4).addScaledVector(rh,-2.1).add(new V(0,.15,0)); look=st.pos.clone().addScaledVector(fh,6).addScaledVector(rh,.4).add(new V(0,.1,0)); clr=.45; kp=.002; }
-  else if(camMode===4){ want=new V(-.36,.58,-.05).applyQuaternion(st.q).add(st.pos); look=new V(-.36,.25,-12).applyQuaternion(st.q).add(st.pos); clr=.2; kp=.000001; }
+  else if(camMode===4){ want=new V(-.36,.66,.08).applyQuaternion(st.q).add(st.pos); look=new V(-.3,.05,-12).applyQuaternion(st.q).add(st.pos); clr=.2; kp=.000001; }
   else { want=new V(0,1.75,.9).applyQuaternion(st.q).add(st.pos); look=new V(0,-.2,-8).applyQuaternion(st.q).add(st.pos); clr=.3; kp=.00001; }
   const gh=height(want.x,want.z)+clr; if(want.y<gh) want.y=gh;
   { const zc=zoneAt(-want.z), zp=zoneAt(st.s); if(zc.t==='galleria'||zp.t==='galleria'){ const w2=st.pos.clone().addScaledVector(fh,-4.6).add(new V(0,1.2,0)); if(camMode<2) want.copy(w2); const cx=CX(-want.z); want.x=clamp(want.x,cx-2.3,cx+2.3); const gy=baseH(cx,want.z); want.y=Math.min(want.y,gy+2.8); look.y=Math.min(look.y,gy+1.7); } }
   if(first){ camPos.copy(want); camLook.copy(look); first=false; }
   camPos.lerp(want,1-Math.pow(kp,dt)); camLook.lerp(look,1-Math.pow(camMode>=3?kp:st.camCut?.0005:.001,dt));
-  if(camMode<=2&&!st.camCut){ const CY=(frame.cy=frame.cy||{y:camPos.y,v:0}); if(first||Math.abs(CY.y-camPos.y)>3){ CY.y=camPos.y; CY.v=0; } CY.v+=((camPos.y-CY.y)*26-CY.v*7.5)*dt; CY.y+=CY.v*dt; camPos.y=CY.y; } // la camera ha peso: sui colpi il mezzo si muove nell'inquadratura e lei arriva dopo cockpitUpd(dt);
+  if(camMode<=2&&!st.camCut){ const CY=(frame.cy=frame.cy||{y:camPos.y,v:0}); if(first||Math.abs(CY.y-camPos.y)>3){ CY.y=camPos.y; CY.v=0; } CY.v+=((camPos.y-CY.y)*26-CY.v*7.5)*dt; CY.y+=CY.v*dt; camPos.y=CY.y; } /* la camera ha peso: sui colpi il mezzo si muove nell'inquadratura e lei arriva dopo */ cockpitUpd(dt);
   cam.position.copy(camPos); if(shake>0){ cam.position.x+=(Math.random()-.5)*shake; cam.position.y+=(Math.random()-.5)*shake; shake=Math.max(0,shake-dt*1.5); }
   cam.lookAt(camLook);
   if(st.drone) updDrone(dt);
@@ -3142,12 +3166,12 @@ function wipe(){ if(wipeT>=0) return; wipeT=0; auBurst(900,.5,.1,'bandpass',2); 
 $('#wipeB').addEventListener('click',wipe);
 function cockpitUpd(dt){ const on=camMode===4&&st.running&&!campMode&&!st.drone; $('#cockpit').hidden=!on;
   const show=!on; ckpit.G.visible=on; if(on!==ckpit.was){ ckpit.was=on; car.traverse(o=>{ if(!o.isMesh||!o.material||ckpit.G.getObjectById(o.id)) return; let w=false; for(let p=o;p;p=p.parent) if(wheels.includes(p)){ w=true; break; } if(w) return; const m=o.material; if(o.userData.glass||m.transparent||m.transmission>0){ if(o.userData.vis0===undefined) o.userData.vis0=o.visible; o.visible=on?false:o.userData.vis0; } else { if(o.userData.side0===undefined) o.userData.side0=m.side; m.side=on?THREE.FrontSide:o.userData.side0; m.clippingPlanes=on?[ckClip]:null; m.needsUpdate=true; } }); }
-  if(on){ const P0=new V(0,0,-1.1).applyQuaternion(st.q).add(st.pos); ckClip.normal.copy(fw).negate(); ckClip.constant=-ckClip.normal.dot(P0); ckClip.normal.negate(); ckClip.constant=-ckClip.constant; } if(curRoot) curRoot.visible=true; if(carRoot&&!curRoot) carRoot.visible=true; for(const g of wheels) if(g) g.visible=show||true; rtt.visible=show&&own('maggiolina'); ledMesh.visible=show&&own('led')&&!curRoot; winchMesh.visible=show&&own('winch'); snorkMesh.visible=show&&own('snorkel')&&!curRoot;
-  if(!on) return; mudSize(); ckpit.sw.rotation.z=st.steer*2.6; { const kmh=Math.abs(st.vel.dot(fw))*3.6, rpm=.9+(st.gear==='ridotte'?kmh/25:kmh/80)*3.2+(pad.gas?.5:0); ckpit.nS.rotation.z=-(-135+Math.min(270,kmh*2.7))*Math.PI/180; ckpit.nR.rotation.z=-(-135+Math.min(270,rpm/5*270))*Math.PI/180; }
+  if(on){ const P0=new V(0,0,-1.1).applyQuaternion(st.q).add(st.pos); ckClip.normal.copy(fw).negate(); ckClip.constant=-ckClip.normal.dot(P0); ckClip.normal.negate(); ckClip.constant=-ckClip.constant; } if(curRoot) curRoot.visible=!on; if(carRoot&&!curRoot) carRoot.visible=!on; for(const g of wheels) if(g) g.visible=show; ckpit.hood.material.color.set(VEH.col!=null?VEH.col:(VEH.hood||0x1d1e20)); rtt.visible=show&&own('maggiolina'); ledMesh.visible=show&&own('led')&&!curRoot; winchMesh.visible=show&&own('winch'); snorkMesh.visible=show&&own('snorkel')&&!curRoot;
+  if(!on) return; mudSize(); ckpit.sw.rotation.z=st.steer*2.6; { const kmh=Math.abs(st.vel.dot(fw))*3.6, rpm=(st.rpmR||800)/1000; ckpit.nS.rotation.z=-(-135+Math.min(270,kmh*2.7))*Math.PI/180; ckpit.nR.rotation.z=-(-135+Math.min(270,rpm/5*270))*Math.PI/180; }
   const sp=Math.abs(st.vel.dot(fw)); let soft=0; for(let i=0;i<4;i++) if(st.contact[i]&&isSoft(st.wsurf[i])&&st.wsurf[i]!=='neve') soft+=1+st.slip[i]*3;
   if(soft&&(sp>2||st.slip.some(v=>v>.3))&&Math.random()<dt*soft*(.6+sp*.12)) mudSplat(Math.random()<.25);
   if(st.inWater>0&&sp>2&&Math.random()<dt*sp*.5){ mctx.globalCompositeOperation='destination-out'; mctx.fillStyle='rgba(0,0,0,.25)'; mctx.fillRect(0,0,mudc.width,mudc.height); mctx.globalCompositeOperation='source-over'; mudAmt*=.85; }
-  { const sp2=Math.abs(st.vel.dot(fw))*3.6; $('#ndS').setAttribute('transform',`rotate(${-135+Math.min(270,sp2*2.2)} 275 548)`); const rpm=1+(st.gear==='ridotte'?sp2/25:sp2/80)*3.2+(pad.gas?.6:0); $('#ndR').setAttribute('transform',`rotate(${-135+Math.min(270,rpm*45)} 385 548)`); $('#lt4').setAttribute('fill',st.awd?'#3c3':'#333'); $('#ltL').setAttribute('fill',st.gear==='ridotte'?'#fb3':'#433'); }
+  { const sp2=Math.abs(st.vel.dot(fw))*3.6; $('#ndS').setAttribute('transform',`rotate(${-135+Math.min(270,sp2*2.2)} 275 548)`); const rpm=(st.rpmR||800)/1000; $('#ndR').setAttribute('transform',`rotate(${-135+Math.min(270,rpm*45)} 385 548)`); $('#lt4').setAttribute('fill',st.awd?'#3c3':'#333'); $('#ltL').setAttribute('fill',st.gear==='ridotte'?'#fb3':'#433'); }
   if(wipeT>=0){ wipeT+=dt; const k=Math.min(1,wipeT/.9), ang=Math.sin(k*Math.PI)*-112; $('#wpL').setAttribute('transform',`rotate(${ang} 250 505)`); $('#wpR').setAttribute('transform',`rotate(${ang} 610 505)`);
     mctx.globalCompositeOperation='destination-out'; mctx.fillStyle='rgba(0,0,0,.18)'; const W=mudc.width,H=mudc.height; for(const px of [.25,.61]){ mctx.beginPath(); mctx.moveTo(W*px,H*.84); mctx.ellipse(W*px,H*.84,W*.31,H*.62,0,-.04-k*1.95,-.04); mctx.closePath(); mctx.fill(); } mctx.globalCompositeOperation='source-over';
     if(k>=1){ wipeT=-1; $('#wpL').setAttribute('transform','rotate(0 250 505)'); $('#wpR').setAttribute('transform','rotate(0 610 505)'); mudAmt*=.25; mctx.fillStyle='rgba(60,42,24,.35)'; mctx.fillRect(0,mudc.height*.86,mudc.width,mudc.height*.14); } } }
@@ -3345,7 +3369,7 @@ function weatherUpd(dt){ { const M=world.userData.mist; if(M) for(const m of M){
 function weatherSky(){ if(WX==='sereno'||!TR) return; const grey=new THREE.Color(WX==='nebbia'?0xb8bfc6:0x5c6670);
   skyU.top.value.lerp(grey,.75); skyU.bot.value.lerp(grey.clone().multiplyScalar(1.15),.7); skyU.cloud.value=1; skyU.cloudCol.value.lerp(new THREE.Color(.45,.48,.52),.7); skyU.sunSize.value*=.15;
   sun.intensity*=WX==='nebbia'?.55:WX==='temporale'?.25:.45; scene.fog.color.copy(skyU.bot.value);
-  if(WX==='nebbia'){ scene.fog.near=4; scene.fog.far=55; } else { scene.fog.near=Math.min(scene.fog.near,22); scene.fog.far=Math.min(scene.fog.far,WX==='temporale'?110:150); } }
+  if(WX==='nebbia'){ scene.fog.near=4; scene.fog.far=55; } else { scene.fog.near=Math.min(scene.fog.near,22); scene.fog.far=Math.min(scene.fog.far,WX==='temporale'?260:340); } }
 /* ---------- Garage ---------- */
 const UPG={
   at:{cat:'mezzo',g:'Gomme',name:'Gomme A/T',price:350,desc:'All terrain: più presa su fango, sassi e neve, e ancora buone sullo sterrato.',fx:'fango +20% · pietraia +12% · neve +20%'},
