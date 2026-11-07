@@ -509,7 +509,7 @@ body.incamp #skipB{display:block}
 /* ritocco foto: contrasto, colori caldi, bordi scuri */
 
 #vign{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 50% 42%,transparent 50%,rgba(14,7,0,.38) 100%),linear-gradient(180deg,rgba(255,170,80,.06),transparent 35%)}
-#cv{filter:saturate(1.14) contrast(1.06)}body.ouch::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:30;box-shadow:inset 0 0 calc(60px + 90px*var(--ouch,.5)) rgba(200,20,10,calc(.35 + .4*var(--ouch,.5)));animation:ouchA .55s ease-out forwards}.dfl{animation:dflA .7s ease-out}@keyframes dflA{0%,40%{box-shadow:0 0 0 3px #ff3b2b,0 0 18px #ff3b2b;transform:scale(1.06)}100%{box-shadow:none;transform:none}}@keyframes ouchA{0%{opacity:1}100%{opacity:0}}body.incamp #cv{filter:saturate(1.08) contrast(1.04)}body.lowq #cv{filter:none}
+#cv{filter:saturate(1.14) contrast(1.06)}#fisB{font-size:12px;padding:3px 9px;opacity:.85}#fisB.ok{border-left:3px solid #7cc35a}#fisB.ko{border-left:3px solid #d7262b}#fisB.ld{border-left:3px solid #f2c230}body.ouch::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:30;box-shadow:inset 0 0 calc(60px + 90px*var(--ouch,.5)) rgba(200,20,10,calc(.35 + .4*var(--ouch,.5)));animation:ouchA .55s ease-out forwards}.dfl{animation:dflA .7s ease-out}@keyframes dflA{0%,40%{box-shadow:0 0 0 3px #ff3b2b,0 0 18px #ff3b2b;transform:scale(1.06)}100%{box-shadow:none;transform:none}}@keyframes ouchA{0%{opacity:1}100%{opacity:0}}body.incamp #cv{filter:saturate(1.08) contrast(1.04)}body.lowq #cv{filter:none}
 
 button.daily{display:block;width:100%;margin:6px 0 2px;background:linear-gradient(135deg,#2a5ad8,#1a2f80)!important;color:#fff;font-size:20px}button.daily small{display:block;font-size:13px;opacity:.85;margin-top:3px}
 
@@ -646,6 +646,7 @@ body.incamp #toast small{font-family:var(--fc)}
     </div>
     <div class="pl gauge" id="gSink" hidden>Affondamento<i id="gSinkI" style="--c:#b07a45"></i></div>
     <div class="pl gauge" id="gWater" hidden>Acqua al filtro<i id="gWaterI" style="--c:#5aa6c2"></i></div>
+    <div class="pl chip" id="fisB"></div>
   </div>
   <div id="pace" hidden><b id="paceI"></b><div><strong id="paceN"></strong><span id="paceD"></span><small id="paceT"></small></div></div>
   <div id="incl" hidden><div class="ib"><i></i><b class="w0"></b><b class="w1"></b></div><span id="inclT">0°</span><em id="inclW"></em><div id="w4"><u></u><s></s><s></s><s></s><s></s></div></div>
@@ -762,7 +763,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 102</small>
+      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 103</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -864,6 +865,7 @@ function setTrack(id){
         if(Math.abs(z.sl||0)>.1){ if(o.hg){ o.hg*=.82; o.big=0; } if(o.tilt) o.tilt*=.85; }
         if(z.t==='neve'){ if(o.hg){ o.hg*=.72; o.big=0; } if(o.r) o.r*=.8; if(o.tilt) o.tilt*=.6; if(o.dep) o.dep*=.8; }
         if(t==='vg'){ o.dep=.44+R()*.14; o.len=12+R()*6; o.w=1.1; }
+        if(save.fis!=='v'){ if(o.r) o.r*=1.1; } /* fisica nuova: ostacoli come nella prova */
         OBST.push(o); const k0=Math.floor((s-4)/4), k1=Math.floor((s+(o.len||14)+6)/4); for(let k=k0;k<=k1;k++){ if(!OBB.has(k)) OBB.set(k,[]); OBB.get(k).push(o); } s+=26+R()*22; }
       else s+=8; } }
 }
@@ -893,11 +895,12 @@ function baseH(x,z){
 // tronco rigido: asse dritto appoggiato sui punti più alti del terreno (fisica = quello che vedi)
 function logAxis(o){ if(o.ax) return o.ax; const P=[]; const W2=Math.min(o.half,HALF+.2); for(let dl=-W2;dl<=W2+.01;dl+=.3){ const ss=o.s-dl*Math.tan(o.a); P.push([dl,baseH(CX(ss)+(o.off||0)+dl,-ss)]); }
   const n=P.length; let sx=0,sy=0,sxx=0,sxy=0; for(const [a,b] of P){ sx+=a; sy+=b; sxx+=a*a; sxy+=a*b; } const b=(n*sxy-sx*sy)/(n*sxx-sx*sx||1); let a=(sy-b*sx)/n; let up=-1e9; for(const [x,y] of P) up=Math.max(up,y-(a+b*x)); a+=up-o.r*.45; return o.ax=[a,b]; }
+let OBS_NOSTEP=false;
 function obsAdj(x,z,h,logs){ const s=-z, O=OBB.get(Math.floor(s/4)); if(!O) return h; const d=x-CX(s), ad=Math.abs(d), b0=h;
   for(const o of O){ const u=s-o.s+d*Math.tan(o.a);
     if(o.t==='log'){ if(!logs) continue; const dl=d-(o.off||0); if(Math.abs(dl)<o.half&&Math.abs(u)<o.r){ const A=logAxis(o); h=Math.max(h,A[0]+A[1]*dl+Math.sqrt(o.r*o.r-u*u)); } }
     else if(o.t==='ditch'){ if(ad<o.half+1.5&&Math.abs(u)<o.w){ const t=Math.abs(u)/o.w; /* canale vero: fondo piatto e sponde ripide, la ruota ci cade dentro e deve risalire */ h-=o.dep*(1-sstep(.5,1,t))*(1-sstep(o.half,o.half+1.5,ad)); } }
-    else if(o.t==='step'){ h+=o.hg*sstep(0,.12,u)*(1-sstep(o.len,o.len+.4,u))*(1-sstep(o.half,o.half+1.2,ad)); }
+    else if(o.t==='step'){ if(!OBS_NOSTEP) h+=o.hg*sstep(0,.12,u)*(1-sstep(o.len,o.len+.4,u))*(1-sstep(o.half,o.half+1.2,ad)); }
     else if(o.t==='camber'){ const e=sstep(-4,3,u)*(1-sstep(o.len-3,o.len+4,u))*(1-sstep(o.half+.5,o.half+3,ad)); h+=d*o.tilt*e+Math.abs(o.tilt)*.75*e; }
     else if(o.t==='vg'){ const e=sstep(-1,1.5,u)*(1-sstep(o.len-1.5,o.len+1,u)); if(ad<o.w) h-=o.dep*e*(1-ad/o.w); }
     else if(o.t==='twist'){ for(const [uu,dd,sg] of TWP){ const q2=Math.hypot((u-uu)*.62,d-dd*.95*o.sd); if(q2<1.5){ const c=Math.cos(q2/1.5*Math.PI/2); h+=sg*o.dep*1.25*c*c; } } } }
@@ -1796,15 +1799,19 @@ let RAP=null;
 try{ const q=new URLSearchParams(location.search).get('fis'); if(q==='r'||q==='v') save.fis=q; }catch(e){}
 if(save.fis!=='v') setTimeout(()=>rapLoad(),50);
 function rapOn(){ return !!(RAP&&RAP.ok&&RAP.world&&save.fis!=='v'); }
-async function rapLoad(){ if(RAP) return RAP; RAP={ok:false}; try{ const R=(await import('https://cdn.jsdelivr.net/npm/@dimforge/rapier3d-compat@0.21.0/dist/rapier.mjs')).default; await R.init(); RAP.R=R; RAP.ok=true; if(TR) rapBuildWorld(); }catch(e){ console.warn('Rapier non caricato',e); RAP.ok=false; } return RAP; }
+async function rapLoad(){ if(RAP&&RAP.state!=='fail') return RAP; RAP={ok:false,state:'loading'}; try{ const R=(await import('https://cdn.jsdelivr.net/npm/@dimforge/rapier3d-compat@0.21.0/dist/rapier.mjs')).default; await R.init(); RAP.R=R; RAP.ok=true; RAP.state='ok'; if(TR) rapBuildWorld(); }catch(e){ console.warn('Rapier non caricato',e); RAP.ok=false; RAP.state='fail'; } return RAP; }
+function fisTxt(){ if(save.fis==='v') return ['Fisica classica','']; if(rapOn()) return ['⚙️ Fisica nuova attiva','ok']; if(RAP&&RAP.state==='fail') return ['Fisica nuova non disponibile · uso la classica','ko']; return ['Fisica nuova: sto caricando…','ld']; }
 const RG_W=0x0001ffff, RG_C=0x00020001;
-function hR(x,z){ let h=baseH(x,z); const k=Math.floor(-z/4), L=ROCKB.get(k); if(L) for(const b of L){ const dx=x-b.x, dz=z-b.z; if(dx*dx+dz*dz<b.r*b.r*2.6){ const rh=rockH(b,x,z); if(rh>h) h=rh; } } return obsAdj(x,z,h,false); }
+function hR(x,z){ let h=baseH(x,z); const k=Math.floor(-z/4), L=ROCKB.get(k); if(L) for(const b of L){ const dx=x-b.x, dz=z-b.z; if(dx*dx+dz*dz<b.r*b.r*2.6){ const rh=rockH(b,x,z); if(rh>h) h=rh; } } OBS_NOSTEP=true; h=obsAdj(x,z,h,false); OBS_NOSTEP=false; return h; }
 function rapBuildWorld(){ if(!RAP||!RAP.ok||!TR) return; const R=RAP.R; if(RAP.world){ try{ RAP.world.free(); }catch(e){} } RAP.car=null;
   const Wd=new R.World({x:0,y:-9.81,z:0}); Wd.timestep=1/120; Wd.numSolverIterations=8; RAP.world=Wd; RAP.key=TR.id;
   const DX=.3, CH=24; for(let s0=-30;s0<LEN+40;s0+=CH){ const s1=s0+CH; let xmin=1e9,xmax=-1e9; for(let s=s0;s<=s1;s+=2){ const c=CX(Math.max(-40,s)); xmin=Math.min(xmin,c); xmax=Math.max(xmax,c); } const mg=HALF+9+(s1>LEN-20?14:0); xmin-=mg; xmax+=mg;
     const nx=Math.ceil((xmax-xmin)/DX)+1, nz=Math.ceil(CH/DX)+1, Wx=(nx-1)*DX, Lz=(nz-1)*DX, xc=xmin+Wx/2, zc=-(s0+Lz/2); const hs=new Float32Array(nx*nz);
     for(let i=0;i<nx;i++) for(let j=0;j<nz;j++){ hs[i*nz+j]=hR(xmin+i*DX,zc-Lz/2+j*DX); }
     const b=Wd.createRigidBody(R.RigidBodyDesc.fixed().setTranslation(xc,0,zc)); Wd.createCollider(R.ColliderDesc.heightfield(nz-1,nx-1,hs,{x:Wx,y:1,z:Lz}).setFriction(1).setCollisionGroups(RG_W),b); }
+  // gradini: lastre solide con lo spigolo vivo (involucro convesso che segue la pendenza)
+  for(const o of OBST){ if(o.t!=='step') continue; const pts=[]; for(let u=0;u<=o.len+1e-6;u+=Math.min(.5,o.len/4)) for(let dd=-o.half;dd<=o.half+1e-6;dd+=o.half/3){ const ss=o.s+u-dd*Math.tan(o.a), x=CX(ss)+dd, z=-ss, b=baseH(x,z); pts.push(x,b+o.hg,z, x,b-.5,z); if(u===0){ const s2=ss-o.hg*.55, x2=CX(s2)+dd; pts.push(x2,baseH(x2,-s2)-.03,-s2); } } /* faccia del gradino a ~60°: la gomma ci si arrampica come su una roccia vera */
+    const P=new Float32Array(pts); const cd=R.ColliderDesc.convexHull(P); if(cd){ const b=Wd.createRigidBody(R.RigidBodyDesc.fixed()); Wd.createCollider(cd.setFriction(1).setCollisionGroups(RG_W),b); } }
   // tronchi: cilindri veri
   for(const o of OBST){ if(o.t!=='log') continue; const AX=logAxis(o), ang=Math.atan2(CX(o.s+1)-CX(o.s-1),2); const q=new THREE.Quaternion().setFromEuler(new THREE.Euler(0,-ang-o.a,Math.atan(AX[1]),'YXZ')).multiply(new THREE.Quaternion().setFromAxisAngle(new V(0,0,1),Math.PI/2));
     const b=Wd.createRigidBody(R.RigidBodyDesc.fixed().setTranslation(CX(o.s)+(o.off||0),AX[0],-o.s).setRotation({x:q.x,y:q.y,z:q.z,w:q.w})); Wd.createCollider(R.ColliderDesc.cylinder(o.half,o.r).setFriction(.9).setCollisionGroups(RG_W),b); }
@@ -1818,7 +1825,11 @@ function rapBuildCar(){ const R=RAP.R, Wd=RAP.world; if(RAP.car) for(const b of 
   const bodies=[], v3=(x,y,z)=>({x,y,z}), J=(d,a,b)=>Wd.createImpulseJoint(d,a,b,true);
   const ch=Wd.createRigidBody(R.RigidBodyDesc.dynamic().setTranslation(0,0,0).setAdditionalMassProperties(MASS-4*mW-2*60,{x:0,y:0,z:0},{x:I.x,y:I.y,z:I.z},{x:0,y:0,z:0,w:1}).setCanSleep(false).setAngularDamping(.1).setLinearDamping(.01)); bodies.push(ch);
   const bx=.92*VS[0], bz=2.15*VS[2];
-  Wd.createCollider(R.ColliderDesc.cuboid(bx,.34,bz).setTranslation(0,.0,0).setDensity(0).setFriction(.5).setCollisionGroups(RG_C),ch);
+  { // scocca: pancia tra i ponti, sbalzi davanti e dietro più alti (angolo d'attacco e d'uscita veri)
+    const top=.45, b0=yW+.03, b1=yW+.16, zw=Math.abs(WH[0].z)*VS[2], zr=Math.abs(WH[2].z)*VS[2];
+    Wd.createCollider(R.ColliderDesc.cuboid(bx,(top-b0)/2,(zw+zr)/2).setTranslation(0,(top+b0)/2,(zr-zw)/2).setDensity(0).setFriction(.5).setCollisionGroups(RG_C),ch);
+    Wd.createCollider(R.ColliderDesc.cuboid(bx,(top-b1)/2,Math.max(.1,(bz-zw)/2)).setTranslation(0,(top+b1)/2,-(zw+bz)/2).setDensity(0).setFriction(.5).setCollisionGroups(RG_C),ch);
+    Wd.createCollider(R.ColliderDesc.cuboid(bx,(top-b1)/2,Math.max(.1,(bz-zr)/2)).setTranslation(0,(top+b1)/2,(zr+bz)/2).setDensity(0).setFriction(.5).setCollisionGroups(RG_C),ch); }
   Wd.createCollider(R.ColliderDesc.cuboid(bx*.93,.32,bz*.6).setTranslation(0,.66,.1).setDensity(0).setFriction(.5).setCollisionGroups(RG_C),ch);
   const lite=(x,y,z,m)=>{ const b=Wd.createRigidBody(R.RigidBodyDesc.dynamic().setTranslation(x,y,z).setAdditionalMassProperties(m,{x:0,y:0,z:0},{x:m*.06,y:m*.06,z:m*.06},{x:0,y:0,z:0,w:1}).setCanSleep(false)); bodies.push(b); return b; };
   const wheels=[], steer=[], susp=[];
@@ -1874,7 +1885,7 @@ function rapWheels(dt,inp,thr,brake,low,Fmax,vmax,semiK,gomK){ const R=RAP.R, c=
   // trasmissione
   const g=inp.gas||0, rev=thr<0, dmgK=(1-Math.max(0,st.dmg.semiassi-45)/260)*(1-Math.max(0,st.dmg.coppa-60)/300)*((st.cut||0)>0?.12:1);
   const pedal=rev?.8:(g>0?(low?.45+.55*g:g):0); const Ttot=Fmax*RW*pedal*dmgK;
-  const vt=rev?-(vmax*(low?.6:.3)):(low?(save.lowFast?Math.max(2.5,ENG.vl*.97):2.5)*(.3+.7*g)+.3:vmax*(.25+.75*g)); const wT=-vt/RW;
+  const vt=rev?-(vmax*(low?.6:.3)):(low?(save.lowFast?4.5:3.2)*(.2+.8*g):vmax*(.25+.75*g)); const wT=-vt/RW;
   const awd=st.awd!==false, AX=[[0,1,st.lock&&hasLockF()],[2,3,st.lock]];
   AX.forEach(([a,b,lk],k)=>{ let Tax=awd?Ttot/2:(k?Ttot:0); let f=1; if(!lk){ const d=Math.abs(om[a]-om[b]); f=Math.max(.07,Math.min(1,1-(d-1.5)/4)); if(f<.6){ if(Math.abs(om[a])>Math.abs(om[b])) st.dspin[a]=1; else st.dspin[b]=1; } }
     for(const i of [a,b]){ const j=c.wheels[i].j;
@@ -2056,7 +2067,7 @@ let hitT=0;
 
 // la scocca si muove sulle sospensioni: si siede in accelerazione, si tuffa in frenata, rolla in curva e rimbalza sugli ostacoli
 const BD={p:0,r:0,h:0,vp:0,vr:0,vh:0,pv:new V(),cmp:[0,0,0,0]};
-function bodyDyn(dt){ const R=curRoot||carRoot; if(!R) return; if(!R.userData.by0) R.userData.by0=R.position.y;
+function bodyDyn(dt){ const R=curRoot||carRoot; if(!R) return; if(rapOn()){ BD.p=BD.r=BD.h=BD.vp=BD.vr=BD.vh=0; BD.pv.copy(st.vel); return; } if(!R.userData.by0) R.userData.by0=R.position.y;
   if(dt<=0){ BD.p=BD.r=BD.h=BD.vp=BD.vr=BD.vh=0; BD.pv.copy(st.vel); return; }
   const a=st.vel.clone().sub(BD.pv).divideScalar(Math.max(dt,1e-3)); BD.pv.copy(st.vel);
   const al=a.dot(fw), at=a.dot(rt), av=a.dot(up);
@@ -3503,7 +3514,7 @@ addEventListener('blur',()=>clearTouches());
 function pause(){ clearTouches(); try{ if(AC&&AC.state==='running') AC.suspend(); }catch(_){}  if(!(st.running&&!st.done)&&!(campMode&&cs&&!cs.sleeping)) return; if(!$('#msg').hidden||!$('#gar').hidden) return; st.paused=true; snapshot(); $('#invS2').checked=!!tilt.inv; $('#pause').hidden=false; }
 $('#pauB').addEventListener('click',pause);
 $('#pRes').addEventListener('click',()=>{ clearTouches(); auInit(); $('#pause').hidden=true; st.paused=false; last=performance.now(); calibrate(); });
-{ const B=$('#pFis'); const lab=()=>{ B.textContent=save.fis==='v'?'Fisica: classica · tocca per la nuova':'Fisica: nuova (ruote e ponti veri) · tocca per la classica'; }; lab(); B.addEventListener('click',()=>{ save.fis=save.fis==='v'?'r':'v'; persist(); lab(); if(save.fis!=='v') rapLoad().then(()=>{ if(RAP&&RAP.ok&&!RAP.world) rapBuildWorld(); }); toast(save.fis==='v'?'Fisica classica':'Fisica nuova',save.fis==='v'?'quella di prima':'ruote e ponti veri, ostacoli solidi (Rapier)'); }); }
+{ const B=$('#pFis'); const lab=()=>{ const f=fisTxt(); B.textContent=f[0]+(save.fis==='v'?' · tocca per la nuova':' · tocca per la classica'); }; setInterval(()=>{ if(!$('#pause').hidden) lab(); const fb=$('#fisB'); if(fb){ const f=fisTxt(); fb.textContent=f[0]; fb.className='pl chip '+f[1]; } },700); lab(); B.addEventListener('click',()=>{ save.fis=save.fis==='v'?'r':'v'; persist(); lab(); if(save.fis!=='v') rapLoad().then(()=>{ if(RAP&&RAP.ok&&!RAP.world) rapBuildWorld(); }); toast(save.fis==='v'?'Fisica classica':'Fisica nuova',save.fis==='v'?'quella di prima':'ruote e ponti veri, ostacoli solidi (Rapier)'); }); }
 $('#pRst').addEventListener('click',()=>{ $('#pause').hidden=true; startRun(); calibrate(); });
 $('#pGar').addEventListener('click',()=>{ clearResume(); $('#pause').hidden=true; st.running=false; st.paused=false; save.dmg={...st.dmg}; save.money=Math.max(0,save.money-st.rescues*40); persist(); dropWinch(); toGarage(); });
 $('#invS2').addEventListener('change',e=>{ tilt.inv=e.target.checked; $('#invS').checked=tilt.inv; try{ localStorage.setItem('camp3d-inv',tilt.inv?'1':'0'); }catch(_){} });
