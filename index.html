@@ -509,7 +509,7 @@ body.incamp #skipB{display:block}
 /* ritocco foto: contrasto, colori caldi, bordi scuri */
 
 #vign{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 50% 42%,transparent 50%,rgba(14,7,0,.38) 100%),linear-gradient(180deg,rgba(255,170,80,.06),transparent 35%)}
-#cv{filter:saturate(1.14) contrast(1.06)}body.incamp #cv{filter:saturate(1.08) contrast(1.04)}body.lowq #cv{filter:none}
+#cv{filter:saturate(1.14) contrast(1.06)}body.ouch::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:30;box-shadow:inset 0 0 calc(60px + 90px*var(--ouch,.5)) rgba(200,20,10,calc(.35 + .4*var(--ouch,.5)));animation:ouchA .55s ease-out forwards}.dfl{animation:dflA .7s ease-out}@keyframes dflA{0%,40%{box-shadow:0 0 0 3px #ff3b2b,0 0 18px #ff3b2b;transform:scale(1.06)}100%{box-shadow:none;transform:none}}@keyframes ouchA{0%{opacity:1}100%{opacity:0}}body.incamp #cv{filter:saturate(1.08) contrast(1.04)}body.lowq #cv{filter:none}
 
 button.daily{display:block;width:100%;margin:6px 0 2px;background:linear-gradient(135deg,#2a5ad8,#1a2f80)!important;color:#fff;font-size:20px}button.daily small{display:block;font-size:13px;opacity:.85;margin-top:3px}
 
@@ -761,7 +761,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 97</small>
+      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 98</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -1766,7 +1766,7 @@ function physStep(dt,inp){
   if(revMode) thr=-.8; else { thr=inp.gas; if(inp.brk&&!revMode) brake=1; }
   if(low&&save.crawl!==false&&thr>0&&!revMode){ const tgt=.6+inp.gas*((save.lowFast?Math.max(2.5,ENG.vl*.97):2.5)-.6); st.crawlI=clamp((st.crawlI||0)+(tgt-sp)*dt*1.4,0,1); thr=clamp((tgt-sp)*.9+.22+st.crawlI,0,1); } else st.crawlI=0;
   const q2=Math.max(0,thr>0?sp/vmax:-sp/(vmax*(low?.6:.3)));
-  const lugK=low||thr<=0||!(st.el&&st.el.some(e=>e>.16))?1:lerp(.7,1,sstep(.4,2.6,Math.abs(sp))); const Fe=thr*Fmax*Math.max(0,1-q2*q2)*lugK*(1-Math.max(0,st.dmg.semiassi-45)/260)*(1-Math.max(0,st.dmg.coppa-60)/300); st.lug=lugK<.7&&thr>.6?(st.lug||0)+dt:0;
+  const lugK=low||thr<=0||!(st.el&&st.el.some(e=>e>.16))?1:lerp(.7,1,sstep(.4,2.6,Math.abs(sp))); const Fe=thr*Fmax*Math.max(0,1-q2*q2)*lugK*(1-Math.max(0,st.dmg.semiassi-45)/260)*(1-Math.max(0,st.dmg.coppa-60)/300)*((st.cut||0)>0?.12:1); st.lug=lugK<.7&&thr>.6?(st.lug||0)+dt:0;
   // sterzo: più rapido e con più angolo, si chiude meno con la velocità
   const maxSt=.7/(1+Math.abs(sp)/12)*(st.lock?(hasLockF()?.72:.86):1); if(st.lock&&Math.abs(sp)>8.3){ st.lock=false; updLockB(); toast('🔓 Bloccaggio disinserito','sopra i 30 km/h si sblocca da solo'); }
   const yawRate=st.w.dot(up); const tgt=inp.steer*maxSt+clamp(yawRate*.05*Math.sign(sp||1),-.07,.07)*(Math.abs(inp.steer)<.4?1:.2);
@@ -1797,7 +1797,7 @@ function physStep(dt,inp){
     if(x>LN-.07&&vComp>1.8&&st.time-st.bumpT[i]>.4){ st.bumpT[i]=st.time; const k=vComp-1.8; st.dmg.semiassi+=k*5*semiK; st.dmg.gomme+=k*3.5*gomK; if(k>.6) hit(vComp*1.6); }
     if(vComp>1.6&&st.time-(st.thudT||0)>.25){ st.thudT=st.time; st.thud=Math.min(1,(vComp-1.6)/3); }
     st.comp[i]=xs<.02?xs:x; st.contact[i]=1; contacts++; st.cp[i].copy(P); st.cn[i].copy(n);
-    const wf=new V().copy(fw); if(W.f) wf.applyAxisAngle(up,-st.steer);
+    const wf=new V().copy(fw); if(W.f) wf.applyAxisAngle(up,-(st.steer+(st.stOff||0)));
     wf.addScaledVector(n,-wf.dot(n)).normalize(); const ws=new V().crossVectors(wf,n).normalize();
     const mu=(1-Math.max(0,st.dmg.gomme-45)/220)*muOf(su)*gripMul(su)*(isSoft(su)?(1-.5*st.sink)*Math.pow(2100/MASS,.25):1)*(isSoft(su)?1:1-.28*(st.tmud||0));
     const N=Fs*Math.max(.2,n.dot(up));
@@ -1848,7 +1848,13 @@ function physStep(dt,inp){
     { const W=st.dmgW||(st.dmgW={}); for(const [k,t,x] of [['gomme','Gomme rovinate','tagli e spalle segnate: tengono meno, vai piano sui sassi'],['semiassi','Semiassi che fanno clack','in curva e sotto sforzo senti i giunti: il mezzo spinge meno'],['coppa','Coppa ammaccata','perde un filo d\'olio: il motore rende meno']]) if(st.dmg[k]>50&&!W[k]){ W[k]=1; toast('⚠️ '+t,x); vib(60); } }
     if(st.wsurf.some(w=>w==='fangoProf')&&asp>4.2){ const o=asp-4.2; st.dmg.semiassi+=o*o*dt*.9*semiK; st.dmg.gomme+=o*dt*1.2*gomK; if(st.time-(st.mudFastT||-99)>.9&&Math.random()<dt*o*.8){ st.mudFastT=st.time; hit(2.5+o); toast('Buca nascosta!','nel fango profondo sotto ci sono solchi e sassi: piano e costante'); } }
     // ostacoli presi forte (tronchi, gradini, twist): botte vere a gomme e semiassi
-    if(asp>3.2&&st.el&&st.el.some(e=>e>.06)){ const o=asp-3.2; st.dmg.semiassi+=o*dt*5*semiK; st.dmg.gomme+=o*dt*4*gomK; if(st.time-(st.obHitT||-9)>.6){ st.obHitT=st.time; hit(asp*1.2); } }
+    if(asp>3.2&&st.el&&st.el.some(e=>e>.06)){ const o=asp-3.2; st.dmg.semiassi+=o*dt*5*semiK; st.dmg.gomme+=o*dt*4*gomK; if(st.time-(st.obHitT||-9)>.6){ st.obHitT=st.time; hit(asp*1.2); const k=Math.min(1,o/4), vf=st.vel.dot(fw);
+        /* la botta si sente: il mezzo perde velocità, salta, beccheggia e scarta di lato */
+        st.vel.addScaledVector(fw,-vf*(.22+.33*k)); st.vel.y+=.5+1.5*k; st.w.addScaledVector(rt,(vf>0?1:-1)*(.7+1.6*k)); st.w.addScaledVector(fw,(Math.random()-.5)*(1+2*k)); st.steer=clamp(st.steer+(Math.random()-.5)*(.25+.35*k),-.7,.7);
+        ouch(.5+k*.5); auBurst(1900,.09,.35+k*.3,'bandpass',3); } }
+    // danni che si sentono mentre guidi
+    dmgFeel(dt,asp,thr);
+
     if(pressure===2&&(st.surf==='terra')&&asp>12) st.dmg.gomme+=dt*.9;
     const sc=-st.pos.z, gc=height(st.pos.x,st.pos.z), depth=waterY(sc)-gc;
     if(inWet(sc,2)&&depth>0){ F.addScaledVector(st.vel,-depth*(inPud(sc,2)?1900:2600)*Math.sqrt(MASS/2100)); if(inPud(sc,2)&&depth>.22&&!st.pudSaid){ st.pudSaid=1; toast('🟤 Pozza profonda','acqua e fango fino alle portiere: piano e costante, senza fare l\'onda'); } const kmh=asp*3.6, wave=depth+kmh*.045*Math.min(1,depth/.25), lim=hasSnork()?1.75:.9; if(wave>lim) st.water=Math.min(1,st.water+dt*(wave-lim)*2.2); st.inWater=depth;
@@ -1908,6 +1914,15 @@ function bodyDyn(dt){ const R=curRoot||carRoot; if(!R) return; if(!R.userData.by
   const k=72, c=11; BD.vp+=((tp-BD.p)*k-BD.vp*c)*dt; BD.p+=BD.vp*dt; BD.vr+=((tr-BD.r)*k-BD.vr*c)*dt; BD.r+=BD.vr*dt; BD.vh+=((th-BD.h)*120-BD.vh*10)*dt; BD.h+=BD.vh*dt;
 }
 function vib(ms){ if(save.vib!==false&&navigator.vibrate) try{ navigator.vibrate(ms); }catch(_){} }
+// i danni li senti: semiassi che fanno clack e mollano la trazione, gomme che fanno ballare il volante, motore che perde colpi e fuma, carrozzeria che sbatacchia
+function ouch(k){ const b=document.body; b.classList.remove('ouch'); void b.offsetWidth; b.style.setProperty('--ouch',Math.min(1,k).toFixed(2)); b.classList.add('ouch'); }
+function dmgFeel(dt,asp,thr){ const D=st.dmg, now=st.time; if(st.cut>0) st.cut-=dt;
+  const sa=Math.max(0,D.semiassi-40)/60; if(sa>0&&thr>.25&&asp>.6){ const turn=Math.abs(st.steer)>.2; if(now>(st.clkT||0)&&Math.random()<dt*(turn?3.5:1.2)*(.4+sa)){ st.clkT=now+.35; st.cut=.08+sa*.16; auBurst(2600,.05,.5,'bandpass',6); auBurst(900,.07,.35,'bandpass',4,null,.04); vib(25+sa*35); shake=Math.max(shake,.04+sa*.06); st.w.addScaledVector(up,(Math.random()-.5)*sa*.6);
+      if(now-(st.clkSaid||-99)>25){ st.clkSaid=now; toast('Clack! Clack!','il semiasse è andato: in curva molla la trazione · piano o lo rompi'); } } }
+  const g=Math.max(0,D.gomme-40)/60; if(g>0&&asp>2){ const f=4+asp*1.1; st.stOff=Math.sin(now*f)*g*.05*Math.min(1,asp/8)+g*.025; if(Math.random()<dt*asp*.25*g) vib(10+g*20); if(now-(st.wobSaid||-99)>30&&asp>5){ st.wobSaid=now; toast('Il volante balla','gomme rovinate: tira da una parte e vibra'); } } else st.stOff=0;
+  const c=Math.max(0,D.coppa-50)/50; if(c>0&&thr>.3){ if(Math.random()<dt*2*c){ st.cut=Math.max(st.cut||0,.1); auBurst(140,.12,.4*c,'lowpass',1); } if(Math.random()<dt*10*c) emit(st.pos.clone().addScaledVector(fw,1.4).addScaledVector(up,-.3),new V((Math.random()-.5)*.5,.8+Math.random(),(Math.random()-.5)*.5),[.18,.18,.2],{k:2,s:.25+Math.random()*.25,a:.45,life:1.6}); if(now-(st.oilSaid||-99)>30){ st.oilSaid=now; toast('Fumo dal motore!','la coppa perde olio: il motore perde colpi'); } }
+  const cb=Math.max(0,D.carrozzeria-45)/55; if(cb>0&&st.thud>.15&&Math.random()<cb) auBurst(3400,.06,.25*cb,'highpass',2);
+}
 function hit(v,kind){ const now=performance.now(); if(now-hitT<700) return; hitT=now; vib(Math.min(120,30+v*18)); if(v>3.5) gabbah('g_gamba',25); shake=Math.min(.5,v*.08); if(kind==='tree') toast('Albero!','occhio ai tronchi'); else if(kind==='car') toast('Il 4x4 di un amico!','parcheggia più in là'); else if(v>3) toast('Botta!','più piano sui sassi: rompi gomme e semiassi'); auThud(Math.min(1,v/6)); }
 
 /* ---------- Particelle: zolle di fango, gocce, spruzzi, polvere, fumo ---------- */
@@ -3252,7 +3267,7 @@ function hud(sp){ if(!(st.hbT>0)){ st.hbT=1; const r=$('#hud').getBoundingClient
     const air=st.contacts===3&&Math.abs(sp)<6; $('#inclW').textContent=air?'🛞 ruota in aria':''; if(air&&st.time-(st.airT||-99)>15){ st.airT=st.time; toast('🛞 Ruota in aria!','il mezzo è tutto incrociato: con i bloccaggi spingono anche le altre'); } }
   $('#hD').textContent=Math.max(0,Math.round(LEN-st.s));
   const col=v=>v>70?'var(--rosso)':v>40?'#e8b13c':'var(--ok)';
-  for(const [id,k] of [['#dG','gomme'],['#dC','coppa'],['#dS','semiassi'],['#dB','carrozzeria']]){ const el=$(id); el.style.setProperty('--v',st.dmg[k]+'%'); el.style.setProperty('--c',col(st.dmg[k])); }
+  for(const [id,k] of [['#dG','gomme'],['#dC','coppa'],['#dS','semiassi'],['#dB','carrozzeria']]){ const el=$(id); { const L=(st.dmgL=st.dmgL||{}); if(st.dmg[k]-(L[k]??st.dmg[k])>.8){ el.classList.remove('dfl'); void el.offsetWidth; el.classList.add('dfl'); } L[k]=st.dmg[k]; } el.style.setProperty('--v',st.dmg[k]+'%'); el.style.setProperty('--c',col(st.dmg[k])); }
   $('#gSink').hidden=!(st.sink>.02); $('#gSinkI').style.setProperty('--v',st.sink*100+'%');
   $('#gWater').hidden=!(st.inWater>0||st.water>.01); $('#gWaterI').style.setProperty('--v',st.water*100+'%');
   if(st.sink>.5&&!st.winch) toast('Affondi',own('winch')?'dondola, oppure verricello su un albero davanti':'dondola: un po\' di retro e poi di nuovo avanti');
