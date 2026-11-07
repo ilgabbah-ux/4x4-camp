@@ -746,7 +746,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 98</small>
+      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 99</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -2078,7 +2078,7 @@ let toastT=0, toastLk=0, toastQ=null; function toast(a,b,lock){ if(typeof helpOp
 /* ---------- Suono ---------- */
 // Motore diesel: un ciclo di scoppi registrato in un buffer e suonato più o meno veloce secondo i giri.
 // Ruote: rumori diversi per sterrato, sassi, fango e acqua, fatti con tanti piccoli suoni brevi.
-let AC=null, M=null, eng=null, turbo=null, rush=null, suck=null;
+let AC=null, M=null, eng=null, engS=null, turbo=null, rush=null, suck=null;
 function auInit(){
   if(AC){ if(AC.state==='suspended') AC.resume(); return; }
   try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return; }
@@ -2102,6 +2102,11 @@ function auInit(){
   ws.connect(sub); sub.connect(body); const g2=AC.createGain(); g2.gain.value=0; body.connect(g2);
   const out=AC.createGain(); out.gain.value=1; g.connect(out); g2.connect(out); out.connect(M);
   src.start(); o1.start(); o2.start(); eng={src,flt,g,o1,o2,sub,g2};
+  // motore vero: registrazioni di diesel e benzina (minimo e sotto sforzo) in loop, intonate sui giri
+  (async()=>{ try{ const B={}; for(const k of ['engDI','engDL','engPI','engPL']){ B[k]=await vLoad(k); if(!B[k]) return; }
+    const lp=AC.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=2400; lp.Q.value=.5; const lo=AC.createBiquadFilter(); lo.type='lowshelf'; lo.frequency.value=160; lo.gain.value=5; const out=AC.createGain(); out.gain.value=0; lp.connect(lo); lo.connect(out); out.connect(M);
+    const mk=b=>{ const n=AC.createBufferSource(); n.buffer=b; n.loop=true; n.playbackRate.value=1; const gg=AC.createGain(); gg.gain.value=0; n.connect(gg); gg.connect(lp); n.start(AC.currentTime+Math.random()*.05); return {n,g:gg}; };
+    engS={DI:mk(B.engDI),DL:mk(B.engDL),PI:mk(B.engPI),PL:mk(B.engPL),lp,out}; }catch(e){ engS=null; } })();
   const to=AC.createOscillator(); to.type='sine'; to.frequency.value=2500; const tg=AC.createGain(); tg.gain.value=0; to.connect(tg); tg.connect(M); to.start(); turbo={o:to,g:tg};
   const loop=(type,f,q)=>{ const n=AC.createBufferSource(); n.buffer=nb; n.loop=true; const fl=AC.createBiquadFilter(); fl.type=type; fl.frequency.value=f; fl.Q.value=q; const gg=AC.createGain(); gg.gain.value=0; n.connect(fl); fl.connect(gg); gg.connect(M); n.start(); return {fl,g:gg}; };
   { const o=AC.createOscillator(); o.type='sawtooth'; o.frequency.value=80; const f=AC.createBiquadFilter(); f.type='lowpass'; f.frequency.value=700; const g=AC.createGain(); g.gain.value=0; o.connect(f); f.connect(g); g.connect(M); o.start(); AC.win={o,g}; }
@@ -2132,6 +2137,14 @@ function auUpd(inp,sp,dt){
   eng.flt.frequency.setTargetAtTime((E.dsl?240:380)+nr*(E.dsl?900:1800)*(.55+L*.45),t,.06);
   eng.g.gain.setTargetAtTime((E.dsl?.2:.09)+L*(E.dsl?.18:.1)+nr*.08,t,.06);
   eng.g2.gain.setTargetAtTime((E.dsl?.3:.38)+L*.28+nr*.18+(E.cyl>4?.06:0),t,.06);
+  if(engS){ // il suono vero copre la sintesi, che resta solo come corpo sotto
+    eng.g.gain.setTargetAtTime(((E.dsl?.2:.09)+L*(E.dsl?.18:.1))*.18,t,.06); eng.g2.gain.setTargetAtTime(((E.dsl?.3:.38)+L*.28)*.22,t,.06);
+    const sz=E.cyl>4?.9:E.dsl?1:1.14, rI=clamp(st.rpmR/idle,.75,2.2)*sz, ref=idle*(E.dsl?2.5:3), rL=clamp(st.rpmR/ref,.5,2.1)*sz;
+    const x=sstep(idle*1.1,idle*2.4,st.rpmR), gl=Math.min(1,x*.85+L*.55), gi=1-x*.9;
+    const I=E.dsl?engS.DI:engS.PI, Ld=E.dsl?engS.DL:engS.PL, O1=E.dsl?engS.PI:engS.DI, O2=E.dsl?engS.PL:engS.DL;
+    I.n.playbackRate.setTargetAtTime(rI,t,.05); Ld.n.playbackRate.setTargetAtTime(rL,t,.05);
+    I.g.gain.setTargetAtTime(gi*(E.dsl?.75:.6),t,.07); Ld.g.gain.setTargetAtTime(gl*(.35+L*.65)*(E.dsl?.85:.7)+(inp.gas?0:-.0),t,.07); O1.g.gain.setTargetAtTime(0,t,.1); O2.g.gain.setTargetAtTime(0,t,.1);
+    engS.lp.frequency.setTargetAtTime(900+nr*2600+L*1500,t,.08); engS.out.gain.setTargetAtTime(.9,t,.1); }
   const tb=E.turbo||own('turbo'); turbo.o.frequency.setTargetAtTime(900+nr*3400,t,.12); turbo.g.gain.setTargetAtTime(tb&&inp.gas?(own('turbo')?.006:.0028)*nr*(.4+L):0,t,.25); if(tb&&st.gasPrev&&!inp.gas&&nr>.55) auBurst(3200,.25,own('turbo')?.12:.05,'highpass',1); st.gasPrev=!!inp.gas;
   { const W=st.winch; AC.win.o.frequency.setTargetAtTime(70+(W?W.load:0)/53000*60,t,.1); auSet(AC.win,W&&W.pull?.08:0); }
   // ruote
@@ -2145,7 +2158,7 @@ function auUpd(inp,sp,dt){
   grainAcc.water+=(watW+(st.inWater>0?2:0))*asp*dt*1.4; while(grainAcc.water>1){ grainAcc.water--; const f=900+Math.random()*1800; auBurst(f,.05+Math.random()*.12,.1+Math.random()*.14,'bandpass',1.2,f*.7,Math.random()*.03); }
   grainAcc.rock+=rocW*asp*dt*1.1; while(grainAcc.rock>1){ grainAcc.rock--; auBurst(180+Math.random()*220,.06,.25,'lowpass',1,null,Math.random()*.02); if(Math.random()<.4) auBurst(2500+Math.random()*2000,.03,.06,'bandpass',4); }
 }
-function auCamp(dt){ if(!AC) return; const pk=cs&&cs.park; eng.g.gain.setTargetAtTime(pk?.16:0,AC.currentTime,pk?.08:.4); eng.g2.gain.setTargetAtTime(pk?.34:0,AC.currentTime,pk?.08:.4); if(pk){ eng.src.playbackRate.setTargetAtTime(1.2,AC.currentTime,.1); eng.o1.frequency.setTargetAtTime(30,AC.currentTime,.1); eng.o2.frequency.setTargetAtTime(15,AC.currentTime,.1); } turbo.g.gain.setTargetAtTime(0,AC.currentTime,.1); for(const n of [rush,suck,AC.gravel,AC.win]) auSet(n,0);
+function auCamp(dt){ if(!AC) return; const pk=cs&&cs.park; if(engS){ const t=AC.currentTime, E=engSpec(), I=E.dsl?engS.DI:engS.PI; for(const k of ['DI','DL','PI','PL']) engS[k].g.gain.setTargetAtTime(engS[k]===I&&pk?.7:0,t,.15); I.n.playbackRate.setTargetAtTime(1,t,.1); engS.out.gain.setTargetAtTime(pk?.9:0,t,pk?.08:.4); } eng.g.gain.setTargetAtTime(pk?.16:0,AC.currentTime,pk?.08:.4); eng.g2.gain.setTargetAtTime(pk?.34:0,AC.currentTime,pk?.08:.4); if(pk){ eng.src.playbackRate.setTargetAtTime(1.2,AC.currentTime,.1); eng.o1.frequency.setTargetAtTime(30,AC.currentTime,.1); eng.o2.frequency.setTargetAtTime(15,AC.currentTime,.1); } turbo.g.gain.setTargetAtTime(0,AC.currentTime,.1); for(const n of [rush,suck,AC.gravel,AC.win]) auSet(n,0);
   if(!cs) return; auSet(AC.sizz,cs.mini&&cs.mini.cook?.035:0);
   if(cs.lit&&Math.random()<.18) auBurst(2500+Math.random()*2500,.03,.16,'bandpass',3);
   if(cs.lit&&Math.random()<.04) auBurst(180,.25,.12,'lowpass');
@@ -3448,7 +3461,7 @@ const DMGN={gomme:['Gomme',3],coppa:['Coppa dell\'olio',4],semiassi:['Semiassi',
 let garTab='mezzo';
 const el=(t,cls,txt)=>{ const e=document.createElement(t); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; };
 function toGarage(){ shS=-1; if(prevVeh&&!(st.running||campMode)){}  if(rec) rec.r.stop(); WX='sereno'; if(cs) clearCamp(); st.running=false; hideRunUI(); $('#gar').hidden=false; renderGarage(); auSilence(); }
-function auSilence(){ if(!AC) return; for(const n of [eng,turbo,rush,suck,AC.gravel,AC.sizz,AC.win]) if(n) auSet(n,0,.05); if(eng) eng.g2.gain.setTargetAtTime(0,AC.currentTime,.05); musicStop(); }
+function auSilence(){ if(!AC) return; if(engS) engS.out.gain.setTargetAtTime(0,AC.currentTime,.05); for(const n of [eng,turbo,rush,suck,AC.gravel,AC.sizz,AC.win]) if(n) auSet(n,0,.05); if(eng) eng.g2.gain.setTargetAtTime(0,AC.currentTime,.05); musicStop(); }
 function broken(){ return Object.keys(DMGN).filter(k=>save.dmg[k]>=100); }
 function unmount(k){ if(!own(k)) return; for(const [k2,u2] of Object.entries(UPG)) if(u2.req===k&&own(k2)) unmount(k2); save.own[k]=false; save.money+=UPG[k].price; persist(); applyUpgrades(); }
 function renderGarage(){
