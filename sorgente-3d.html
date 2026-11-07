@@ -746,7 +746,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 89</small>
+      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 90</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -907,7 +907,7 @@ const GRIP={ht:{terra:1,fango:.5,fangoProf:.36,roccia:.85,acqua:.6,erba:.75,neve
  at:{terra:1.02,fango:.6,fangoProf:.44,roccia:.95,acqua:.66,erba:.8,neve:.5,ghiaccio:.24,ghiaia:.9,sabbia:.62,galleria:.78},
  mt:{terra:.98,fango:.72,fangoProf:.56,roccia:1.02,acqua:.7,erba:.86,neve:.58,ghiaccio:.28,ghiaia:.92,sabbia:.7,galleria:.82}};
 const CRR={terra:.015,fango:.09,fangoProf:.17,roccia:.03,acqua:.06,erba:.05,neve:.12,ghiaccio:.012,ghiaia:.03,sabbia:.1,galleria:.04};
-const tyreKey=()=>own('mt')?'mt':own('at')?'at':'ht';
+const TYR={ht:0,at:1,mt:2}; const tyreKey=()=>{ const v=(VEH&&VEH.tyre)||'ht'; const u=own('mt')?'mt':own('at')?'at':'ht'; return TYR[u]>=TYR[v]?u:v; };
 const TYRE_NAME={ht:'stradali H/T',at:'A/T',mt:'M/T tassellate'};
 function muOf(su){ let m=GRIP[tyreKey()][su]; if(WX==='pioggia'||WX==='temporale') m*=({terra:.84,erba:.8,roccia:.86,ghiaia:.88,fango:.92,fangoProf:.95,sabbia:.95})[su]||1; if(own('chains')&&(TR.theme==='neve'||TR.theme==='alpino')&&(su==='neve'||su==='ghiaccio')) m=Math.min(.8,m*(su==='ghiaccio'?3:1.5)); return m; }
 
@@ -1404,7 +1404,7 @@ function buildWorld(id){
   // neve che cade
   if(neve){ const N=2200, g=new THREE.BufferGeometry(), p=new Float32Array(N*3); for(let i=0;i<N;i++){ p[i*3]=(Math.random()-.5)*60; p[i*3+1]=Math.random()*24; p[i*3+2]=(Math.random()-.5)*60; }
     g.setAttribute('position',new THREE.BufferAttribute(p,3)); snow=new THREE.Points(g,new THREE.PointsMaterial({color:0xffffff,size:.09,transparent:true,opacity:.85,depthWrite:false})); snow.frustumCulled=false; world.add(snow); }
-  scene.fog.near=neve?25:60; scene.fog.far=neve?150:TR.theme==='alpino'?320:250;
+  scene.fog.near=neve?25:90; scene.fog.far=neve?150:TR.theme==='alpino'?760:640;
   clearRuts(); envT=-9; skyNow=-1;
 }
 const grassU={value:0}, carU={value:new THREE.Vector4(0,0,0,-1)};
@@ -1607,30 +1607,30 @@ const ckpit=(()=>{ const G=new THREE.Group(); G.visible=false; car.add(G);
 let first=true; const camPos=new THREE.Vector3(), camLook=new THREE.Vector3();
 const st={pos:new V(),vel:new V(),q:new THREE.Quaternion(),w:new V(),steer:0,gear:'alta',spin:[0,0,0,0],comp:[0,0,0,0],contact:[0,0,0,0],slip:[0,0,0,0],dspin:[0,0,0,0],cp:[new V(),new V(),new V(),new V()],cn:[new V(),new V(),new V(),new V()],surf:'terra',time:0,running:false,s:0,done:false,stuckT:0,sink:0,water:0,dmg:{gomme:0,coppa:0,semiassi:0,carrozzeria:0},wsurf:['terra','terra','terra','terra'],bumpT:[0,0,0,0],rescues:0,mode:'drive',winch:null,paused:false};
 let MASS=2100; const I=new V(4300,4400,2200), I0=I.clone(), K=20500, CD=3900;
-const VEHS={terrano:{n:'Terrano II Black Edition',sub:'nero, alzato, snorkel, barra LED e gomme tassellate · modello 3D vero',price:0,sc:[1,1,1],mass:2100,p:1.05,col:null,model:'gabbah_terrano'},
- linus_terrano:{n:'Terrano 2.7 TD',sub:'nero infangato, 2.7 TDi, snorkel, gomme tassellate e fari sul portellone',price:900,sc:[1,1,1],mass:1950,p:1.02,col:null,model:'terrano_nero'},
- costa_terrano:{n:'Terrano grigio',sub:'argento con fascioni grigi, portapacchi e il Minion sulla ruota di scorta: affidabile, mai una rottura',price:800,sc:[1,1,1],mass:1900,p:.98,col:null,model:'terrano_grigio',tough:.85},
- purcello_pajero:{n:'Pajero Sport',sub:'argento, portapacchi con la ruota e fari LED: quello che ti tira fuori dal fango',price:1600,sc:[1,1,1],mass:2050,p:1.12,col:null,model:'pajero_sport'},
- linus_wrangler:{n:'Wrangler Rubicon 37"',sub:'grigio, soft top, gomme da 37, verricello e barra LED: si arrampica ovunque',price:3800,sc:[1,1,1],mass:2100,p:1.25,col:null,model:'rubicon_grigio',lockR:true,lift:.04},
- giacu_wrangler:{n:'Wrangler Rubicon verde acido',sub:'verde acido, hard top, snorkel, barra LED, verricello e gomme da 37: il re delle pietraie',price:4500,sc:[1,1,1],mass:2050,p:1.3,col:null,model:'wrangler_verde',lockR:true,lift:.05},
- gusta_cherokee:{n:'Grand Cherokee 4.0',sub:'ZJ 4.0 V6 nero, gomme AT: comodo, potente, va forte nel fango',price:2200,sc:[1,1,1],mass:1750,p:1.18,col:null,model:'zj_cherokee'},
- renard_sorento:{n:'Sorento',sub:'SUV comodo: bene sullo sterrato, nel fango profondo soffre',price:1200,sc:[1,1,1],mass:1950,p:1.02,col:null,model:'sorento_ref',lift:-.02},
- stefano_landcruiser:{n:'Land Cruiser BJ',sub:'BJ bianco a 3 porte, snorkel, verricello e gomme da fango: indistruttibile',price:3600,sc:[1,1,1],mass:1950,p:1.05,col:null,model:'bj_bianco',lockR:true,tough:.7},
- daniel_patrol:{n:'Patrol mimetico',sub:'mimetico rosso: pesante, potentissimo, sospensioni lunghe',price:5200,sc:[1,1,1],mass:2600,p:1.45,col:null,model:'camo_patrol',tough:.75,lift:.03},
- terrano_serie:{n:'Terrano Bull',sub:'grigio, bull bar e pedane: di serie, onesto e leggero. Da elaborare tutto',price:1200,sc:[1,1,1],mass:1800,p:.9,col:null,model:'terrano_serie'},
- xj_trial:{n:'Jeepsy',sub:'nero opaco con riga arancio, presa d\'aria sul cofano e gomme tassellate: corto di passo e cattivo',price:2600,sc:[1,1,1],mass:1650,p:1.05,col:null,model:'xj_trial',tough:.9},
- samurai:{n:'Samurai giallo',sub:'piccolo, leggerissimo, soft top e barra LED: passa dove gli altri si incastrano',price:1500,sc:[1,1,1],mass:1050,p:.7,col:null,model:'samurai'},
- pajero_corto:{n:'Pajero corto',sub:'tre porte infangato con taniche e portapacchi: corto, agile, robusto',price:2400,sc:[1,1,1],mass:1850,p:1.12,col:null,model:'pajero_corto',tough:.85},
- grenadier:{n:'Grenadier',sub:'verde scuro, telaio a longheroni e ponti rigidi: il fuoristrada moderno più duro',price:6000,sc:[1,1,1],mass:2650,p:1.45,col:null,model:'grenadier',lockR:true,tough:.7,lift:.02},
- base:{hide:1,n:'Ranger 2.5 TD',sub:'il tuo 4x4 di serie: onesto e robusto',price:0,sc:[1,1,1],mass:2100,p:1,col:null},
- grillo:{model:'jimny_verde',n:'Jimny 1.5',sub:'piccolo e leggero (in stile Jimny): stretto, galleggia nel fango, poco motore',price:1800,sc:[.88,.96,.82],mass:1200,p:.64,col:0xd8c23a},
- bisonte:{hide:1,n:'Bisonte 110',sub:'squadrato all\'inglese (in stile Defender): più alto e più forte',price:3500,sc:[1.02,1.04,1.06],mass:2250,p:1.25,col:0x3d5a3a,lift:.03},
- orso:{model:'landcruiser_stock',n:'Orso 200',sub:'giapponese indistruttibile (in stile Land Cruiser): pesante, potente, bloccaggio dietro di serie',price:5500,sc:[1.08,1.06,1.1],mass:2500,p:1.5,col:0xe9e7e0,lockR:true,tough:.7}};
+const VEHS={terrano:{tyre:'mt',n:'Terrano II Black Edition',sub:'nero, alzato, snorkel, barra LED e gomme tassellate · modello 3D vero',price:0,sc:[1,1,1],mass:2100,p:1.05,col:null,model:'gabbah_terrano'},
+ linus_terrano:{tyre:'mt',n:'Terrano 2.7 TD',sub:'nero infangato, 2.7 TDi, snorkel, gomme tassellate e fari sul portellone',price:900,sc:[1,1,1],mass:1950,p:1.02,col:null,model:'terrano_nero'},
+ costa_terrano:{tyre:'at',n:'Terrano grigio',sub:'argento con fascioni grigi, portapacchi e il Minion sulla ruota di scorta: affidabile, mai una rottura',price:800,sc:[1,1,1],mass:1900,p:.98,col:null,model:'terrano_grigio',tough:.85},
+ purcello_pajero:{tyre:'at',n:'Pajero Sport',sub:'argento, portapacchi con la ruota e fari LED: quello che ti tira fuori dal fango',price:1600,sc:[1,1,1],mass:2050,p:1.12,col:null,model:'pajero_sport'},
+ linus_wrangler:{tyre:'mt',lockF:true,n:'Wrangler Rubicon 37"',sub:'grigio, soft top, gomme da 37, verricello e barra LED: si arrampica ovunque',price:3800,sc:[1,1,1],mass:2100,p:1.25,col:null,model:'rubicon_grigio',lockR:true,lift:.04},
+ giacu_wrangler:{tyre:'mt',lockF:true,n:'Wrangler Rubicon verde acido',sub:'verde acido, hard top, snorkel, barra LED, verricello e gomme da 37: il re delle pietraie',price:4500,sc:[1,1,1],mass:2050,p:1.3,col:null,model:'wrangler_verde',lockR:true,lift:.05},
+ gusta_cherokee:{tyre:'at',vk:1.08,n:'Grand Cherokee 4.0',sub:'ZJ 4.0 V6 nero, gomme AT: comodo, potente, va forte nel fango',price:2200,sc:[1,1,1],mass:1750,p:1.18,col:null,model:'zj_cherokee'},
+ renard_sorento:{tyre:'ht',vk:1.06,n:'Sorento',sub:'SUV comodo: bene sullo sterrato, nel fango profondo soffre',price:1200,sc:[1,1,1],mass:1950,p:1.02,col:null,model:'sorento_ref',lift:-.02},
+ stefano_landcruiser:{tyre:'mt',n:'Land Cruiser BJ',sub:'BJ bianco a 3 porte, snorkel, verricello e gomme da fango: indistruttibile',price:3600,sc:[1,1,1],mass:1950,p:1.05,col:null,model:'bj_bianco',lockR:true,tough:.7},
+ daniel_patrol:{tyre:'at',vk:1.04,n:'Patrol mimetico',sub:'mimetico rosso: pesante, potentissimo, sospensioni lunghe',price:5200,sc:[1,1,1],mass:2600,p:1.45,col:null,model:'camo_patrol',tough:.75,lift:.03},
+ terrano_serie:{tyre:'ht',n:'Terrano Bull',sub:'grigio, bull bar e pedane: di serie, onesto e leggero. Da elaborare tutto',price:1200,sc:[1,1,1],mass:1800,p:.9,col:null,model:'terrano_serie'},
+ xj_trial:{tyre:'mt',n:'Jeepsy',sub:'nero opaco con riga arancio, presa d\'aria sul cofano e gomme tassellate: corto di passo e cattivo',price:2600,sc:[1,1,1],mass:1650,p:1.05,col:null,model:'xj_trial',tough:.9},
+ samurai:{tyre:'at',vk:0.85,n:'Samurai giallo',sub:'piccolo, leggerissimo, soft top e barra LED: passa dove gli altri si incastrano',price:1500,sc:[1,1,1],mass:1050,p:.56,col:null,model:'samurai'},
+ pajero_corto:{tyre:'at',n:'Pajero corto',sub:'tre porte infangato con taniche e portapacchi: corto, agile, robusto',price:2400,sc:[1,1,1],mass:1850,p:1.12,col:null,model:'pajero_corto',tough:.85},
+ grenadier:{tyre:'at',lockF:true,n:'Grenadier',sub:'verde scuro, telaio a longheroni e ponti rigidi: il fuoristrada moderno più duro',price:6000,sc:[1,1,1],mass:2650,p:1.45,col:null,model:'grenadier',lockR:true,tough:.7,lift:.02},
+ base:{tyre:'ht',hide:1,n:'Ranger 2.5 TD',sub:'il tuo 4x4 di serie: onesto e robusto',price:0,sc:[1,1,1],mass:2100,p:1,col:null},
+ grillo:{tyre:'at',vk:0.88,model:'jimny_verde',n:'Jimny 1.5',sub:'piccolo e leggero (in stile Jimny): stretto, galleggia nel fango, poco motore',price:1800,sc:[.88,.96,.82],mass:1200,p:.58,col:0xd8c23a},
+ bisonte:{tyre:'at',hide:1,n:'Bisonte 110',sub:'squadrato all\'inglese (in stile Defender): più alto e più forte',price:3500,sc:[1.02,1.04,1.06],mass:2250,p:1.25,col:0x3d5a3a,lift:.03},
+ orso:{tyre:'at',vk:1.04,model:'landcruiser_stock',n:'Orso 200',sub:'giapponese indistruttibile (in stile Land Cruiser): pesante, potente, bloccaggio dietro di serie',price:5500,sc:[1.08,1.06,1.1],mass:2500,p:1.5,col:0xe9e7e0,lockR:true,tough:.7}};
 let VEH=VEHS.base, VS=[1,1,1]; const WH0=[ {x:-.82,z:-1.38},{x:.82,z:-1.38},{x:-.82,z:1.35},{x:.82,z:1.35} ]; let carRoot=null, bodyMat0=null;
 let prevVeh=null, detVeh=null;
 function vStats(v){ const M=v.model&&VMOD[v.model], rw=M?M.rw:.41, P=v.p, m=v.mass, t=v.tough||1;
   const c=x=>Math.max(1,Math.min(5,Math.round(x)));
-  return [['Potenza',c(1+(P-.6)*4.5)],['Fango',c(1.5+(v.lockR?1:0)+(m<1900?1:0)+(P>1.15?1:0)+(rw>.45?.5:0))],['Pietraia',c(1.5+(v.lockR?1.2:0)+(rw>.46?1:0)+((v.lift||0)>0?1:0)+(m<1300?.6:0))],['Velocità',c(1+(P/(m/2000))*2.1)],['Robustezza',c(2+(1-t)*9+(m>2300?.5:0))]]; }
+  return [['Potenza',c(1+(P-.6)*4.5)],['Fango',c(1.2+({mt:1.2,at:.6,ht:0}[v.tyre||'ht'])+(m<1300?1.2:m<1900?.6:0)+(P/(m/2100)>1.1?.8:0)+(rw>.45?.4:0)-((v.lift||0)<0?.6:0))],['Pietraia',c(1.4+(v.lockF?1.2:0)+(rw>.46?1:0)+((v.lift||0)>0?.8:0)+({mt:.4,at:.2,ht:0}[v.tyre||'ht'])+(m<1300?.4:0))],['Velocità',c(1+(P/(m/2000))*2.1*(v.vk||1))],['Robustezza',c(2+(1-t)*9+(m>2300?.5:0))]]; }
 function openVeh(k){ detVeh=k; const v=VEHS[k]; prevVeh=save.vehOwn[k]?null:k; if(save.vehOwn[k]){ save.veh=k; persist(); } applyUpgrades(); shA=.6; renderVeh(); $('#gar').classList.add('det'); }
 function closeVeh(){ detVeh=null; $('#vdet').hidden=true; $('#gar').classList.remove('det'); renderGarage(); }
 function renderVeh(){ const k=detVeh, v=VEHS[k], o=save.vehOwn[k], D=$('#vdet'); D.innerHTML=''; D.hidden=false;
@@ -1638,7 +1638,7 @@ function renderVeh(){ const k=detVeh, v=VEHS[k], o=save.vehOwn[k], D=$('#vdet');
   D.append(el('button','vx','✕')); D.lastChild.addEventListener('click',closeVeh);
   D.append(el('p','eyebrow',o?(save.veh===k?'In uso':'Nel tuo garage'):'In vendita · '+eur(v.price)), el('h2','',v.n), el('p','vsub',v.sub+'.'));
   const st=el('div','vstats'); for(const [n,x] of vStats(v)){ const r=el('div','vst'); r.append(el('span','',n)); const bar=el('i'); for(let q=0;q<5;q++) bar.append(el('u',q<x?'on':'')); r.append(bar); st.append(r); } D.append(st);
-  const sp=el('div','vspec'); for(const [a,b] of [['Peso',Math.round(v.mass)+' kg'],['Motore','×'+v.p.toFixed(2).replace('.',',')],['Gomme','Ø '+Math.round(rw*200)+' cm'],['Bloccaggio dietro',v.lockR?'di serie':'no (lo monti in Elabora)'],['Assetto',(v.lift||0)>0?'rialzato':(v.lift||0)<0?'basso, da SUV':'normale'],['Resistenza ai danni',(v.tough||1)<1?'alta':'normale']]){ const r=el('div'); r.append(el('span','',a),el('b','',b)); sp.append(r); } D.append(sp);
+  const sp=el('div','vspec'); for(const [a,b] of [['Peso',Math.round(v.mass)+' kg'],['Motore','×'+v.p.toFixed(2).replace('.',',')],['Gomme','Ø '+Math.round(rw*200)+' cm · '+({mt:'M/T fango',at:'A/T',ht:'stradali'}[v.tyre||'ht'])],['Bloccaggi',v.lockF?'davanti e dietro':'dietro (anteriore in Elabora)'],['Assetto',(v.lift||0)>0?'rialzato':(v.lift||0)<0?'basso, da SUV':'normale'],['Resistenza ai danni',(v.tough||1)<1?'alta':'normale']]){ const r=el('div'); r.append(el('span','',a),el('b','',b)); sp.append(r); } D.append(sp);
   const bt=el('div','vbtn');
   if(o){ const u=el('button','big',save.veh===k?'✔ In uso · PARTI':'Usa questo'); u.addEventListener('click',()=>{ save.veh=k; persist(); applyUpgrades(); if(u.textContent.includes('PARTI')){ closeVeh(); $('#garGo').click(); } else renderVeh(); }); bt.append(u); }
   else { const pr=el('button','big','🏁 Prova gratis'); pr.addEventListener('click',()=>{ prevVeh=k; closeVeh(); $('#garGo').click(); }); const by=el('button','ghost',save.money>=v.price?'Compra · '+eur(v.price):'Servono '+eur(v.price)+' (hai '+eur(save.money)+')'); by.disabled=save.money<v.price;
@@ -1660,7 +1660,7 @@ function applyUpgrades(){
   if(own('turbo')){ fa*=1.15; fl*=1.1; va*=1.05; }
   if(own('v6')){ fa*=1.22; fl*=1.18; va*=1.08; }
   if(own('shortlow')){ fl*=1.3; vl=5.5; eb=3800; }
-  applyVehicle(); fa*=VEH.p; fl*=VEH.p; if(!VEH.p) fa=8200; ENG={fa,va,fl,vl,eb};
+  applyVehicle(); fa*=VEH.p; fl*=VEH.p; va*=VEH.vk||1; if(!VEH.p) fa=8200; ENG={fa,va,fl,vl,eb};
   { const MI=VEH.model&&VMOD[VEH.model]; const brw=MI&&MI.root?(VEH.model==='terrano'?.44:MI.rw):0; RW=brw?(own('g33')?brw+.03:brw):(own('g33')?.445:.41); } LN=(own('lift')?.55:.5)+(VEH.lift||0);
   for(const g of wheels) if(g){ for(const o of g.userData.hero||[]) o.scale.setScalar(RW/.41); if(g.userData.terr) g.userData.terr.scale.set(TIRE_W*(own('g33')?1.08:1),RW,RW); }
   if(curRoot){ const MI=VMOD[VEH.model]; curRoot.position.y=(heroWY??(MOUNTY-LN+.12))-MI.cz*MI.k; curRoot.userData.by0=curRoot.position.y; }
@@ -1722,9 +1722,9 @@ function physStep(dt,inp){
   if(revMode) thr=-.8; else { thr=inp.gas; if(inp.brk&&!revMode) brake=1; }
   if(low&&save.crawl!==false&&thr>0&&!revMode){ const tgt=.6+inp.gas*((save.lowFast?Math.max(2.5,ENG.vl*.97):2.5)-.6); st.crawlI=clamp((st.crawlI||0)+(tgt-sp)*dt*1.4,0,1); thr=clamp((tgt-sp)*.9+.22+st.crawlI,0,1); } else st.crawlI=0;
   const q2=Math.max(0,thr>0?sp/vmax:-sp/(vmax*(low?.6:.3)));
-  const lugK=low||thr<=0||!(st.el&&st.el.some(e=>e>.07))?1:lerp(.55,1,sstep(.4,2.6,Math.abs(sp))); const Fe=thr*Fmax*Math.max(0,1-q2*q2)*lugK; st.lug=lugK<.7&&thr>.6?(st.lug||0)+dt:0;
+  const lugK=low||thr<=0||!(st.el&&st.el.some(e=>e>.07))?1:lerp(.55,1,sstep(.4,2.6,Math.abs(sp))); const Fe=thr*Fmax*Math.max(0,1-q2*q2)*lugK*(1-Math.max(0,st.dmg.semiassi-45)/260)*(1-Math.max(0,st.dmg.coppa-60)/300); st.lug=lugK<.7&&thr>.6?(st.lug||0)+dt:0;
   // sterzo: più rapido e con più angolo, si chiude meno con la velocità
-  const maxSt=.7/(1+Math.abs(sp)/12)*(st.lock?(own('lockF')?.72:.86):1); if(st.lock&&Math.abs(sp)>8.3){ st.lock=false; updLockB(); toast('🔓 Bloccaggio disinserito','sopra i 30 km/h si sblocca da solo'); }
+  const maxSt=.7/(1+Math.abs(sp)/12)*(st.lock?(hasLockF()?.72:.86):1); if(st.lock&&Math.abs(sp)>8.3){ st.lock=false; updLockB(); toast('🔓 Bloccaggio disinserito','sopra i 30 km/h si sblocca da solo'); }
   const yawRate=st.w.dot(up); const tgt=inp.steer*maxSt+clamp(yawRate*.05*Math.sign(sp||1),-.07,.07)*(Math.abs(inp.steer)<.4?1:.2);
   const rate=Math.abs(inp.steer)<.05?5:3.8; st.steer+=clamp(tgt-st.steer,-rate*dt,rate*dt);
   let contacts=0, surf='erba'; const WD=[null,null,null,null];
@@ -1736,7 +1736,7 @@ function physStep(dt,inp){
     const su0=surfAt(mount.x,mount.z);
     for(let it=0;it<4;it++){ P.copy(mount).addScaledVector(up,-t); const gh=wheelH(P.x,P.z,su0); t+=(P.y-gh)/Math.max(.3,up.y); }
     // gomma tonda: se davanti o dietro c'è un gradino/tronco/sasso più alto, la ruota ci appoggia sopra prima di arrivarci col centro
-    const ED=(st.edge=st.edge||[0,0,0,0]); ED[i]=0; { const kk=Math.floor(-P.z/4); if(!window.__noTire&&(OBB.get(kk)||OBB.get(kk+1)||OBB.get(kk-1)||ROCKB.get(kk))){ const fh=new V(fw.x,0,fw.z).normalize(), gh0=wheelH(P.x,P.z,su0); let best=gh0, bdx=0; for(const k of [-.85,-.7,-.55,-.4,-.25,.25,.4,.55,.7,.85]){ const dx=k*RW, qx=P.x+fh.x*dx, qz=P.z+fh.z*dx; const g=wheelH(qx,qz,su0)-(RW-Math.sqrt(RW*RW-dx*dx)); if(g>best+.004){ best=g; bdx=dx; } } const EL=(st.el=st.el||[0,0,0,0]), tg=Math.max(0,best-gh0); if(tg>EL[i]){ const vfw=Math.abs(st.vel.dot(fh)), dv=(st.dv&&st.dv[i])||0, Fz=(st.fz&&st.fz[i])||5000; const climb=thr>0||thr<0?(.32*clamp(dv/(Fz*.5+1),0,1.4)+Math.abs(thr)*(low?.42:.16)*clamp(muOf(su0),.3,1.1))*(tg>RW*1.3?.15:1)*(st.dspin&&st.dspin[i]?.35:1):0; if(climb>.08&&tg-EL[i]>.04){ (st.climbW=st.climbW||[0,0,0,0])[i]=st.time; } EL[i]=Math.min(tg,EL[i]+(vfw*1.9+climb+.02)*dt); } else EL[i]+=(tg-EL[i])*Math.min(1,dt*30); /* la gomma sale sull'ostacolo solo se avanza */ if(EL[i]>.002){ t-=EL[i]/Math.max(.3,up.y); ED[i]=bdx; } (st.gap=st.gap||[0,0,0,0])[i]=bdx?Math.max(0,tg-EL[i])*(OBB.get(kk)||OBB.get(kk+1)||OBB.get(kk-1)?1:.45):0; (st.gdir=st.gdir||[0,0,0,0])[i]=Math.sign(bdx); } else if(st.el) st.el[i]=0; }
+    const ED=(st.edge=st.edge||[0,0,0,0]); ED[i]=0; { const kk=Math.floor(-P.z/4); if(!window.__noTire&&(OBB.get(kk)||OBB.get(kk+1)||OBB.get(kk-1)||ROCKB.get(kk))){ const fh=new V(fw.x,0,fw.z).normalize(), gh0=wheelH(P.x,P.z,su0); let best=gh0, bdx=0; for(const k of [-.85,-.7,-.55,-.4,-.25,.25,.4,.55,.7,.85]){ const dx=k*RW, qx=P.x+fh.x*dx, qz=P.z+fh.z*dx; const g=wheelH(qx,qz,su0)-(RW-Math.sqrt(RW*RW-dx*dx)); if(g>best+.004){ best=g; bdx=dx; } } const EL=(st.el=st.el||[0,0,0,0]), tg=Math.max(0,best-gh0); if(tg>EL[i]){ const vfw=Math.abs(st.vel.dot(fh)), dv=(st.dv&&st.dv[i])||0, Fz=(st.fz&&st.fz[i])||5000; const climb=thr>0||thr<0?(.32*clamp(dv/(Fz*.5+1),0,1.4)+Math.abs(thr)*(low?.42:.16)*clamp(muOf(su0),.3,1.1))*(tg>RW*1.3?.15:1)*(st.dspin&&st.dspin[i]?.35:1)*Math.pow(RW/.43,1.5):0; if(climb>.08&&tg-EL[i]>.04){ (st.climbW=st.climbW||[0,0,0,0])[i]=st.time; } EL[i]=Math.min(tg,EL[i]+(vfw*1.9+climb+.02)*dt); } else EL[i]+=(tg-EL[i])*Math.min(1,dt*30); /* la gomma sale sull'ostacolo solo se avanza */ if(EL[i]>.002){ t-=EL[i]/Math.max(.3,up.y); ED[i]=bdx; } (st.gap=st.gap||[0,0,0,0])[i]=bdx?Math.max(0,tg-EL[i])*(OBB.get(kk)||OBB.get(kk+1)||OBB.get(kk-1)?1:.45):0; (st.gdir=st.gdir||[0,0,0,0])[i]=Math.sign(bdx); } else if(st.el) st.el[i]=0; }
     const dist=t-RW;
     let x=LN-dist; st.contact[i]=0; st.dspin[i]=0;
     const xd=i>=2&&!VEH.indepR&&!window.__noAx?clamp(st.comp[i===2?3:2]-.24,0,.26)*.9:0; // ponte rigido dietro: se una ruota sale, l'altra scende e resta a terra
@@ -1750,19 +1750,19 @@ function physStep(dt,inp){
     const vp=new V().copy(st.w).cross(r).add(st.vel);
     const vComp=-vp.dot(up);
     let Fs=K*x+CD*clamp(vComp,-3,3)*(vComp<0?1.35+sstep(.25,.45,x)*1.4:1); if(x>LN-.08){ const bx=x-(LN-.08); Fs+=bx*bx*1.2e6+CD*1.6*clamp(vComp,0,3)*sstep(0,.04,bx); } Fs=clamp(Fs,0,24000);
-    if(x>LN-.07&&vComp>2.5&&st.time-st.bumpT[i]>.5){ st.bumpT[i]=st.time; const k=vComp-2.5; st.dmg.semiassi+=k*3.5*semiK; st.dmg.gomme+=k*2.5*gomK; if(k>.8) hit(vComp*1.6); }
+    if(x>LN-.07&&vComp>1.8&&st.time-st.bumpT[i]>.4){ st.bumpT[i]=st.time; const k=vComp-1.8; st.dmg.semiassi+=k*5*semiK; st.dmg.gomme+=k*3.5*gomK; if(k>.6) hit(vComp*1.6); }
     if(vComp>1.6&&st.time-(st.thudT||0)>.25){ st.thudT=st.time; st.thud=Math.min(1,(vComp-1.6)/3); }
     st.comp[i]=xs<.02?xs:x; st.contact[i]=1; contacts++; st.cp[i].copy(P); st.cn[i].copy(n);
     const wf=new V().copy(fw); if(W.f) wf.applyAxisAngle(up,-st.steer);
     wf.addScaledVector(n,-wf.dot(n)).normalize(); const ws=new V().crossVectors(wf,n).normalize();
-    const mu=muOf(su)*gripMul(su)*(isSoft(su)?1-.5*st.sink:1)*(isSoft(su)?1:1-.28*(st.tmud||0));
+    const mu=(1-Math.max(0,st.dmg.gomme-45)/220)*muOf(su)*gripMul(su)*(isSoft(su)?(1-.5*st.sink)*Math.pow(2100/MASS,.25):1)*(isSoft(su)?1:1-.28*(st.tmud||0));
     const N=Fs*Math.max(.2,n.dot(up));
     WD[i]={n,su,r,Fs,N,wf,ws,vl:vp.dot(wf),vs:vp.dot(ws),lim:mu*N};
   }
   // trasmissione: 4x4 inserita con ripartitore bloccato. Differenziali aperti: la ruota con meno presa decide quanto spinge l'asse.
   // Con il bloccaggio le due ruote girano insieme e quella che tiene spinge anche per l'altra.
   const drive=[0,0,0,0], base=Fe/4, sg=Math.sign(base); let ab=Math.abs(base);
-  for(const [a,b,lk,bb] of [[0,1,st.lock&&own('lockF'),st.awd!==false?base:0],[2,3,st.lock||(VEH.lockR&&false),st.awd!==false?base:base*2]]){
+  for(const [a,b,lk,bb] of [[0,1,st.lock&&hasLockF(),st.awd!==false?base:0],[2,3,st.lock||(VEH.lockR&&false),st.awd!==false?base:base*2]]){
     const la=WD[a]?WD[a].lim:0, lb=WD[b]?WD[b].lim:0; const ab=Math.abs(bb);
     if(lk){ let da=Math.min(ab,la), db=Math.min(ab,lb), rest=2*ab-da-db; const ea=Math.max(0,Math.min(rest,la-da)); da+=ea; rest-=ea; db+=Math.max(0,Math.min(rest,lb-db)); drive[a]=sg*da; drive[b]=sg*db; }
     else { const cap=Math.min(la,lb)*1.3+Math.max(la,lb)*.12, d=Math.min(ab,cap); drive[a]=drive[b]=sg*d; if(ab>cap){ if(la<=lb) st.dspin[a]=1; else st.dspin[b]=1; } }
@@ -1772,14 +1772,14 @@ function physStep(dt,inp){
     let fx=drive[i], fy=-vs*16000;
     const stopCap=Math.abs(vl)*MASS/4/dt*.5;
     if(brake) fx+=-Math.sign(vl)*Math.min(5200,stopCap);
-    fx+=-Math.sign(vl)*Math.min(N*(CRR[su]+(isSoft(su)?st.sink*(thr<0?.12:.2):0))*(thr<0&&isSoft(su)?.7:1),stopCap);
+    fx+=-Math.sign(vl)*Math.min(N*(CRR[su]*(isSoft(su)?Math.pow(MASS/2100,.35):1)+(isSoft(su)?st.sink*(thr<0?.12:.2):0))*(thr<0&&isSoft(su)?.7:1),stopCap);
     if(low&&!thr) fx+=-Math.sign(vl)*Math.min(ENG.eb,stopCap);
     if(su==='acqua') fx+=-vl*Math.abs(vl)*120;
     const mag=Math.hypot(fx,fy); let slip=0;
     if(mag>lim){ slip=1-lim/mag; fx*=lim/mag; fy*=lim/mag; }
     st.slip[i]=Math.max(slip||(ab>lim*1.02?.5:0),st.dspin[i]?.65:0);
     const f=new V().addScaledVector(n,Fs).addScaledVector(wf,fx).addScaledVector(ws,fy);
-    { const gp=st.gap&&st.gap[i]; if(gp>.03&&st.gdir[i]){ const fh2=new V(fw.x,0,fw.z).normalize(), vin=st.vel.dot(fh2)*st.gdir[i]; f.addScaledVector(fh2,-st.gdir[i]*Math.min(16000,(gp-.03)*90000+Math.max(0,vin)*6000)); if(i<2&&gp>.06&&vin>.5&&st.time-(st.kickT||0)>.7){ st.kickT=st.time; st.steer=clamp(st.steer+(WH[i].x<0?-1:1)*Math.min(.22,.07+vin*.06),-.7,.7); vib(30); shake=Math.max(shake,.06+vin*.03); } if(vin>1.7&&gp>.1&&st.time-(st.wallHit||-9)>.8){ st.wallHit=st.time; const k=vin-1.7; st.dmg.semiassi+=k*5*semiK; st.dmg.gomme+=k*3*gomK; hit(vin*1.5); if(st.time-(st.wallSaid||-99)>20){ st.wallSaid=st.time; toast('Botta sullo scalino!','sugli ostacoli alti si arriva piano, in ridotte: col colpo rompi semiassi e gomme'); } } } }
+    { const gp=st.gap&&st.gap[i]; if(gp>.03&&st.gdir[i]){ const fh2=new V(fw.x,0,fw.z).normalize(), vin=st.vel.dot(fh2)*st.gdir[i]; f.addScaledVector(fh2,-st.gdir[i]*Math.min(16000,(gp-.03)*90000+Math.max(0,vin)*6000)); if(i<2&&gp>.06&&vin>.5&&st.time-(st.kickT||0)>.7){ st.kickT=st.time; st.steer=clamp(st.steer+(WH[i].x<0?-1:1)*Math.min(.22,.07+vin*.06),-.7,.7); vib(30); shake=Math.max(shake,.06+vin*.03); } if(vin>1.2&&gp>.08&&st.time-(st.wallHit||-9)>.8){ st.wallHit=st.time; const k=vin-1.0; st.dmg.semiassi+=k*5*semiK; st.dmg.gomme+=k*3*gomK; hit(vin*1.5); if(st.time-(st.wallSaid||-99)>20){ st.wallSaid=st.time; toast('Botta sullo scalino!','sugli ostacoli alti si arriva piano, in ridotte: col colpo rompi semiassi e gomme'); } } } }
     (st.dv=st.dv||[0,0,0,0])[i]=Math.abs(drive[i]); (st.fz=st.fz||[0,0,0,0])[i]=Fs;
     F.add(f); T.add(new V().crossVectors(r,f));
     st.spin[i]+=vl/RW*dt*(1+st.slip[i]*2)+(st.dspin[i]?thr*dt*10:0);
@@ -1791,14 +1791,17 @@ function physStep(dt,inp){
     { const sg=Math.sign(thr); if(sg){ if(st.rkSg&&sg!==st.rkSg&&st.time-st.rkT<3.5&&st.rkHold>.35&&softW&&st.sink>.05){ st.sink=Math.max(0,st.sink-.13); st.vel.addScaledVector(fw,sg*1.1); st.rocks=(st.rocks||0)+1; if(st.rocks%2===1) toast('Dondola!','avanti e indietro: il fango si compatta e il mezzo esce'); auThud(.35); } if(sg!==st.rkSg){ st.rkHold=0; } st.rkSg=sg; st.rkT=st.time; st.rkHold=(st.rkHold||0)+dt; } }
     if(softW){ if(thr<0) st.sink=Math.max(0,st.sink-dt*(asp>.15?.35:.12));
       else if(asp>2.2&&slip<.3) st.sink=Math.max(0,st.sink-dt*.15);
-      else if(thr>0&&(slip>.15||asp<2.5)) st.sink=Math.min(1,st.sink+dt*(deep?.13:.1)*snowK*(.25+slip)*(asp>2.2?.35:1)*(softW/4)*(pressure===0?1.3:pressure===2?.75:1)*(own('g33')?.85:1)*Math.pow(MASS/2100,.8)); }
+      else if(thr>0&&(slip>.15||asp<2.5)) st.sink=Math.min(1,st.sink+dt*(deep?.13:.1)*snowK*(.25+slip)*(asp>2.2?.35:1)*(softW/4)*(pressure===0?1.3:pressure===2?.75:1)*(own('g33')?.85:1)*Math.pow(MASS/2100,1.3)); }
     else st.sink=Math.max(0,st.sink-dt*.6);
     { const mudN=st.wsurf.filter((w,i)=>st.contact[i]&&isMud(w)).length; if(mudN) st.tmud=Math.min(1,(st.tmud||0)+dt*mudN*.03*(.4+slip*2)*(own('mt')?.55:1)); else st.tmud=Math.max(0,(st.tmud||0)-dt*(.02+asp*.012)*(own('mt')?2:1)); if(st.tmud>.6&&!st.tmudSaid){ st.tmudSaid=1; toast('Gomme impastate di fango','sul duro tengono meno: un po\' di velocità le pulisce'+(own('mt')?'':' · le M/T si puliscono da sole')); } if(st.tmud<.2) st.tmudSaid=0; }
-    { let ss=0; for(let i=0;i<4;i++) if(st.contact[i]&&st.slip[i]>.55) ss++; if(ss>=2&&thr>.85&&st.gear==='ridotte'&&(st.surf==='roccia'||st.surf==='ghiaia')){ st.axT=(st.axT||0)+dt; if(st.axT>1.2){ st.dmg.semiassi+=dt*4*semiK; if(!st.axSaid){ st.axSaid=1; toast('Crack! Semiassi sotto sforzo','in ridotte sui sassi dosa il gas: le ruote che slittano spaccano i giunti'); auBurst(300,.2,.4,'lowpass',2); } } } else st.axT=Math.max(0,(st.axT||0)-dt*2); }
-    if(st.surf==='roccia'&&asp>4.6){ const o=(asp-4.6)*dt; st.dmg.gomme+=o*1.6*gomK; st.dmg.coppa+=o*1.2*(own('plate')?.3:1); }
+    { let ss=0; for(let i=0;i<4;i++) if(st.contact[i]&&st.slip[i]>.55) ss++; if(ss>=1&&inp.gas>.9&&thr>.8&&!isSoft(st.surf)&&st.surf!=='acqua'){ st.axT=(st.axT||0)+dt; if(st.axT>.8){ st.dmg.semiassi+=dt*(st.gear==='ridotte'?2.6:1.6)*(st.lock?1.3:1)*semiK; if(!st.axSaid){ st.axSaid=1; toast('Crack! Semiassi sotto sforzo','in ridotte sui sassi dosa il gas: le ruote che slittano spaccano i giunti'); auBurst(300,.2,.4,'lowpass',2); } } } else st.axT=Math.max(0,(st.axT||0)-dt*2); }
+    { const SAFE={roccia:3.2,ghiaia:6,terra:10,erba:10,fango:8,fangoProf:6,neve:9,ghiaccio:7,sabbia:9,galleria:7,acqua:4}, sv=SAFE[st.surf]||9; if(asp>sv&&st.contacts>1){ const o=asp-sv, hard=st.surf==='roccia'||st.surf==='ghiaia'||st.surf==='galleria'; st.dmg.gomme+=o*o*dt*(hard?.3:.1)*gomK; st.dmg.semiassi+=o*o*dt*(hard?.05:.015)*semiK; if(hard) st.dmg.coppa+=o*dt*.6*(own('plate')?.3:1); if(hard&&o>1.5&&st.time-(st.roughSaid||-99)>25){ st.roughSaid=st.time; toast('Troppo veloce sui sassi!','gomme e semiassi si rovinano: sulle pietraie si va a passo d\'uomo'); } } }
+    { const W=st.dmgW||(st.dmgW={}); for(const [k,t,x] of [['gomme','Gomme rovinate','tagli e spalle segnate: tengono meno, vai piano sui sassi'],['semiassi','Semiassi che fanno clack','in curva e sotto sforzo senti i giunti: il mezzo spinge meno'],['coppa','Coppa ammaccata','perde un filo d\'olio: il motore rende meno']]) if(st.dmg[k]>50&&!W[k]){ W[k]=1; toast('⚠️ '+t,x); vib(60); } }
+    // ostacoli presi forte (tronchi, gradini, twist): botte vere a gomme e semiassi
+    if(asp>3.2&&st.el&&st.el.some(e=>e>.06)){ const o=asp-3.2; st.dmg.semiassi+=o*dt*5*semiK; st.dmg.gomme+=o*dt*4*gomK; if(st.time-(st.obHitT||-9)>.6){ st.obHitT=st.time; hit(asp*1.2); } }
     if(pressure===2&&(st.surf==='terra')&&asp>12) st.dmg.gomme+=dt*.9;
     const sc=-st.pos.z, gc=height(st.pos.x,st.pos.z), depth=waterY(sc)-gc;
-    if(inWet(sc,2)&&depth>0){ F.addScaledVector(st.vel,-depth*(inPud(sc,2)?1900:2600)); if(inPud(sc,2)&&depth>.22&&!st.pudSaid){ st.pudSaid=1; toast('🟤 Pozza profonda','acqua e fango fino alle portiere: piano e costante, senza fare l\'onda'); } const wave=depth+asp*3.6*.022, lim=hasSnork()?1.75:.9; if(wave>lim) st.water=Math.min(1,st.water+dt*(wave-lim)*1.8); st.inWater=depth; } else st.inWater=0; }
+    if(inWet(sc,2)&&depth>0){ F.addScaledVector(st.vel,-depth*(inPud(sc,2)?1900:2600)*Math.sqrt(MASS/2100)); if(inPud(sc,2)&&depth>.22&&!st.pudSaid){ st.pudSaid=1; toast('🟤 Pozza profonda','acqua e fango fino alle portiere: piano e costante, senza fare l\'onda'); } const wave=depth+asp*3.6*.022, lim=hasSnork()?1.75:.9; if(wave>lim) st.water=Math.min(1,st.water+dt*(wave-lim)*1.8); st.inWater=depth; } else st.inWater=0; }
   // galleria: le pareti ad arco fermano la scocca (prima ci passavi attraverso)
   { const sc=-st.pos.z, zg=zoneAt(sc); if(zg.t==='galleria'&&sc>zg.a-1&&sc<zg.b+1){ const d=st.pos.x-CX(sc), ad=Math.abs(d), lim=1.55; if(ad>lim){ const pen=ad-lim, sg=Math.sign(d), vl=st.vel.x; F.x+=-sg*(pen*90000)-(vl*sg>0?vl*14000:0); st.vel.x*=sg*vl>0?.985:1; if(st.time-(st.wallT||0)>.25&&Math.abs(st.vel.z)>.8){ st.wallT=st.time; auBurst(2600,.12,.2,'highpass',2); vib(25); const p=st.pos.clone().add(new V(sg*1,.6,0)); for(let q=0;q<4;q++) emit(p,new V(-sg*Math.random(),1+Math.random(),(Math.random()-.5)*2),[1,.75,.3],{k:1,s:.035,life:.3,a:1}); st.dmg.carrozzeria=Math.min(100,st.dmg.carrozzeria+.4); } } } }
   // scocca: punti che non devono entrare nel terreno
@@ -1922,7 +1925,7 @@ function readInput(){ const kl=keys.has('arrowleft')||keys.has('a'), kr=keys.has
   return {gas:pad.gas?(pad.gasV||1):(keys.has('arrowup')||keys.has('w'))?(keys.has('shift')?.45:1):0, brk:(pad.brk||keys.has('arrowdown')||keys.has('s')||keys.has(' '))?1:0, steer:s}; }
 function toggleAwd(){ if(st.gear==='ridotte'&&st.awd){ toast('Prima togli le ridotte','in ridotte si va sempre a 4 ruote motrici'); return; } st.awd=!st.awd; toast(st.awd?'4x4 inserita':'Solo trazione posteriore',st.awd?'tirano tutte e quattro le ruote':'più veloce sullo sterrato, ma niente presa nel fango'); auBurst(500,.15,.25,'lowpass'); }
 $('#awdB').addEventListener('click',toggleAwd);
-function lockAvail(){ return {r:true,f:own('lockF')}; }
+const hasLockF=()=>own('lockF')||!!(VEH&&VEH.lockF); function lockAvail(){ return {r:true,f:hasLockF()}; }
 function toggleLock(){ if(!st.lock&&Math.abs(st.vel.dot(fw))>6){ toast('Rallenta per bloccare','il bloccaggio si inserisce sotto i 20 km/h'); return; } st.lock=!st.lock; const A=lockAvail(); auTone(st.lock?220:160,.08,.18,'square'); setTimeout(()=>auTone(st.lock?330:120,.06,.14,'square'),90); if(navigator.vibrate) try{navigator.vibrate(25);}catch(_){}
   toast(st.lock?'🔒 Bloccaggio inserito':'🔓 Bloccaggio disinserito',st.lock?(A.f?'davanti e dietro: le ruote girano insieme, sterza di meno':'dietro: le due ruote posteriori girano insieme (l\'anteriore lo trovi in garage)'):'differenziali aperti: si sterza bene, ma la ruota scarica gira a vuoto'); updLockB(); }
 function updLockB(){ const B=$('#lkB'); if(!B) return; B.textContent=st.lock?'🔒 Bloccato':'🔓 Bloccaggio'; B.classList.toggle('lk',!!st.lock); }
@@ -3224,7 +3227,7 @@ function ghostUpd(dt){ if(st.done) return; st.ghT+=dt; if(st.ghT>=.25){ st.ghT-=
   const gs=-ghostCar.position.z; st.ghGap=gs-st.s; }
 function startRun(){ st.daily=dailyGo; dailyGo=null; st.fog0=null; rtt.userData.lidP.rotation.x=0; rtt.userData.tela.scale.y=.001; cam.clearViewOffset(); shS=-1; if(cs) clearCamp(); setTimeout(()=>{ if(st.running&&!campMode&&save.musGuida!==false&&AC) { if(TRACK_MP3[save.track]) mp3Start(TRACK_MP3[save.track],.32); else musicStart(TRACK_SONG[save.track]||'rock',.2); } },600); WX=save.meteo; if(WX==='random'){ const ks=Object.keys(METEO).filter(k=>k!=='random'), w=ks.map(k=>k==='sereno'?3:k==='temporale'?1:1.6); let r=Math.random()*w.reduce((a,b)=>a+b,0), q=0; while(r>w[q]){ r-=w[q]; q++; } WX=ks[q]; st.wxRnd=true; setTimeout(()=>toast('🎲 Meteo a sorpresa',METEO[WX].ic+' '+METEO[WX].n+' · '+METEO[WX].txt),900); } else st.wxRnd=false; if(builtTrack!==save.track) buildWorld(save.track); else { scene.fog.near=TR.theme==='neve'?25:60; scene.fog.far=TR.theme==='neve'?150:TR.theme==='alpino'?320:250; } applyUpgrades(); pressure=save.pressure;
   $('#hud').hidden=false; $('#hud2').hidden=false; $('#ctl').hidden=false; $('#tb').hidden=false; $('#lowB').hidden=false;
-  clearSplats(); placeFriendCars(); for(const o of OBST){ o.said=false; o.cut=0; } st.camCut=null; st.snowSaid=false; st.lock=false; if(typeof updLockB==='function') updLockB(); st.flipSeq=null; pur.visible=false; strop.visible=false; TR._pudO=null; st.pudSaid=0; Object.assign(st,{chk:null,uprig:null,drone:null,droneDone:false,panoSaid:false,awd:true,progS:0,progT:0,running:true,done:false,rescue:null,time:0,dirt:save.dirt||0,water:0,sink:0,rescues:0,paused:false,gear:'alta',dmg:{...save.dmg}}); reset(4); campMode=false; ghostStart(); clearRuts(); skyNow=-1; setSky(TR.night?1:0); lightsUpd(); $('#hq').hidden=false; setTimeout(()=>{ if(!save.tutDone) tutStart(); else showHelp('guida'); },400); }
+  clearSplats(); placeFriendCars(); for(const o of OBST){ o.said=false; o.cut=0; } st.camCut=null; st.snowSaid=false; st.dmgW={}; st.lock=false; if(typeof updLockB==='function') updLockB(); st.flipSeq=null; pur.visible=false; strop.visible=false; TR._pudO=null; st.pudSaid=0; Object.assign(st,{chk:null,uprig:null,drone:null,droneDone:false,panoSaid:false,awd:true,progS:0,progT:0,running:true,done:false,rescue:null,time:0,dirt:save.dirt||0,water:0,sink:0,rescues:0,paused:false,gear:'alta',dmg:{...save.dmg}}); reset(4); campMode=false; ghostStart(); clearRuts(); skyNow=-1; setSky(TR.night?1:0); lightsUpd(); $('#hq').hidden=false; setTimeout(()=>{ if(!save.tutDone) tutStart(); else showHelp('guida'); },400); }
 // pausa
 function sensUI(){ document.querySelectorAll('.sens:not(.sm):not(.cr):not(.vb):not(.ac) button').forEach(b=>b.classList.toggle('on',+b.dataset.v===(save.sens||1))); }
 function optUI(){ document.querySelectorAll('.sens.sm button').forEach(b=>b.classList.toggle('on',b.dataset.m===(save.steerMode||'tilt'))); document.querySelectorAll('.sens.cr button').forEach(b=>b.classList.toggle('on',(b.dataset.c==='1')===(save.crawl!==false))); document.querySelectorAll('.sens.vb button').forEach(b=>b.classList.toggle('on',(b.dataset.b==='1')===(save.vib!==false))); document.querySelectorAll('.sens.ac button').forEach(b=>b.classList.toggle('on',(b.dataset.a==='1')===(save.autoCam!==false))); }
