@@ -610,6 +610,8 @@ body.incamp #reqC{background:linear-gradient(180deg,rgba(20,20,22,.9),rgba(10,10
 #sheet #shT{font-family:var(--fd);font-weight:400;letter-spacing:.02em}
 #sheet .sec{font-family:var(--fc);text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.6)}
 #sheet .chip2{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-radius:8px!important;font-family:var(--fc)}
+#lkB.lk{background:#d7262b!important;border-color:#ff8a7a!important;color:#fff;box-shadow:0 0 12px rgba(215,38,43,.6)}
+body.incamp #lkB{display:none!important}
 #sheet .chip2.on{border-color:#f2d24b;box-shadow:inset 3px 0 0 #d7262b,0 0 12px rgba(242,210,75,.25);background:rgba(242,210,75,.1)}
 #sheet #shGo{font-family:var(--fc);font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-radius:10px}
 body.incamp #toast{border-left:3px solid #d7262b;border-radius:10px;font-family:var(--fd)}
@@ -639,7 +641,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="cb win" id="winB" hidden>Verricello</button>
       <button class="cb drone" id="droneB" hidden>🚁 Foto col drone</button>
       <button class="cb" id="presB" hidden>Gomme 1,6 bar</button>
-      <button class="cb" id="awdB">4x4 inserita</button>
+      <button class="cb" id="awdB">4x4 inserita</button><button class="cb" id="lkB">🔓 Bloccaggio</button>
       <button class="cb" id="lowB">Inserisci ridotte</button><button class="cb" id="lfB" hidden>🐢 Lenta · 10</button>
     </div>
     <button class="pedal" id="gas">GAS<small>in basso piano · in alto tutto</small></button>
@@ -744,7 +746,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 88</small>
+      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 89</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -1722,7 +1724,7 @@ function physStep(dt,inp){
   const q2=Math.max(0,thr>0?sp/vmax:-sp/(vmax*(low?.6:.3)));
   const lugK=low||thr<=0||!(st.el&&st.el.some(e=>e>.07))?1:lerp(.55,1,sstep(.4,2.6,Math.abs(sp))); const Fe=thr*Fmax*Math.max(0,1-q2*q2)*lugK; st.lug=lugK<.7&&thr>.6?(st.lug||0)+dt:0;
   // sterzo: più rapido e con più angolo, si chiude meno con la velocità
-  const maxSt=.7/(1+Math.abs(sp)/12);
+  const maxSt=.7/(1+Math.abs(sp)/12)*(st.lock?(own('lockF')?.72:.86):1); if(st.lock&&Math.abs(sp)>8.3){ st.lock=false; updLockB(); toast('🔓 Bloccaggio disinserito','sopra i 30 km/h si sblocca da solo'); }
   const yawRate=st.w.dot(up); const tgt=inp.steer*maxSt+clamp(yawRate*.05*Math.sign(sp||1),-.07,.07)*(Math.abs(inp.steer)<.4?1:.2);
   const rate=Math.abs(inp.steer)<.05?5:3.8; st.steer+=clamp(tgt-st.steer,-rate*dt,rate*dt);
   let contacts=0, surf='erba'; const WD=[null,null,null,null];
@@ -1734,11 +1736,11 @@ function physStep(dt,inp){
     const su0=surfAt(mount.x,mount.z);
     for(let it=0;it<4;it++){ P.copy(mount).addScaledVector(up,-t); const gh=wheelH(P.x,P.z,su0); t+=(P.y-gh)/Math.max(.3,up.y); }
     // gomma tonda: se davanti o dietro c'è un gradino/tronco/sasso più alto, la ruota ci appoggia sopra prima di arrivarci col centro
-    const ED=(st.edge=st.edge||[0,0,0,0]); ED[i]=0; { const kk=Math.floor(-P.z/4); if(!window.__noTire&&(OBB.get(kk)||OBB.get(kk+1)||OBB.get(kk-1)||ROCKB.get(kk))){ const fh=new V(fw.x,0,fw.z).normalize(), gh0=wheelH(P.x,P.z,su0); let best=gh0, bdx=0; for(const k of [-.85,-.7,-.55,-.4,-.25,.25,.4,.55,.7,.85]){ const dx=k*RW, qx=P.x+fh.x*dx, qz=P.z+fh.z*dx; const g=wheelH(qx,qz,su0)-(RW-Math.sqrt(RW*RW-dx*dx)); if(g>best+.004){ best=g; bdx=dx; } } const EL=(st.el=st.el||[0,0,0,0]), tg=Math.max(0,best-gh0); if(tg>EL[i]){ const vfw=Math.abs(st.vel.dot(fh)), dv=(st.dv&&st.dv[i])||0, Fz=(st.fz&&st.fz[i])||5000; const climb=thr>0||thr<0?.55*clamp(dv/(Fz*.55+1),0,1.3)*(tg>RW*1.3?.15:1):0; EL[i]=Math.min(tg,EL[i]+(vfw*1.9+climb+.02)*dt); } else EL[i]+=(tg-EL[i])*Math.min(1,dt*30); /* la gomma sale sull'ostacolo solo se avanza */ if(EL[i]>.002){ t-=EL[i]/Math.max(.3,up.y); ED[i]=bdx; } (st.gap=st.gap||[0,0,0,0])[i]=bdx?Math.max(0,tg-EL[i])*(OBB.get(kk)||OBB.get(kk+1)||OBB.get(kk-1)?1:.45):0; (st.gdir=st.gdir||[0,0,0,0])[i]=Math.sign(bdx); } else if(st.el) st.el[i]=0; }
+    const ED=(st.edge=st.edge||[0,0,0,0]); ED[i]=0; { const kk=Math.floor(-P.z/4); if(!window.__noTire&&(OBB.get(kk)||OBB.get(kk+1)||OBB.get(kk-1)||ROCKB.get(kk))){ const fh=new V(fw.x,0,fw.z).normalize(), gh0=wheelH(P.x,P.z,su0); let best=gh0, bdx=0; for(const k of [-.85,-.7,-.55,-.4,-.25,.25,.4,.55,.7,.85]){ const dx=k*RW, qx=P.x+fh.x*dx, qz=P.z+fh.z*dx; const g=wheelH(qx,qz,su0)-(RW-Math.sqrt(RW*RW-dx*dx)); if(g>best+.004){ best=g; bdx=dx; } } const EL=(st.el=st.el||[0,0,0,0]), tg=Math.max(0,best-gh0); if(tg>EL[i]){ const vfw=Math.abs(st.vel.dot(fh)), dv=(st.dv&&st.dv[i])||0, Fz=(st.fz&&st.fz[i])||5000; const climb=thr>0||thr<0?(.32*clamp(dv/(Fz*.5+1),0,1.4)+Math.abs(thr)*(low?.42:.16)*clamp(muOf(su0),.3,1.1))*(tg>RW*1.3?.15:1)*(st.dspin&&st.dspin[i]?.35:1):0; if(climb>.08&&tg-EL[i]>.04){ (st.climbW=st.climbW||[0,0,0,0])[i]=st.time; } EL[i]=Math.min(tg,EL[i]+(vfw*1.9+climb+.02)*dt); } else EL[i]+=(tg-EL[i])*Math.min(1,dt*30); /* la gomma sale sull'ostacolo solo se avanza */ if(EL[i]>.002){ t-=EL[i]/Math.max(.3,up.y); ED[i]=bdx; } (st.gap=st.gap||[0,0,0,0])[i]=bdx?Math.max(0,tg-EL[i])*(OBB.get(kk)||OBB.get(kk+1)||OBB.get(kk-1)?1:.45):0; (st.gdir=st.gdir||[0,0,0,0])[i]=Math.sign(bdx); } else if(st.el) st.el[i]=0; }
     const dist=t-RW;
     let x=LN-dist; st.contact[i]=0; st.dspin[i]=0;
     const xd=i>=2&&!VEH.indepR&&!window.__noAx?clamp(st.comp[i===2?3:2]-.24,0,.26)*.9:0; // ponte rigido dietro: se una ruota sale, l'altra scende e resta a terra
-    const xs=x; if(x<=0&&x>-xd&&t>=0) x=.02;
+    const DRP=.12, xs=x; if(x<=0&&x>-(xd+DRP)&&t>=0) x=.008+.014*(1+x/(xd+DRP));
     if(x<=0||t<0){ st.comp[i]=lerp(st.comp[i],-xd,.2); if(thr) st.spin[i]+=thr*dt*14; continue; }
     x=Math.min(x,LN+.05);
     P.copy(mount).addScaledVector(up,-t);
@@ -1760,7 +1762,7 @@ function physStep(dt,inp){
   // trasmissione: 4x4 inserita con ripartitore bloccato. Differenziali aperti: la ruota con meno presa decide quanto spinge l'asse.
   // Con il bloccaggio le due ruote girano insieme e quella che tiene spinge anche per l'altra.
   const drive=[0,0,0,0], base=Fe/4, sg=Math.sign(base); let ab=Math.abs(base);
-  for(const [a,b,lk,bb] of [[0,1,own('lockF'),st.awd!==false?base:0],[2,3,own('lockR')||VEH.lockR,st.awd!==false?base:base*2]]){
+  for(const [a,b,lk,bb] of [[0,1,st.lock&&own('lockF'),st.awd!==false?base:0],[2,3,st.lock||(VEH.lockR&&false),st.awd!==false?base:base*2]]){
     const la=WD[a]?WD[a].lim:0, lb=WD[b]?WD[b].lim:0; const ab=Math.abs(bb);
     if(lk){ let da=Math.min(ab,la), db=Math.min(ab,lb), rest=2*ab-da-db; const ea=Math.max(0,Math.min(rest,la-da)); da+=ea; rest-=ea; db+=Math.max(0,Math.min(rest,lb-db)); drive[a]=sg*da; drive[b]=sg*db; }
     else { const cap=Math.min(la,lb)*1.3+Math.max(la,lb)*.12, d=Math.min(ab,cap); drive[a]=drive[b]=sg*d; if(ab>cap){ if(la<=lb) st.dspin[a]=1; else st.dspin[b]=1; } }
@@ -1777,7 +1779,7 @@ function physStep(dt,inp){
     if(mag>lim){ slip=1-lim/mag; fx*=lim/mag; fy*=lim/mag; }
     st.slip[i]=Math.max(slip||(ab>lim*1.02?.5:0),st.dspin[i]?.65:0);
     const f=new V().addScaledVector(n,Fs).addScaledVector(wf,fx).addScaledVector(ws,fy);
-    { const gp=st.gap&&st.gap[i]; if(gp>.03&&st.gdir[i]){ const fh2=new V(fw.x,0,fw.z).normalize(), vin=st.vel.dot(fh2)*st.gdir[i]; f.addScaledVector(fh2,-st.gdir[i]*Math.min(16000,(gp-.03)*90000+Math.max(0,vin)*6000)); if(vin>1.7&&gp>.1&&st.time-(st.wallHit||-9)>.8){ st.wallHit=st.time; const k=vin-1.7; st.dmg.semiassi+=k*5*semiK; st.dmg.gomme+=k*3*gomK; hit(vin*1.5); if(st.time-(st.wallSaid||-99)>20){ st.wallSaid=st.time; toast('Botta sullo scalino!','sugli ostacoli alti si arriva piano, in ridotte: col colpo rompi semiassi e gomme'); } } } }
+    { const gp=st.gap&&st.gap[i]; if(gp>.03&&st.gdir[i]){ const fh2=new V(fw.x,0,fw.z).normalize(), vin=st.vel.dot(fh2)*st.gdir[i]; f.addScaledVector(fh2,-st.gdir[i]*Math.min(16000,(gp-.03)*90000+Math.max(0,vin)*6000)); if(i<2&&gp>.06&&vin>.5&&st.time-(st.kickT||0)>.7){ st.kickT=st.time; st.steer=clamp(st.steer+(WH[i].x<0?-1:1)*Math.min(.22,.07+vin*.06),-.7,.7); vib(30); shake=Math.max(shake,.06+vin*.03); } if(vin>1.7&&gp>.1&&st.time-(st.wallHit||-9)>.8){ st.wallHit=st.time; const k=vin-1.7; st.dmg.semiassi+=k*5*semiK; st.dmg.gomme+=k*3*gomK; hit(vin*1.5); if(st.time-(st.wallSaid||-99)>20){ st.wallSaid=st.time; toast('Botta sullo scalino!','sugli ostacoli alti si arriva piano, in ridotte: col colpo rompi semiassi e gomme'); } } } }
     (st.dv=st.dv||[0,0,0,0])[i]=Math.abs(drive[i]); (st.fz=st.fz||[0,0,0,0])[i]=Fs;
     F.add(f); T.add(new V().crossVectors(r,f));
     st.spin[i]+=vl/RW*dt*(1+st.slip[i]*2)+(st.dspin[i]?thr*dt*10:0);
@@ -1804,7 +1806,7 @@ function physStep(dt,inp){
     const P=new V(bx*VS[0],by*VS[1],bz*VS[2]).applyQuaternion(st.q).add(st.pos); const gh=height(P.x,P.z); const pen=gh-P.y;
     if(pen>0){ const r=P.clone().sub(st.pos); const vp=new V().copy(st.w).cross(r).add(st.vel); const n=normalAt(P.x,P.z);
       const vn=vp.dot(n); const Fn=clamp(60000*Math.min(pen,.3)-7000*vn,0,16000); const vt=vp.clone().addScaledVector(n,-vn); const f=n.clone().multiplyScalar(Fn).addScaledVector(vt,-Math.min(Fn*.6/(vt.length()+1e-3),4000));
-      F.add(f); T.add(new V().crossVectors(r,f)); { const vts=vt.length(); if(by<0&&vts>.6&&st.time-(st.scrT||0)>.07){ st.scrT=st.time; st.scrape=1; const rk=st.surf==='roccia'||st.surf==='ghiaia'; for(let q=0;q<(rk?4:2);q++) emit(P.clone(),vt.clone().multiplyScalar(-.3).add(new V((Math.random()-.5)*2,1+Math.random()*2,(Math.random()-.5)*2)),rk?[1,.75,.3]:[.35,.27,.18],{k:1,s:rk?.035:.09,life:rk?.35:.8,a:1}); if(st.time-(st.scrS||0)>.18){ st.scrS=st.time; vib(rk?25:12); auBurst(rk?3200:900,.14,.22,rk?'highpass':'bandpass',2); } if(st.time-(st.scrTo||-99)>12&&pen>.04){ st.scrTo=st.time; toast(own('plate')?'Gratti sotto · la piastra protegge':'Gratti col sottoscocca!',own('plate')?'la coppa è al sicuro':'occhio alla coppa dell\'olio: in officina c\'è la piastra'); } } } if(vn<-1.5&&st.time-(st.bodyT||0)>.6){ st.bodyT=st.time; if(by<0) st.dmg.coppa+=Math.abs(vn)*3*(own('plate')?.3:1); else st.dmg.carrozzeria+=Math.abs(vn)*4*(own('sliders')?.5:1); hit(Math.abs(vn)); } } }
+      F.add(f); T.add(new V().crossVectors(r,f)); { const vts=vt.length(); if(by<0&&vts>.6&&st.time-(st.scrT||0)>.07){ st.scrT=st.time; st.scrape=1; const rk=st.surf==='roccia'||st.surf==='ghiaia'; for(let q=0;q<(rk?4:2);q++) emit(P.clone(),vt.clone().multiplyScalar(-.3).add(new V((Math.random()-.5)*2,1+Math.random()*2,(Math.random()-.5)*2)),rk?[1,.75,.3]:[.35,.27,.18],{k:1,s:rk?.035:.09,life:rk?.35:.8,a:1}); if(st.time-(st.scrS||0)>.18){ st.scrS=st.time; vib(rk?25:12); auBurst(rk?3200:900,.14,.22,rk?'highpass':'bandpass',2); } if(st.time-(st.scrTo||-99)>12&&pen>.04){ st.scrTo=st.time; toast(own('plate')?'Gratti sotto · la piastra protegge':'Gratti col sottoscocca!',own('plate')?'la coppa è al sicuro':'occhio alla coppa dell\'olio: in officina c\'è la piastra'); } } } if(by<0&&vn<-.7&&st.time-(st.bellyT||0)>.5){ st.bellyT=st.time; auThud(Math.min(1,-vn/2.2)); shake=Math.max(shake,Math.min(.35,-vn*.13)); vib(35+Math.min(60,-vn*25)); } if(vn<-1.5&&st.time-(st.bodyT||0)>.6){ st.bodyT=st.time; if(by<0) st.dmg.coppa+=Math.abs(vn)*3*(own('plate')?.3:1); else st.dmg.carrozzeria+=Math.abs(vn)*4*(own('sliders')?.5:1); hit(Math.abs(vn)); } } }
   // alberi
   // galleria: pareti di roccia vere, non si sale sui muri
   if(zoneAt(st.s).t==='galleria'){ for(const o of [-1.7,0,1.7]) for(const l of [-.95,.95]){ const px=st.pos.x+fw.x*o+rt.x*l, pz=st.pos.z+fw.z*o+rt.z*l, d=px-CX(-pz), lim=3.05; if(Math.abs(d)>lim){ const nx=-Math.sign(d), pen=Math.min(.35,Math.abs(d)-lim), vn=st.vel.x*nx; F.x+=(140000*pen-(vn<0?16000*vn:0))*nx; if(vn<-2.2&&performance.now()-hitT>700){ st.dmg.carrozzeria+=-vn*3*(own('sliders')?.5:1); hit(-vn,'wall'); } } } }
@@ -1843,8 +1845,8 @@ function bodyDyn(dt){ const R=curRoot||carRoot; if(!R) return; if(!R.userData.by
   const al=a.dot(fw), at=a.dot(rt), av=a.dot(up);
   // colpi delle ruote: quanto in fretta si comprimono davanti/dietro e sinistra/destra
   let df=0, dr=0, dl=0, dR=0; for(let i=0;i<4;i++){ const d=(st.comp[i]-BD.cmp[i])/Math.max(dt,1e-3); BD.cmp[i]=st.comp[i]; const v=clamp(d,-6,6); if(i<2) df+=v; else dr+=v; if(i%2) dR+=v; else dl+=v; }
-  const tp=clamp(-al*.006+(df-dr)*.004,-.045,.045), tr=clamp(at*.007+(dl-dR)*.004,-.045,.045), th=clamp(-av*.002-(df+dr)*.006,-.06,.03);
-  const k=110, c=17; BD.vp+=((tp-BD.p)*k-BD.vp*c)*dt; BD.p+=BD.vp*dt; BD.vr+=((tr-BD.r)*k-BD.vr*c)*dt; BD.r+=BD.vr*dt; BD.vh+=((th-BD.h)*120-BD.vh*10)*dt; BD.h+=BD.vh*dt;
+  const tp=clamp(-al*.008+(df-dr)*.005,-.065,.065), tr=clamp(at*.009+(dl-dR)*.005,-.07,.07), th=clamp(-av*.0025-(df+dr)*.007,-.07,.035);
+  const k=72, c=11; BD.vp+=((tp-BD.p)*k-BD.vp*c)*dt; BD.p+=BD.vp*dt; BD.vr+=((tr-BD.r)*k-BD.vr*c)*dt; BD.r+=BD.vr*dt; BD.vh+=((th-BD.h)*120-BD.vh*10)*dt; BD.h+=BD.vh*dt;
 }
 function vib(ms){ if(save.vib!==false&&navigator.vibrate) try{ navigator.vibrate(ms); }catch(_){} }
 function hit(v,kind){ const now=performance.now(); if(now-hitT<700) return; hitT=now; vib(Math.min(120,30+v*18)); if(v>3.5) gabbah('g_gamba',25); shake=Math.min(.5,v*.08); if(kind==='tree') toast('Albero!','occhio ai tronchi'); else if(kind==='car') toast('Il 4x4 di un amico!','parcheggia più in là'); else if(v>3) toast('Botta!','più piano sui sassi: rompi gomme e semiassi'); auThud(Math.min(1,v/6)); }
@@ -1920,6 +1922,11 @@ function readInput(){ const kl=keys.has('arrowleft')||keys.has('a'), kr=keys.has
   return {gas:pad.gas?(pad.gasV||1):(keys.has('arrowup')||keys.has('w'))?(keys.has('shift')?.45:1):0, brk:(pad.brk||keys.has('arrowdown')||keys.has('s')||keys.has(' '))?1:0, steer:s}; }
 function toggleAwd(){ if(st.gear==='ridotte'&&st.awd){ toast('Prima togli le ridotte','in ridotte si va sempre a 4 ruote motrici'); return; } st.awd=!st.awd; toast(st.awd?'4x4 inserita':'Solo trazione posteriore',st.awd?'tirano tutte e quattro le ruote':'più veloce sullo sterrato, ma niente presa nel fango'); auBurst(500,.15,.25,'lowpass'); }
 $('#awdB').addEventListener('click',toggleAwd);
+function lockAvail(){ return {r:true,f:own('lockF')}; }
+function toggleLock(){ if(!st.lock&&Math.abs(st.vel.dot(fw))>6){ toast('Rallenta per bloccare','il bloccaggio si inserisce sotto i 20 km/h'); return; } st.lock=!st.lock; const A=lockAvail(); auTone(st.lock?220:160,.08,.18,'square'); setTimeout(()=>auTone(st.lock?330:120,.06,.14,'square'),90); if(navigator.vibrate) try{navigator.vibrate(25);}catch(_){}
+  toast(st.lock?'🔒 Bloccaggio inserito':'🔓 Bloccaggio disinserito',st.lock?(A.f?'davanti e dietro: le ruote girano insieme, sterza di meno':'dietro: le due ruote posteriori girano insieme (l\'anteriore lo trovi in garage)'):'differenziali aperti: si sterza bene, ma la ruota scarica gira a vuoto'); updLockB(); }
+function updLockB(){ const B=$('#lkB'); if(!B) return; B.textContent=st.lock?'🔒 Bloccato':'🔓 Bloccaggio'; B.classList.toggle('lk',!!st.lock); }
+$('#lkB').addEventListener('click',toggleLock);
 function toggleLow(){ if(st.vel.length()>1){ toast('Fermati prima','le ridotte si inseriscono da fermo'); return; } st.gear=st.gear==='alta'?'ridotte':'alta'; if(st.gear==='ridotte') st.awd=true; toast(st.gear==='ridotte'?'Ridotte inserite':'Marce alte',st.gear==='ridotte'?'tanta forza, fino a 25 km/h':'fino a 80 km/h'); }
 $('#lowB').addEventListener('click',toggleLow); function toggleLF(){ save.lowFast=!save.lowFast; persist(); toast(save.lowFast?'🐇 Ridotte veloci':'🐢 Ridotte lente',save.lowFast?'fino a '+Math.round(Math.max(2.5,ENG.vl*.97)*3.6)+' km/h: per i tratti facili':'fino a 10 km/h: per ostacoli e pietraie'); } $('#lfB').addEventListener('click',toggleLF);
 const PURC=['Ancora piantato? Aggancio la strop, tu metti in folle… e mi devi una cassa di birra!','Aggancio la strop, tu metti in folle!','Ti tiro fuori io, come sempre.','Ancora piantato? Una cassa di birra, eh!','Tieni dritto e non frenare!','Lo sapevo, ero già qui dietro la curva.'];
@@ -2945,6 +2952,7 @@ function frame(now){ UORG.value.copy(cam.position);
       const sc0=-st.pos.z, inW=inWet(sc0,2)&&st.inWater>0, wy=inW?waterY(sc0):0, pdW=inPud(sc0,2);
       for(let i=0;i<4;i++){ const W=WH[i]; const c=new V(W.x,MOUNTY-(LN-st.comp[i]),W.z).applyQuaternion(st.q).add(st.pos); const su=st.contact[i]?st.wsurf[i]:null; const sl=st.slip[i];
         const ts=asp*(1+sl*2.5)+sl*6; const side=Math.sign(W.x);
+        if(su&&!isSoft(su)&&su!=='acqua'&&((st.climbW&&st.time-st.climbW[i]<.15)||(st.el&&st.el[i]>.04&&sl>.25))&&R()<dt*26){ const ch=c.clone().addScaledVector(up,-RW*.6).addScaledVector(fw,dir*RW*.5); emit(ch,fw.clone().multiplyScalar(-dir*(1.5+R()*2.5)).addScaledVector(up,1.2+R()*2.2).addScaledVector(rt,(R()-.5)*2),R()<.5?[.36,.34,.31]:[.5,.46,.4],{k:1,s:.035+R()*.05,g:0,life:.9}); if(R()<.35) emit(ch,fw.clone().multiplyScalar(-dir*.8).addScaledVector(up,.7),[.62,.58,.52],{k:4,s:.5+R()*.4,g:2,a:.22,life:1.1}); }
         if(su&&isSoft(su)&&ts>.8){ const neve=su==='neve'; st.ea[i]+=dt*(ts*7+sl*45); 
           while(st.ea[i]>1){ st.ea[i]--; const p=c.clone().addScaledVector(fw,-dir*.3).addScaledVector(up,.15+R()*.25).addScaledVector(rt,side*(.05+R()*.15));
             const v=fw.clone().multiplyScalar(-dir*ts*(.45+R()*.7)).addScaledVector(up,1.2+R()*2.6+sl*2.5).addScaledVector(rt,(R()-.3*side)*1.6*side).addScaledVector(st.vel,.5);
@@ -3139,7 +3147,7 @@ const TUT=[
  {t:'Lo sterzo',x:matchMedia('(pointer:coarse)').matches?'Inclina il telefono a destra e a sinistra come un volante (oppure trascina il dito sullo schermo). Prova a sterzare.':'Usa le frecce ◀ ▶ o A/D per sterzare.',ok:()=>Math.abs(st.steer)>.25},
  {t:'Freno e retromarcia',x:'Il pedale rosso FRENO frena. Se lo tieni premuto da fermo vai in retromarcia. Fermati del tutto.',el:'#brk',ok:()=>Math.abs(st.vel.dot(fw))<.6&&st.brkOn},
  {t:'Le ridotte',x:'Da fermo premi INSERISCI RIDOTTE: più forza e meno velocità. Si usano in salita, nelle pietraie e nel fango.',el:'#lowB',ok:()=>st.gear==='ridotte'},
- {t:'4x4 e bloccaggi',x:'Il tasto 4x4 INSERITA ti dice se tirano tutte e quattro le ruote. Nel fango e sui sassi tienila sempre inserita. I bloccaggi dei differenziali li compri in garage.',el:'#awdB',btn:true,ok:()=>false},
+ {t:'4x4 e bloccaggi',x:'Il tasto 4x4 INSERITA ti dice se tirano tutte e quattro le ruote. Nel fango e sui sassi tienila sempre inserita. Il tasto BLOCCAGGIO blocca il differenziale dietro (quello anteriore lo compri in garage): inseriscilo nei twist e sui gradoni.',el:'#awdB',btn:true,ok:()=>false},
  {t:'Pressione gomme',x:'Da fermo puoi sgonfiare le gomme: più presa nel fango e sui sassi, ma più lente e fragili sullo sterrato. Per rigonfiarle serve il compressore.',el:'#presB',btn:true,ok:()=>false},
  {t:'Inquadrature',x:'CAM cambia la vista: dietro, vicina, bassa sulle ruote, sul cofano e dentro l\'abitacolo (col fango sul parabrezza: Tergi per pulire).',el:'#camB',ok:()=>camMode!==st.tutCam0},
  {t:'Se resti bloccato',x:'Se ti pianti arriva Purcello col cinghiolo, ma ogni soccorso costa una birra. Col verricello ti tiri fuori da solo. Se ti ribalti ti rimettono sulle ruote.',btn:true,ok:()=>false},
@@ -3216,7 +3224,7 @@ function ghostUpd(dt){ if(st.done) return; st.ghT+=dt; if(st.ghT>=.25){ st.ghT-=
   const gs=-ghostCar.position.z; st.ghGap=gs-st.s; }
 function startRun(){ st.daily=dailyGo; dailyGo=null; st.fog0=null; rtt.userData.lidP.rotation.x=0; rtt.userData.tela.scale.y=.001; cam.clearViewOffset(); shS=-1; if(cs) clearCamp(); setTimeout(()=>{ if(st.running&&!campMode&&save.musGuida!==false&&AC) { if(TRACK_MP3[save.track]) mp3Start(TRACK_MP3[save.track],.32); else musicStart(TRACK_SONG[save.track]||'rock',.2); } },600); WX=save.meteo; if(WX==='random'){ const ks=Object.keys(METEO).filter(k=>k!=='random'), w=ks.map(k=>k==='sereno'?3:k==='temporale'?1:1.6); let r=Math.random()*w.reduce((a,b)=>a+b,0), q=0; while(r>w[q]){ r-=w[q]; q++; } WX=ks[q]; st.wxRnd=true; setTimeout(()=>toast('🎲 Meteo a sorpresa',METEO[WX].ic+' '+METEO[WX].n+' · '+METEO[WX].txt),900); } else st.wxRnd=false; if(builtTrack!==save.track) buildWorld(save.track); else { scene.fog.near=TR.theme==='neve'?25:60; scene.fog.far=TR.theme==='neve'?150:TR.theme==='alpino'?320:250; } applyUpgrades(); pressure=save.pressure;
   $('#hud').hidden=false; $('#hud2').hidden=false; $('#ctl').hidden=false; $('#tb').hidden=false; $('#lowB').hidden=false;
-  clearSplats(); placeFriendCars(); for(const o of OBST){ o.said=false; o.cut=0; } st.camCut=null; st.snowSaid=false; st.flipSeq=null; pur.visible=false; strop.visible=false; TR._pudO=null; st.pudSaid=0; Object.assign(st,{chk:null,uprig:null,drone:null,droneDone:false,panoSaid:false,awd:true,progS:0,progT:0,running:true,done:false,rescue:null,time:0,dirt:save.dirt||0,water:0,sink:0,rescues:0,paused:false,gear:'alta',dmg:{...save.dmg}}); reset(4); campMode=false; ghostStart(); clearRuts(); skyNow=-1; setSky(TR.night?1:0); lightsUpd(); $('#hq').hidden=false; setTimeout(()=>{ if(!save.tutDone) tutStart(); else showHelp('guida'); },400); }
+  clearSplats(); placeFriendCars(); for(const o of OBST){ o.said=false; o.cut=0; } st.camCut=null; st.snowSaid=false; st.lock=false; if(typeof updLockB==='function') updLockB(); st.flipSeq=null; pur.visible=false; strop.visible=false; TR._pudO=null; st.pudSaid=0; Object.assign(st,{chk:null,uprig:null,drone:null,droneDone:false,panoSaid:false,awd:true,progS:0,progT:0,running:true,done:false,rescue:null,time:0,dirt:save.dirt||0,water:0,sink:0,rescues:0,paused:false,gear:'alta',dmg:{...save.dmg}}); reset(4); campMode=false; ghostStart(); clearRuts(); skyNow=-1; setSky(TR.night?1:0); lightsUpd(); $('#hq').hidden=false; setTimeout(()=>{ if(!save.tutDone) tutStart(); else showHelp('guida'); },400); }
 // pausa
 function sensUI(){ document.querySelectorAll('.sens:not(.sm):not(.cr):not(.vb):not(.ac) button').forEach(b=>b.classList.toggle('on',+b.dataset.v===(save.sens||1))); }
 function optUI(){ document.querySelectorAll('.sens.sm button').forEach(b=>b.classList.toggle('on',b.dataset.m===(save.steerMode||'tilt'))); document.querySelectorAll('.sens.cr button').forEach(b=>b.classList.toggle('on',(b.dataset.c==='1')===(save.crawl!==false))); document.querySelectorAll('.sens.vb button').forEach(b=>b.classList.toggle('on',(b.dataset.b==='1')===(save.vib!==false))); document.querySelectorAll('.sens.ac button').forEach(b=>b.classList.toggle('on',(b.dataset.a==='1')===(save.autoCam!==false))); }
@@ -3333,8 +3341,7 @@ const UPG={
   mt:{cat:'mezzo',g:'Gomme',name:'Gomme M/T tassellate',price:750,desc:'Tasselli larghi che si autopuliscono: nel fango e nella neve cambiano tutto, e sui sassi si tagliano meno.',fx:'fango +45% · neve +40% · tagli −25%'},
   g33:{cat:'mezzo',g:'Gomme',name:'Gomme 33"',price:900,req:'mt',desc:'Ruote più grandi: più altezza da terra, i massi si scavalcano meglio e nel fango affondi meno.',fx:'+3,5 cm da terra · affondi −15%'},
   lift:{cat:'mezzo',g:'Assetto',name:'Rialzo assetto 5 cm',price:650,desc:'Molle e ammortizzatori più lunghi: più escursione, la pancia tocca meno sulle pietre.',fx:'+5 cm di escursione'},
-  lockR:{cat:'mezzo',g:'Trazione',name:'Bloccaggio posteriore',price:700,desc:'Di serie i differenziali sono aperti: se una ruota si alza o slitta gira a vuoto e l\'asse non spinge. Bloccato, spinge quella che tiene.',fx:'dietro tirano sempre tutte e due'},
-  lockF:{cat:'mezzo',g:'Trazione',name:'Bloccaggio anteriore',price:900,req:'lockR',desc:'Anche davanti: con tutti e due i bloccaggi tirano tutte e quattro insieme. Da inserire nei passaggi duri.',fx:'4 ruote motrici vere'},
+  lockF:{cat:'mezzo',g:'Trazione',name:'Bloccaggio anteriore',price:900,desc:'Il posteriore ce l\'hai di serie (tasto BLOCCAGGIO): con anche l\'anteriore tirano tutte e quattro insieme. Da inserire nei passaggi duri.',fx:'4 ruote motrici vere'},
   winch:{cat:'mezzo',g:'Recupero',name:'Verricello 12.000 lb + fascia',price:1200,desc:'Ti tiri fuori da solo: fascia salvalbero su un pino davanti, cavo d\'acciaio e via.',fx:'pulsante Verricello quando sei fermo'},
   remap:{cat:'mezzo',g:'Motore',name:'Rimappatura centralina',price:350,desc:'Più coppia ai bassi e un filo di velocità: le salite le fai con meno fatica.',fx:'coppia +12%'},
   turbo:{cat:'mezzo',g:'Motore',name:'Turbo maggiorato + intercooler',price:800,req:'remap',desc:'Tanta spinta in più. Occhio sulle pietre: i semiassi soffrono di più.',fx:'coppia +15% · semiassi più fragili'},
