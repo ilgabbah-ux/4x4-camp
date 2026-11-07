@@ -42,7 +42,9 @@ export function makeSim(R, opt = {}) {
   { let k = 0; for (let z = OB.rocks; z < OB.rocks + 16; z += 1.6) for (let n = 0; n < 2; n++) { k++; const r = .25 + vn(k, 3) * .32, x = (vn(k, 7) - .5) * 5.6; fixed(R.ColliderDesc.ball(r), { x, y: ground(x, z) - r * .35, z: z + vn(k, 11) }, null, { t: 'rock', r }); } }
 
   // ---------- il fuoristrada ----------
-  const V = Object.assign({ mass: 1750, rw: .38, ww: .27, track: 1.56, wb: 2.6, kF: 38000, kR: 46000, cF: 3800, cR: 4200, travel: [-.13, .16], solidF: false, Tlow: 10000, Thigh: 3000, wLow: 5.4, wHigh: 26 }, opt.veh || {});
+  const V = Object.assign({ mass: 1750, rw: .38, ww: .27, track: 1.56, wb: 2.6, kF: 38000, kR: 46000, cF: 3800, cR: 4200, travel: [-.13, .16], tF: null, tR: null, rollF: .4, rollR: .4, lift: 1, solidF: false, Tlow: 10000, Thigh: 3000, wLow: 5.4, wHigh: 26 }, opt.veh || {});
+  { const k = V.lift; V.tF = (V.tF || V.travel).map(v => v * k); V.tR = (V.tR || V.travel).map(v => v * k); V.rollF *= k; V.rollR *= k; if (k > 1) { V.kF /= Math.sqrt(k); V.kR /= Math.sqrt(k); } }
+  const sagF = V.mass * .55 * 9.81 / 2 / V.kF, sagR = V.mass * .45 * 9.81 / 2 / V.kR; // precarico: a vuoto sta a metà corsa
   const START = opt.start || { x: 0, z: 8 };
   const y0 = ground(START.x, START.z) + V.rw + .55;
   const chassis = world.createRigidBody(R.RigidBodyDesc.dynamic().setTranslation(START.x, y0, START.z).setAdditionalMassProperties(V.mass, { x: 0, y: -.1, z: 0 }, { x: V.mass * (1.9 ** 2 + .9 ** 2) / 12 * 1.1, y: V.mass * (1.9 ** 2 + 4.3 ** 2) / 12, z: V.mass * (4.3 ** 2 + .9 ** 2) / 12 }, { x: 0, y: 0, z: 0, w: 1 }).setCanSleep(false).setAngularDamping(.15).setLinearDamping(.02));
@@ -66,9 +68,9 @@ export function makeSim(R, opt = {}) {
   // posteriore: ponte rigido (slitta verticale + rollio)
   const mkAxle = (z, front) => {
     const sl = body(v3(START.x, yA, z), 20); const pj = J(R.JointData.prismatic(v3(0, yA - y0, z - START.z), v3(0, 0, 0), v3(0, 1, 0)), chassis, sl);
-    pj.setLimits(V.travel[0], V.travel[1]); pj.configureMotorModel(R.MotorModel.ForceBased); const k = front ? V.kF : V.kR, c = front ? V.cF : V.cR; pj.configureMotorPosition(0, 2 * k, 2 * c);
+    const TT = front ? V.tF : V.tR; pj.setLimits(TT[0], TT[1]); pj.configureMotorModel(R.MotorModel.ForceBased); const k = front ? V.kF : V.kR, c = front ? V.cF : V.cR; pj.configureMotorPosition(-(front ? sagF : sagR) * .9, 2 * k, 2 * c);
     const ax = body(v3(START.x, yA, z), 75, R.ColliderDesc.cylinder(hx * .8, .07).setRotation(qa([0, 0, 1], Math.PI / 2)).setFriction(.4));
-    const rj = J(R.JointData.revolute(v3(0, 0, 0), v3(0, 0, 0), v3(0, 0, 1)), sl, ax); rj.setLimits(-.42, .42); rj.configureMotorModel(R.MotorModel.ForceBased); rj.configureMotorPosition(0, k * hx * hx * 2 * .55, c * hx * hx * 2 * .5);
+    const rj = J(R.JointData.revolute(v3(0, 0, 0), v3(0, 0, 0), v3(0, 0, 1)), sl, ax); { const rl = front ? V.rollF : V.rollR; rj.setLimits(-rl, rl); } rj.configureMotorModel(R.MotorModel.ForceBased); rj.configureMotorPosition(0, k * hx * hx * 2 * .55, c * hx * hx * 2 * .5);
     susp.push({ t: 'axle', front, pj, rj, ax, z });
     for (const sd of [-1, 1]) {
       if (front) { const kn = body(v3(START.x + sd * hx, yA, z), 12); const sj = J(R.JointData.revolute(v3(sd * hx, 0, 0), v3(0, 0, 0), v3(0, 1, 0)), ax, kn); sj.setLimits(-.62, .62); sj.configureMotorModel(R.MotorModel.ForceBased); susp.push({ t: 'steer', sj }); mkWheel(kn, v3(0, 0, 0), v3(START.x + sd * hx, yA, z), true, sd); }
@@ -80,7 +82,7 @@ export function makeSim(R, opt = {}) {
     for (const sd of [-1, 1]) {
       const sl = body(v3(START.x + sd * hx, yA, z), 18, R.ColliderDesc.ball(.12));
       const pj = J(R.JointData.prismatic(v3(sd * hx, yA - y0, z - START.z), v3(0, 0, 0), v3(0, 1, 0)), chassis, sl);
-      pj.setLimits(V.travel[0], V.travel[1]); pj.configureMotorModel(R.MotorModel.ForceBased); pj.configureMotorPosition(0, V.kF, V.cF);
+      pj.setLimits(V.tF[0], V.tF[1]); pj.configureMotorModel(R.MotorModel.ForceBased); pj.configureMotorPosition(-sagF * .9, V.kF, V.cF);
       const kn = body(v3(START.x + sd * hx, yA, z), 10);
       const sj = J(R.JointData.revolute(v3(0, 0, 0), v3(0, 0, 0), v3(0, 1, 0)), sl, kn); sj.setLimits(-.62, .62); sj.configureMotorModel(R.MotorModel.ForceBased);
       susp.push({ t: 'ifs', pj, sd, z }); susp.push({ t: 'steer', sj });

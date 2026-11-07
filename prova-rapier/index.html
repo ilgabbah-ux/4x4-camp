@@ -40,6 +40,7 @@ button.on{border-color:var(--red);box-shadow:inset 0 0 0 2px var(--red);backgrou
   <button id="bLR">Bloccaggio post.</button>
   <button id="bLF">Bloccaggio ant.</button>
   <button id="bVeh">Mezzo: Terrano</button>
+  <button id="bLift">Assetto: di serie</button>
   <button id="bCam">Camera</button>
   <button id="bRst">Ricomincia</button>
 </div>
@@ -57,8 +58,9 @@ import { makeSim } from './fis.js';
 const $ = s => document.querySelector(s);
 await RAPIER.init();
 const VEHS = {
-  terrano: { n: 'Terrano', solidF: false, mass: 1750, rw: .38, track: 1.56, wb: 2.6 },
-  wrangler: { n: 'Wrangler', solidF: true, mass: 2050, rw: .45, track: 1.6, wb: 2.45, kF: 42000, kR: 46000, travel: [-.2, .18], Tlow: 12500, wLow: 5.0 }
+  // escursione vera: il Terrano davanti ha i bracci oscillanti e poca corsa, dietro il ponte rigido; il Wrangler preparato ha molle lunghe e ponti che si incrociano tanto
+  terrano: { n: 'Terrano', solidF: false, mass: 1750, rw: .38, track: 1.56, wb: 2.6, tF: [-.06, .08], tR: [-.11, .12], rollR: .28 },
+  wrangler: { n: 'Wrangler', solidF: true, mass: 2050, rw: .45, track: 1.6, wb: 2.45, kF: 30000, kR: 34000, cF: 3200, cR: 3600, tF: [-.17, .15], tR: [-.19, .16], rollF: .55, rollR: .62, Tlow: 12500, wLow: 5.0 }
 };
 let vehK = 'terrano', S = null;
 
@@ -142,7 +144,8 @@ $('#bLF').onclick = () => { S.st.lockF = !S.st.lockF; $('#bLF').classList.toggle
 let camMode = 0; $('#bCam').onclick = () => { camMode = (camMode + 1) % 3; tip(['Dietro', 'Bassa sulle ruote', 'Di lato'][camMode]); };
 $('#bVeh').onclick = () => { vehK = vehK === 'terrano' ? 'wrangler' : 'terrano'; $('#bVeh').textContent = 'Mezzo: ' + VEHS[vehK].n; reset(); };
 $('#bRst').onclick = () => reset();
-function reset(z) { const keep = S ? { low: S.st.low, lockR: S.st.lockR, lockF: S.st.lockF } : null; if (S) S.world.free(); S = makeSim(RAPIER, { veh: VEHS[vehK], start: { x: 0, z: z || 8 } }); if (keep) Object.assign(S.st, keep); if (!world3.children.length) buildWorld(); buildCar(); }
+let lift = 1; $('#bLift').onclick = () => { lift = lift === 1 ? 1.45 : lift === 1.45 ? 1.9 : 1; $('#bLift').textContent = 'Assetto: ' + (lift === 1 ? 'di serie' : lift === 1.45 ? 'rialzato' : 'long travel'); tip(lift === 1 ? 'Sospensioni di serie' : lift === 1.45 ? 'Kit rialzo: molle più lunghe, più escursione' : 'Long travel: le ruote seguono tutto, ma la scocca rolla di più'); reset(Math.max(8, S.info().p.z - 3)); };
+function reset(z) { const keep = S ? { low: S.st.low, lockR: S.st.lockR, lockF: S.st.lockF } : null; if (S) S.world.free(); S = makeSim(RAPIER, { veh: Object.assign({}, VEHS[vehK], { lift: typeof lift === 'number' ? lift : 1 }), start: { x: 0, z: z || 8 } }); if (keep) Object.assign(S.st, keep); if (!world3.children.length) buildWorld(); buildCar(); }
 reset(); buildWorld(); $('#load').remove(); tip('Prova di fisica vera: ruote, ponti e ostacoli solidi');
 
 // ---------- suono motore (gli stessi campioni del gioco) ----------
