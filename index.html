@@ -761,7 +761,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 93</small>
+      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 95</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -844,10 +844,10 @@ function setTrack(id){
   TR=TRACKS[id]; if(!TR._sc){ const k=1.3; TR.zones=TR.zones.flatMap(z=>{ const a=Math.round(z.a*k), b=Math.round(z.b*k); if(z.t!=='fangoProf') return [{...z,a,b}]; const m=a+(z.b-z.a); return [{...z,a,b:m},{t:'terra',sl:z.sl,a:m,b}]; }); TR.len=Math.round(TR.len*k); TR._sc=1; } ZONES=TR.zones; LEN=TR.len; { let ps=LEN*.55; for(const z of ZONES){ if(z.t==='terra'&&z.a>LEN*.4&&z.b<LEN-10){ ps=(z.a+z.b)/2; break; } } TR.panoS=ps; } PH=TR.ph; AMP=TR.amp||[7,3.5,1.2]; FORDS=ZONES.filter(z=>z.t==='acqua').map(z=>[z.a,z.b]); PUDS=ZONES.filter(z=>z.t==='fangoProf'&&z.b-z.a>12).map(z=>{ const m=(z.a+z.b)/2, L=Math.min(16,(z.b-z.a)-8); return [m-L/2,m+L/2]; });
   HS=new Float32Array(Math.ceil((LEN+80)/.5)+2); {let h=0; for(let i=0;i<HS.length;i++){ const s=i*.5; h+=zoneAt(s).sl*.5; HS[i]=h; }}
   const R=rng(42+id.length*7); ROCKS=[];
-  for(const z of ZONES){ if(!z.rocks) continue; let s=z.a+3; while(s<z.b-2){ const n=z.rocks===2?2:1; for(let k=0;k<n;k++){ const d=R()<.6?(R()<.5?-1:1)*(.82+(R()-.5)*.7):(R()*2-1)*(HALF-.6); const r=.4+R()*(z.rocks===2?.55:.4); ROCKS.push({s:s+R()*2,d,r}); } s+=z.rocks===2?2.6+R()*2:3+R()*3; }
+  for(const z of ZONES){ if(!z.rocks) continue; let s=z.a+3; while(s<z.b-2){ const n=z.rocks===2?2:1; for(let k=0;k<n;k++){ const d=R()<.6?(R()<.5?-1:1)*(.82+(R()-.5)*.7):(R()*2-1)*(HALF-.6); let r=.36+R()*(z.rocks===2?.42:.3); if(Math.abs(d)<.45) r*=.75; if((z.sl||0)>.15) r*=.85; if(TR.theme==='neve') r*=.85; ROCKS.push({s:s+R()*2,d,r}); } s+=z.rocks===2?2.6+R()*2:3+R()*3; }
     // pietroni sul bordo: si passano a fianco o ci si sale con una ruota
-    for(let s2=z.a+6;s2<z.b-4;s2+=9+R()*8){ const sd=R()<.5?-1:1; ROCKS.push({s:s2,d:sd*(HALF-.2+R()*.6),r:.95+R()*.55,big:1}); } }
-  for(const b of ROCKS){ b.x=CX(b.s)+b.d; b.z=-b.s; b.phi=R()*6.28; b.ax=.75+R()*.6; b.p3=R()*6.28; b.p5=R()*6.28; b.a3=.06+R()*.1; b.a5=.03+R()*.05; b.top=b.big?.7+R()*.25:.45+R()*.35; b.tx=(R()-.5)*.24; b.tz=(R()-.5)*.24; b.e=3+R()*3; b.y0=null; }
+    for(let s2=z.a+6;s2<z.b-4;s2+=9+R()*8){ const sd=R()<.5?-1:1; ROCKS.push({s:s2,d:sd*(HALF+.35+R()*.6),r:.95+R()*.5,big:1}); } }
+  for(const b of ROCKS){ b.x=CX(b.s)+b.d; b.z=-b.s; b.phi=R()*6.28; b.ax=.75+R()*.6; b.p3=R()*6.28; b.p5=R()*6.28; b.a3=.06+R()*.1; b.a5=.03+R()*.05; b.top=b.big?.7+R()*.25:.42+R()*.28; b.tx=(R()-.5)*.24; b.tz=(R()-.5)*.24; b.e=3+R()*3; b.y0=null; }
   ROCKB=new Map(); for(const b of ROCKS){ const k=Math.floor(b.s/4); for(const kk of [k-1,k,k+1]){ if(!ROCKB.has(kk)) ROCKB.set(kk,[]); ROCKB.get(kk).push(b); } }
   // ostacoli veri: tronchi di traverso, canali di scolo, gradini di roccia, twist con buche alternate
   OBST=[]; OBB=new Map(); { const types=TR.theme==='neve'?['ditch','twist','camber','log']:TR.theme==='alpino'?['step','ditch','twist','camber','step','vg']:TR.theme==='militare'?['ditch','twist','vg','step','camber','ditch']:['log','ditch','step','twist','camber','vg','log','step','twist'];
@@ -855,10 +855,13 @@ function setTrack(id){
       if(ok){ const t=types[i++%types.length]; const o={t,s,a:(R()-.5)*.5,half:HALF+.4};
         if(t==='log'){ o.r=.22+R()*.12; o.half=HALF+2.4; o.off=0; }
         if(t==='ditch'){ o.w=.6+R()*.25; o.dep=.22+R()*.12; }
-        if(t==='step'){ o.hg=.36+R()*.2; o.len=4+R()*4; }
+        if(t==='step'){ o.hg=.34+R()*.16; o.len=4+R()*4; }
         if(t==='twist'){ o.dep=.4+R()*.14; o.sd=R()<.5?1:-1; }
-        if(t==='step'&&R()<.3){ o.hg=.56+R()*.1; o.len=3+R()*2; o.big=1; }
+        if(t==='step'&&R()<.3){ o.hg=.46+R()*.05; o.len=3+R()*2; o.big=1; }
         if(t==='camber'){ o.tilt=(R()<.5?-1:1)*(.3+R()*.1); o.len=14+R()*6; }
+        // su neve e ghiaccio gli ostacoli sono più bassi: già il fondo fa scivolare
+        if(Math.abs(z.sl||0)>.1){ if(o.hg){ o.hg*=.82; o.big=0; } if(o.tilt) o.tilt*=.85; }
+        if(z.t==='neve'){ if(o.hg){ o.hg*=.72; o.big=0; } if(o.r) o.r*=.8; if(o.tilt) o.tilt*=.6; if(o.dep) o.dep*=.8; }
         if(t==='vg'){ o.dep=.44+R()*.14; o.len=12+R()*6; o.w=1.1; }
         OBST.push(o); const k0=Math.floor((s-4)/4), k1=Math.floor((s+(o.len||14)+6)/4); for(let k=k0;k<=k1;k++){ if(!OBB.has(k)) OBB.set(k,[]); OBB.get(k).push(o); } s+=26+R()*22; }
       else s+=8; } }
@@ -892,7 +895,7 @@ function obsAdj(x,z,h,logs){ const s=-z, O=OBB.get(Math.floor(s/4)); if(!O) retu
     if(o.t==='log'){ if(!logs) continue; const dl=d-(o.off||0); if(Math.abs(dl)<o.half&&Math.abs(u)<o.r){ const A=logAxis(o); h=Math.max(h,A[0]+A[1]*dl+Math.sqrt(o.r*o.r-u*u)); } }
     else if(o.t==='ditch'){ if(ad<o.half+1.5&&Math.abs(u)<o.w){ const c=Math.cos(u/o.w*Math.PI/2); h-=o.dep*c*c*(1-sstep(o.half,o.half+1.5,ad)); } }
     else if(o.t==='step'){ h+=o.hg*sstep(0,.12,u)*(1-sstep(o.len,o.len+.4,u))*(1-sstep(o.half,o.half+1.2,ad)); }
-    else if(o.t==='camber'){ const e=sstep(-2,2,u)*(1-sstep(o.len-2,o.len+2,u))*(1-sstep(o.half+.5,o.half+3,ad)); h+=d*o.tilt*e+Math.abs(o.tilt)*1.4*e; }
+    else if(o.t==='camber'){ const e=sstep(-4,3,u)*(1-sstep(o.len-3,o.len+4,u))*(1-sstep(o.half+.5,o.half+3,ad)); h+=d*o.tilt*e+Math.abs(o.tilt)*.75*e; }
     else if(o.t==='vg'){ const e=sstep(-1,1.5,u)*(1-sstep(o.len-1.5,o.len+1,u)); if(ad<o.w) h-=o.dep*e*(1-ad/o.w); }
     else if(o.t==='twist'){ for(const [uu,dd,sg] of TWP){ const q2=Math.hypot((u-uu)*.62,d-dd*.95*o.sd); if(q2<1.5){ const c=Math.cos(q2/1.5*Math.PI/2); h+=sg*o.dep*1.25*c*c; } } } }
   return h; }
@@ -921,7 +924,7 @@ const waterY=s=>hsAt(s)-.15;
 const GRIP={ht:{terra:1,fango:.5,fangoProf:.36,roccia:.85,acqua:.6,erba:.75,neve:.42,ghiaccio:.21,ghiaia:.82,sabbia:.55,galleria:.7},
  at:{terra:1.02,fango:.6,fangoProf:.44,roccia:.95,acqua:.66,erba:.8,neve:.5,ghiaccio:.24,ghiaia:.9,sabbia:.62,galleria:.78},
  mt:{terra:.98,fango:.72,fangoProf:.56,roccia:1.02,acqua:.7,erba:.86,neve:.58,ghiaccio:.28,ghiaia:.92,sabbia:.7,galleria:.82}};
-const CRR={terra:.015,fango:.09,fangoProf:.17,roccia:.03,acqua:.06,erba:.05,neve:.12,ghiaccio:.012,ghiaia:.03,sabbia:.1,galleria:.04};
+const CRR={terra:.015,fango:.09,fangoProf:.17,roccia:.03,acqua:.06,erba:.05,neve:.09,ghiaccio:.012,ghiaia:.03,sabbia:.1,galleria:.04};
 const TYR={ht:0,at:1,mt:2}; const tyreKey=()=>{ const v=(VEH&&VEH.tyre)||'ht'; const u=own('mt')?'mt':own('at')?'at':'ht'; return TYR[u]>=TYR[v]?u:v; };
 const TYRE_NAME={ht:'stradali H/T',at:'A/T',mt:'M/T tassellate'};
 function muOf(su){ let m=GRIP[tyreKey()][su]; if(WX==='pioggia'||WX==='temporale') m*=({terra:.84,erba:.8,roccia:.86,ghiaia:.88,fango:.92,fangoProf:.95,sabbia:.95})[su]||1; if(own('chains')&&(TR.theme==='neve'||TR.theme==='alpino')&&(su==='neve'||su==='ghiaccio')) m=Math.min(.8,m*(su==='ghiaccio'?3:1.5)); return m; }
@@ -1682,7 +1685,7 @@ function applyVehicle(){ VEH=VEHS[prevVeh||save.veh]||VEHS.base; VS=VEH.sc; MASS
   if(carRoot) carRoot.scale.set(...VS); for(const m of bodyMats){ if(m.name==='MAT_body'&&m.userData.base){ m.userData.base.set(VEH.col==null?bodyMat0:VEH.col); m.color.copy(m.userData.base); } } }
 let ENG={fa:8200,va:22,fl:17000,vl:7,eb:2600};
 function applyUpgrades(){
-  let fa=8200,va=22,fl=17000,vl=7,eb=2600;
+  let fa=11000,va=22,fl=17000,vl=7,eb=2600;
   if(own('remap')){ fa*=1.12; va*=1.06; fl*=1.08; }
   if(own('turbo')){ fa*=1.15; fl*=1.1; va*=1.05; }
   if(own('v6')){ fa*=1.22; fl*=1.18; va*=1.08; }
@@ -1729,6 +1732,9 @@ function fitAccessories(){ while(accX.children.length) accX.remove(accX.children
     accX.userData.aw={can,legs}; setAwning(cs&&cs.step<=1?0:accX.userData.awK??0); }
   accX.traverse(o=>{ if(o.isMesh) o.castShadow=true; }); }
 function setAwning(k){ accX.userData.awK=k; const A=accX.userData.aw; if(!A) return; A.can.scale.x=Math.max(.001,k); A.can.visible=k>.01; A.legs.visible=k>.97; }
+// punto sicuro dove rimettere il mezzo: piano, niente ostacoli, dossi, trincee o guadi
+function safeOk(s,lv=0){ const z=zoneAt(s); if(!(lv?['terra','erba','ghiaia','sabbia','neve','roccia','fango']:['terra','erba','ghiaia','sabbia','neve']).includes(z.t)||(z.humps&&(!lv||z.humps>.5))||(z.lane&&lv<2)) return false; if(typeof inFord==='function'&&inFord(s,lv?5:8)) return false; for(const o of OBST){ if(s>o.s-(lv?6:10)&&s<o.s+Math.max(3,o.len||3)+(lv?4:8)) return false; } const x=CX(s); return Math.abs(height(x-1,-s)-height(x+1,-s))<(lv?.45:.35)&&Math.abs(height(x,-s-2)-height(x,-s+2))<(lv?.8:.6); }
+function safeSpot(s,fwd=40,back=15){ s=clamp(s,2,LEN-3); for(const [lv,f,b] of [[0,fwd,back],[1,fwd,back],[0,fwd+30,back+45],[1,fwd+30,back+45],[2,fwd+30,back+45],[1,LEN,LEN]]) for(let d=0;d<=f;d+=1){ if(s+d<LEN-2&&safeOk(s+d,lv)) return s+d; if(d<=b&&s-d>2&&safeOk(s-d,lv)) return s-d; } return s; }
 function reset(s){
   s=clamp(s,2,LEN); const x=CX(s), z=-s, y=height(x,z)+1.3;
   st.pos.set(x,y,z); st.vel.set(0,0,0); st.w.set(0,0,0);
@@ -1749,7 +1755,7 @@ function physStep(dt,inp){
   if(revMode) thr=-.8; else { thr=inp.gas; if(inp.brk&&!revMode) brake=1; }
   if(low&&save.crawl!==false&&thr>0&&!revMode){ const tgt=.6+inp.gas*((save.lowFast?Math.max(2.5,ENG.vl*.97):2.5)-.6); st.crawlI=clamp((st.crawlI||0)+(tgt-sp)*dt*1.4,0,1); thr=clamp((tgt-sp)*.9+.22+st.crawlI,0,1); } else st.crawlI=0;
   const q2=Math.max(0,thr>0?sp/vmax:-sp/(vmax*(low?.6:.3)));
-  const lugK=low||thr<=0||!(st.el&&st.el.some(e=>e>.07))?1:lerp(.55,1,sstep(.4,2.6,Math.abs(sp))); const Fe=thr*Fmax*Math.max(0,1-q2*q2)*lugK*(1-Math.max(0,st.dmg.semiassi-45)/260)*(1-Math.max(0,st.dmg.coppa-60)/300); st.lug=lugK<.7&&thr>.6?(st.lug||0)+dt:0;
+  const lugK=low||thr<=0||!(st.el&&st.el.some(e=>e>.16))?1:lerp(.7,1,sstep(.4,2.6,Math.abs(sp))); const Fe=thr*Fmax*Math.max(0,1-q2*q2)*lugK*(1-Math.max(0,st.dmg.semiassi-45)/260)*(1-Math.max(0,st.dmg.coppa-60)/300); st.lug=lugK<.7&&thr>.6?(st.lug||0)+dt:0;
   // sterzo: più rapido e con più angolo, si chiude meno con la velocità
   const maxSt=.7/(1+Math.abs(sp)/12)*(st.lock?(hasLockF()?.72:.86):1); if(st.lock&&Math.abs(sp)>8.3){ st.lock=false; updLockB(); toast('🔓 Bloccaggio disinserito','sopra i 30 km/h si sblocca da solo'); }
   const yawRate=st.w.dot(up); const tgt=inp.steer*maxSt+clamp(yawRate*.05*Math.sign(sp||1),-.07,.07)*(Math.abs(inp.steer)<.4?1:.2);
@@ -1789,10 +1795,15 @@ function physStep(dt,inp){
   // trasmissione: 4x4 inserita con ripartitore bloccato. Differenziali aperti: la ruota con meno presa decide quanto spinge l'asse.
   // Con il bloccaggio le due ruote girano insieme e quella che tiene spinge anche per l'altra.
   const drive=[0,0,0,0], base=Fe/4, sg=Math.sign(base); let ab=Math.abs(base);
-  for(const [a,b,lk,bb] of [[0,1,st.lock&&hasLockF(),st.awd!==false?base:0],[2,3,st.lock||(VEH.lockR&&false),st.awd!==false?base:base*2]]){
-    const la=WD[a]?WD[a].lim:0, lb=WD[b]?WD[b].lim:0; const ab=Math.abs(bb);
-    if(lk){ let da=Math.min(ab,la), db=Math.min(ab,lb), rest=2*ab-da-db; const ea=Math.max(0,Math.min(rest,la-da)); da+=ea; rest-=ea; db+=Math.max(0,Math.min(rest,lb-db)); drive[a]=sg*da; drive[b]=sg*db; }
-    else { const cap=Math.min(la,lb)*1.3+Math.max(la,lb)*.12, d=Math.min(ab,cap); drive[a]=drive[b]=sg*d; if(ab>cap){ if(la<=lb) st.dspin[a]=1; else st.dspin[b]=1; } }
+  // ripartitore bloccato: la coppia che un asse non riesce a scaricare passa all'altro (prima andava persa e con una ruota per aria ti fermavi)
+  { const AX=[[0,1,st.lock&&hasLockF()],[2,3,st.lock]], awd=st.awd!==false;
+    const capOf=([a,b,lk])=>{ const la=WD[a]?WD[a].lim:0, lb=WD[b]?WD[b].lim:0; return lk?la+lb:2*(Math.min(la,lb)*1.3+Math.max(la,lb)*.12); };
+    let bud;
+    if(awd){ const Cf=capOf(AX[0]), Cr=capOf(AX[1]), T=4*ab; const f=Math.min(Cf,Math.max(2*ab,T-Cr)); bud=[f,T-f]; }
+    else bud=[0,4*ab];
+    AX.forEach(([a,b,lk],k)=>{ const la=WD[a]?WD[a].lim:0, lb=WD[b]?WD[b].lim:0, B=bud[k], h=B/2;
+      if(lk){ let da=Math.min(h,la), db=Math.min(h,lb), rest=B-da-db; const ea=Math.max(0,Math.min(rest,la-da)); da+=ea; rest-=ea; db+=Math.max(0,Math.min(rest,lb-db)); drive[a]=sg*da; drive[b]=sg*db; }
+      else { const cap=Math.min(la,lb)*1.3+Math.max(la,lb)*.12, d=Math.min(h,cap); drive[a]=drive[b]=sg*d; if(ab>cap){ if(la<=lb) st.dspin[a]=1; else st.dspin[b]=1; } } });
   }
   for(let i=0;i<4;i++){ const D=WD[i]; if(!D) continue;
     const {n,su,r,Fs,N,wf,ws,vl,vs,lim}=D;
@@ -1818,7 +1829,7 @@ function physStep(dt,inp){
     { const sg=Math.sign(thr); if(sg){ if(st.rkSg&&sg!==st.rkSg&&st.time-st.rkT<3.5&&st.rkHold>.35&&softW&&st.sink>.05){ st.sink=Math.max(0,st.sink-.13); st.vel.addScaledVector(fw,sg*1.1); st.rocks=(st.rocks||0)+1; if(st.rocks%2===1) toast('Dondola!','avanti e indietro: il fango si compatta e il mezzo esce'); auThud(.35); } if(sg!==st.rkSg){ st.rkHold=0; } st.rkSg=sg; st.rkT=st.time; st.rkHold=(st.rkHold||0)+dt; } }
     if(softW){ if(thr<0) st.sink=Math.max(0,st.sink-dt*(asp>.15?.35:.12));
       else if(asp>2.2&&slip<.3) st.sink=Math.max(0,st.sink-dt*.15);
-      else if(thr>0&&(slip>.15||asp<2.5)) st.sink=Math.min(1,st.sink+dt*(deep?.13:.1)*snowK*(.25+slip)*(asp>2.2?.35:1)*(softW/4)*(pressure===0?1.3:pressure===2?.75:1)*(own('g33')?.85:1)*Math.pow(MASS/2100,1.3)); }
+      else if(thr>0&&(slip>.15||asp<2.5)) st.sink=Math.min(1,st.sink+dt*(deep?.13:.1)*snowK*(.25+slip)*(asp>2.2?.35:1)*(softW/4)*(pressure===0?1.3:pressure===2?.75:1)*(own('g33')?.85:1)*Math.pow(MASS/2100,1.3)*clamp(.45/RW,.7,1.25)); }
     else st.sink=Math.max(0,st.sink-dt*.6);
     { const mudN=st.wsurf.filter((w,i)=>st.contact[i]&&isMud(w)).length; if(mudN) st.tmud=Math.min(1,(st.tmud||0)+dt*mudN*.03*(.4+slip*2)*(own('mt')?.55:1)); else st.tmud=Math.max(0,(st.tmud||0)-dt*(.02+asp*.012)*(own('mt')?2:1)); if(st.tmud>.6&&!st.tmudSaid){ st.tmudSaid=1; toast('Gomme impastate di fango','sul duro tengono meno: un po\' di velocità le pulisce'+(own('mt')?'':' · le M/T si puliscono da sole')); } if(st.tmud<.2) st.tmudSaid=0; }
     { let ss=0; for(let i=0;i<4;i++) if(st.contact[i]&&st.slip[i]>.55) ss++; if(ss>=1&&inp.gas>.9&&thr>.8&&!isSoft(st.surf)&&st.surf!=='acqua'){ st.axT=(st.axT||0)+dt; if(st.axT>.8){ st.dmg.semiassi+=dt*(st.gear==='ridotte'?2.6:1.6)*(st.lock?1.3:1)*semiK; if(!st.axSaid){ st.axSaid=1; toast('Crack! Semiassi sotto sforzo','in ridotte sui sassi dosa il gas: le ruote che slittano spaccano i giunti'); auBurst(300,.2,.4,'lowpass',2); } } } else st.axT=Math.max(0,(st.axT||0)-dt*2); }
@@ -1986,7 +1997,7 @@ function rescue(){
   if(st.rescue) return; if(st.winch) dropWinch();
   const flipped=up.y<.35;
   if(flipped||st.flipSeq){ if(!st.flipSeq) startFlipSeq(true); else if(st.flipSeq.t<2.6) st.flipSeq.t=2.6; return; }
-  const s0=clamp(st.s,2,LEN-2), sT=Math.min(LEN,s0+12), mirco=Math.random()<.3;
+  const s0=clamp(st.s,2,LEN-2), sT=Math.min(LEN-2,safeSpot(s0+12,30,10)), mirco=Math.random()<.3;
   st.rescue={t:0,off:mirco?1.8:0,s0,sT,p0:st.pos.clone(),q0:st.q.clone(),line:PURC[0],said:false};
   st.rescues++; $('#helpB').hidden=true;
   if(mirco){ toast('Chiami Mirco…','"Campa giù!" È in mutua. Chiami Purcello.'); say('Mirco','','m_campa'); } else { toast('Arriva Purcello',st.rescue.line); say('Purcello','','p_strop'); st.rescue.said=true; }
@@ -2987,7 +2998,7 @@ function frame(now){ UORG.value.copy(cam.position);
     if(!st.done&&save.voci){ st.cbT=(st.cbT??(25+Math.random()*20))-dt; if(st.cbT<0){ st.cbT=40+Math.random()*35; const L=CBL.filter(x=>!(st.cbUsed||[]).includes(x[1])); const q=L.length?L[Math.random()*L.length|0]:CBL[Math.random()*CBL.length|0]; st.cbUsed=[...(st.cbUsed||[]).slice(-8),q[1]]; toast('📻 Radio CB · '+q[0],q[2]||'gli amici in colonna'); auBurst(2600,.18,.12,'bandpass',6); setTimeout(()=>say(q[0],'',q[1]),220); } }
     // qualità automatica: se il telefono fatica, alleggerisce la grafica (si può rimettere in garage)
     if(!save.qManual){ fpsA.n++; fpsA.t+=dt; if(fpsA.t>6){ const fps=fpsA.n/fpsA.t; fpsA.n=0; fpsA.t=0; if(fps<26&&save.q!=='bassa'){ save.q=save.q==='alta'?'media':'bassa'; persist(); applyQuality(); builtTrack=null; toast('Grafica alleggerita','per andare più fluido · la cambi in garage'); } } }
-    if(!st.chk&&st.s>LEN*.5&&!st.done){ const z=zoneAt(st.s).t; if(z==='terra'||z==='erba'||z==='ghiaia'||z==='neve'){ st.chk={s:st.s,time:st.time,rescues:st.rescues,dmg:{...st.dmg}}; toast('🚩 Punto di controllo','se rompi il mezzo puoi ripartire da qui'); auBurst(1800,.15,.15,'bandpass',3); } }
+    if(!st.chk&&st.s>LEN*.5&&!st.done){ if(safeOk(st.s)){ st.chk={s:st.s,time:st.time,rescues:st.rescues,dmg:{...st.dmg}}; toast('🚩 Punto di controllo','se rompi il mezzo puoi ripartire da qui'); auBurst(1800,.15,.15,'bandpass',3); } }
     const sp=st.vel.dot(fw);
     // fango, neve, acqua e polvere: zolle lanciate dal battistrada, gocce, nebbia, cerchi sull'acqua
     { const asp=Math.abs(sp), dir=asp>.8?Math.sign(sp):(revMode?-1:1), R=Math.random; st.ea=st.ea||[0,0,0,0,0];
@@ -3035,7 +3046,7 @@ function frame(now){ UORG.value.copy(cam.position);
     $('#helpB').hidden=!!st.rescue||!!st.flipSeq||!!(st.winch&&st.winch.pull)||!(st.stuckT>2.5||flipped||st.sink>.85);
     const wv0=0; const wv=own('winch')&&!st.done&&!st.rescue&&(Math.abs(sp)<1.5||st.winch); $('#winB').hidden=!wv; if(wv){ $('#winB').textContent=st.winch?(st.winch.pull?'Tiro…':'Tieni: tira il cavo'):'Verricello'; $('#winB').classList.toggle('on',!!(st.winch&&st.winch.pull)); }
     updFlipSeq(dt);
-    { const sc=clamp(-st.pos.z,0,LEN), ad=Math.abs(st.pos.x-CX(sc)); const offStuck=ad>HALF+2.5&&Math.hypot(st.vel.x,st.vel.z)<.6&&(st.offStk=(st.offStk||0)+dt)>2.5; if(ad<=HALF+2.5||Math.hypot(st.vel.x,st.vel.z)>=.6) st.offStk=0; if((ad>HALF+9||offStuck||st.pos.y<height(st.pos.x,st.pos.z)-1.5)&&!st.rescue&&!st.uprig&&!st.flipSeq){ st.offT=(st.offT||0)+dt; if(st.offT>.8||offStuck){ st.offT=0; st.offStk=0; reset(Math.max(2,sc-3)); st.rescues++; toast('Fuori tracciato!','Purcello ti ha riportato sulla traccia'); say('Purcello','','p_strop',4); } } else st.offT=0; }
+    { const sc=clamp(-st.pos.z,0,LEN), ad=Math.abs(st.pos.x-CX(sc)); const offStuck=ad>HALF+2.5&&Math.hypot(st.vel.x,st.vel.z)<.6&&(st.offStk=(st.offStk||0)+dt)>2.5; if(ad<=HALF+2.5||Math.hypot(st.vel.x,st.vel.z)>=.6) st.offStk=0; if((ad>HALF+9||offStuck||st.pos.y<height(st.pos.x,st.pos.z)-1.5)&&!st.rescue&&!st.uprig&&!st.flipSeq){ st.offT=(st.offT||0)+dt; if(st.offT>.8||offStuck){ st.offT=0; st.offStk=0; reset(safeSpot(Math.max(2,sc-3),25)); st.rescues++; toast('Fuori tracciato!','Purcello ti ha riportato sulla traccia'); say('Purcello','','p_strop',4); } } else st.offT=0; }
     if(st.pos.y<height(st.pos.x,st.pos.z)-3||st.pos.y>height(st.pos.x,st.pos.z)+8) reset(st.s);
     { const z=zoneAt(st.s); if(z.t==='galleria'&&!st.rescue&&!st.uprig){ const d=Math.abs(st.pos.x-CX(st.s)); if(d>3.4||st.pos.y>height(CX(st.s),-st.s)+2.6){ st.wallT=(st.wallT||0)+dt; if(st.wallT>1.2){ st.wallT=0; reset(st.s); st.rescues++; toast('Rimesso in galleria','Purcello e Mirco ti hanno tirato giù dalla parete'); say('Purcello','','p_strop',4); } } else st.wallT=0; } }
     if(flipped){ st.flipT=(st.flipT||0)+dt; if(st.flipT>.8&&!st.uprig&&!st.flipSeq&&!st.rescue){ st.flipT=0; startFlipSeq(false); } } else st.flipT=0;
@@ -3240,7 +3251,7 @@ $('#msgBtn').addEventListener('click',()=>{ $('#msg').hidden=true; lastCp=null; 
 let lastCp=null;
 let quickOnly=null;
 function quickCamp(only){ auInit(); askSensors(); calibrate(); $('#over').hidden=true; $('#gar').hidden=true; quickOnly=only||null; resumeGame({camp:1,track:save.track,meteo:save.meteo,time:0,rescues:0,dmg:{...save.dmg},step:STEPS0.findIndex(x=>x.id===(only==='festa'?'festa':'menu')),drunk:0,rank:0,misses:0,cook:null}); }
-$('#msgCp').addEventListener('click',()=>{ const C=lastCp; if(!C) return; lastCp=null; $('#msg').hidden=true; save.track=C.track; startRun(); const d={...C.dmg}; for(const k in d) d[k]=Math.min(d[k],75); Object.assign(st,{time:C.time,rescues:C.rescues,dmg:d,chk:C}); reset(C.s); calibrate(); toast('Si riparte dal 🚩','riparazione alla buona: vai piano'); });
+$('#msgCp').addEventListener('click',()=>{ const C=lastCp; if(!C) return; lastCp=null; $('#msg').hidden=true; save.track=C.track; startRun(); const d={...C.dmg}; for(const k in d) d[k]=Math.min(d[k],45); Object.assign(st,{time:C.time,rescues:C.rescues,dmg:d,chk:C,dmgW:{}}); reset(safeSpot(C.s)); calibrate(); toast('Si riparte dal 🚩','riparazione alla buona: vai piano'); });
 function snapshot(){ try{ if(campMode&&cs&&cs.step>=0) save.resume={camp:1,track:TR.id,meteo:WX,time:st.time,rescues:st.rescues,dmg:{...st.dmg},step:cs.step,food:cs.food&&cs.food.id,drink:cs.drink&&cs.drink.id,drunk:cs.drunk||0,rank:cs.rank||0,misses:cs.misses,cook:cs.cook};
   else if(st.running&&!st.done) save.resume={track:TR.id,meteo:WX,s:st.s,time:st.time,rescues:st.rescues,dmg:{...st.dmg},gear:st.gear,awd:st.awd,pressure};
   persist(); }catch(e){ console.warn("snap",e); } }
