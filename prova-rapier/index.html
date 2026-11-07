@@ -80,7 +80,8 @@ const tyreT = cvT(256, 64, (g, w, h) => { g.fillStyle = '#1b1b1b'; g.fillRect(0,
 const world3 = new THREE.Group(); scene.add(world3);
 const carG = new THREE.Group(); scene.add(carG);
 let bodyModel = null;
-new GLTFLoader().load('terrano.glb', g => { const b = g.scene.getObjectByName('T_BODY') || g.scene; b.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); bodyModel = b; buildCar(); }, undefined, () => { bodyModel = null; buildCar(); });
+const TGLB = (await import('./terrano_glb.js')).default;
+new GLTFLoader().load(TGLB, g => { const b = g.scene.getObjectByName('T_BODY') || g.scene; b.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); bodyModel = b; buildCar(); }, undefined, () => { bodyModel = null; buildCar(); });
 
 function buildWorld() {
   while (world3.children.length) world3.remove(world3.children[0]);
