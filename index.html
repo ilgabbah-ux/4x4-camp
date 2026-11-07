@@ -763,7 +763,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 103</small>
+      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 104</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -1871,16 +1871,18 @@ function rapWheels(dt,inp,thr,brake,low,Fmax,vmax,semiK,gomK){ const R=RAP.R, c=
       const su=surfAt(hp.x,hp.z); st.wsurf[i]=su; st.surf=su;
       const mu=(1-Math.max(0,st.dmg.gomme-45)/220)*(st.inFord>.12&&!isSoft(su)?.72:1)*muOf(su)*gripMul(su)*(isSoft(su)?(1-.5*st.sink)*Math.pow(2100/MASS,.25):1)*(isSoft(su)?1:1-.28*(st.tmud||0));
       w.c.setFriction(Math.max(.05,mu*1.05)); lim[i]=mu;
-      // spigolo: la gomma spinge contro uno scalino/tronco
-      const edge=st.cn[i].dot(upv)<.82; (st.el=st.el||[0,0,0,0])[i]=edge?.12:0; if(edge&&inp.gas>0) (st.climbW=st.climbW||[0,0,0,0])[i]=st.time;
+      // contatti veri della gomma: spigoli (gradino, tronco, sasso) e colpi (impulso)
+      let edge=false, imp=0; Wd.contactPairsWith(w.c,o=>{ Wd.contactPair(w.c,o,(m)=>{ const n=m.normal(); const nu=Math.abs(n.x*upv.x+n.y*upv.y+n.z*upv.z); for(let k=0;k<m.numContacts();k++){ const ci=m.contactImpulse(k); imp+=ci; if(nu<.75&&ci>0) edge=true; } }); });
+      (st.el=st.el||[0,0,0,0])[i]=edge?.12:0; if(edge&&inp.gas>0) (st.climbW=st.climbW||[0,0,0,0])[i]=st.time;
+      { const kL=imp/Math.max(1e-4,MASS/4*9.81*dt); const asp0=Math.abs(st.vel.dot(fwv)); if(kL>4.5&&asp0>1.7){ const o=Math.min(6,kL-4.5)*Math.max(0,asp0-1.6)/2.5; st.dmg.semiassi+=o*semiK*(inp.gas>.9?2.2:1); st.dmg.gomme+=o*.7*gomK*(inp.gas>.9?1.6:1); if(kL>6.5&&st.time-(st.impT||-9)>.5){ st.impT=st.time; hit(2+o); st.thud=Math.max(st.thud||0,Math.min(1,o/4)); } } }
       // fondo corsa preso forte: botta a semiassi e gomme
       const L=c.susp.find(s=>s.ids.includes(i)); if(L&&vComp>1.8&&comp-.198>L.lim[1]-.02&&st.time-st.bumpT[i]>.4){ st.bumpT[i]=st.time; const k=vComp-1.8; st.dmg.semiassi+=k*5*semiK; st.dmg.gomme+=k*3.5*gomK; if(k>.6) hit(vComp*1.6); }
       if(vComp>1.6&&st.time-(st.thudT||0)>.25){ st.thudT=st.time; st.thud=Math.min(1,(vComp-1.6)/3); }
       (st.fz=st.fz||[0,0,0,0])[i]=MASS*9.81/4*(1+(comp-.198)*6);
     } else { (st.el=st.el||[0,0,0,0])[i]=0; }
     // velocità del suolo sotto la ruota lungo la sua direzione di marcia
-    const vw=w.b.linvel(); const wf=new V(0,0,-1).applyQuaternion(_rq).projectOnPlane(upv).normalize(); const vg=vw.x*wf.x+vw.y*wf.y+vw.z*wf.z; const vs=-om[i]*RW;
-    st.slip[i]=st.contact[i]?Math.min(1,Math.abs(vs-vg)/Math.max(1.2,Math.abs(vg)+.6)):0; st.spin[i]+= -om[i]*dt;
+    const vw=w.b.linvel(); const wf=fwv.clone(); if(WH[i].f) wf.applyAxisAngle(upv,-st.steer); /* direzione di marcia dal telaio (la ruota gira su se stessa: il suo asse avanti non serve) */ const vg=vw.x*wf.x+vw.y*wf.y+vw.z*wf.z; const vs=-om[i]*RW;
+    { const raw=st.contact[i]?Math.min(1,Math.max(0,Math.abs(vs-vg)-.25)/Math.max(1.5,Math.abs(vg)+.8)):0; st.slip[i]=lerp(st.slip[i]||0,raw,.25); } st.spin[i]+= -om[i]*dt;
   }
   // trasmissione
   const g=inp.gas||0, rev=thr<0, dmgK=(1-Math.max(0,st.dmg.semiassi-45)/260)*(1-Math.max(0,st.dmg.coppa-60)/300)*((st.cut||0)>0?.12:1);
@@ -2009,11 +2011,12 @@ function physStep(dt,inp){
     // danni che si sentono mentre guidi
     dmgFeel(dt,asp,thr);
     // gas a tavoletta sugli ostacoli: colpi di frusta su semiassi e crociere, gomme che girano sui sassi e si tagliano (prima in ridotte a fondo arrivavi in cima quasi intatto)
-    { const g=inp.gas||0; if(g>.9&&thr>0){ const CW=st.climbW||[], sl=st.slip, EL=st.el||[0,0,0,0]; let cl=0, sp2=0; for(let i=0;i<4;i++){ if(st.contact[i]&&EL[i]>.1&&st.time-(CW[i]||-9)<.12) cl++; if(st.contact[i]&&sl[i]>(RON?.5:.3)&&!isSoft(st.wsurf[i])&&st.wsurf[i]!=='acqua') sp2+=RON?.45:1; }
+    { const g=inp.gas||0; if(g>.9&&thr>0){ const CW=st.climbW||[], sl=st.slip, EL=st.el||[0,0,0,0]; let cl=0, sp2=0; for(let i=0;i<4;i++){ if(st.contact[i]&&EL[i]>.1&&st.time-(CW[i]||-9)<.12) cl++; if(st.contact[i]&&sl[i]>(RON?.3:.3)&&!isSoft(st.wsurf[i])&&st.wsurf[i]!=='acqua') sp2+=1; }
         const hard=st.wsurf.some(w=>w==='roccia'||w==='ghiaia')||(st.el&&st.el.some(e=>e>.06)); const G=(g-.9)/.1;
-        if(cl) st.dmg.semiassi+=dt*cl*(low?11:7)*G*semiK;
+        if(cl) st.dmg.semiassi+=dt*cl*(low?11:7)*G*semiK*(RON?2:1);
+        if(RON&&low&&hard&&st.contacts>=2){ st.dmg.semiassi+=dt*1.05*G*semiK; st.dmg.gomme+=dt*.5*G*gomK; } /* ridotte a tavoletta sul duro: la trasmissione lavora sempre al limite */
         if(sp2&&hard){ st.dmg.semiassi+=dt*sp2*(low?4:2.5)*G*semiK; st.dmg.gomme+=dt*sp2*3.6*G*gomK; if(Math.random()<dt*sp2*1.5){ auBurst(2200,.04,.3,'bandpass',5); vib(15); } }
-        if((cl||sp2&&hard)&&st.time-(st.fgSaid||-99)>18){ st.fgSaid=st.time; toast('Molla il gas!','a tavoletta sugli ostacoli le ruote picchiano: semiassi e gomme non reggono'); } } }
+        if((cl||sp2&&hard||RON&&low&&hard)&&st.time-(st.fgSaid||-99)>18){ st.fgSaid=st.time; toast('Molla il gas!','a tavoletta sugli ostacoli le ruote picchiano: semiassi e gomme non reggono'); } } }
 
     if(pressure===2&&(st.surf==='terra')&&asp>12) st.dmg.gomme+=dt*.9;
     const sc=-st.pos.z, gc=height(st.pos.x,st.pos.z), depth=waterY(sc)-gc;
@@ -2303,7 +2306,7 @@ function auUpd(inp,sp,dt){
   // motore vero: giri dal rapporto (marcia, ridotte, ponte) e dal diametro delle ruote; diesel o benzina, 4 o 6 cilindri
   const E=engSpec(), GR=[4.1,2.35,1.5,1.0,.8], AX=4.6*(low?(own('shortlow')?4.0:2.6):1), idle=E.idle, red=E.red;
   const wsp=Math.max(asp,slip>.35&&inp.gas?asp+slip*(low?1.2:3):0), wr=wsp/(2*Math.PI*RW)*60*AX; // giri ruota x ponte
-  let g=st.gI??0; if(!low){ if(wr*GR[g]>E.up&&g<4){ g++; st.shiftT=st.time; if(inp.gas){ auBurst(140,.06,.18,'lowpass',2); auBurst(2400,.14,.04,'highpass',1); } } else if(g>0&&wr*GR[g]<E.down) g--; } else g=0; st.gI=g;
+  let g=st.gI??0; if(!low||rapOn()){ const gm=low?2:4; if(g>gm) g=gm; if(wr*GR[g]>E.up&&g<gm){ g++; st.shiftT=st.time; if(inp.gas){ auBurst(140,.06,.18,'lowpass',2); auBurst(2400,.14,.04,'highpass',1); } } else if(g>0&&wr*GR[g]<E.down) g--; } else g=0; st.gI=g;
   let rpmR=wr*GR[g]; const clutch=Math.max(0,1-wsp/(low?.8:2.2)); rpmR=Math.max(rpmR,idle+(inp.gas||0)*(low?900:1400)*clutch); if(st.time-(st.shiftT||-9)<.25&&!low) rpmR*=.82;
   if(rpmR>red){ rpmR=red-Math.random()*220; }
   const load=clamp((inp.gas||0)*(1.2-Math.min(1,asp/(low?7:22)))+(st.sink||0)*.5+Math.max(0,-up.z*fw.y)*0,0,1);
