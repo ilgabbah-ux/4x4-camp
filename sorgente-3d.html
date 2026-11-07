@@ -542,7 +542,8 @@ body.partyOn #skipB,body.partyOn #toast,body.partyOn #hq{display:none!important}
 @keyframes fev{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}
 #ptFev{position:absolute;left:0;right:0;top:34%;text-align:center;font:900 30px/1 var(--fd,sans-serif);color:#fff;text-shadow:0 0 18px #ff5ad1,0 3px 0 #000;opacity:0;pointer-events:none;z-index:3}
 #ptFev.go{animation:fb2 1.2s ease-out}
-#ptRes{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:radial-gradient(circle,rgba(30,14,50,.92),rgba(6,4,12,.96));border-radius:inherit;z-index:6;text-align:center;padding:12px}
+#ptRes .tap{margin-top:8px;font:700 13px/1 var(--fb,sans-serif);opacity:.7;animation:pul 1s infinite alternate}
+#ptRes{cursor:pointer;position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:radial-gradient(circle,rgba(30,14,50,.92),rgba(6,4,12,.96));border-radius:inherit;z-index:6;text-align:center;padding:12px}
 #ptRes[hidden]{display:none}
 #ptRes .gr{font:900 74px/1 var(--fd,sans-serif);background:linear-gradient(180deg,#fff,#ffd84a 50%,#ff7a3c);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 0 rgba(0,0,0,.6));animation:fb2 1s ease-out reverse both;animation:grIn .6s cubic-bezier(.2,1.6,.4,1)}
 @keyframes grIn{from{transform:scale(2.4) rotate(-12deg);opacity:0}to{transform:none;opacity:1}}
@@ -721,7 +722,7 @@ body.partyOn #skipB,body.partyOn #toast,body.partyOn #hq{display:none!important}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 86</small>
+      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 87</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -1900,10 +1901,25 @@ $('#awdB').addEventListener('click',toggleAwd);
 function toggleLow(){ if(st.vel.length()>1){ toast('Fermati prima','le ridotte si inseriscono da fermo'); return; } st.gear=st.gear==='alta'?'ridotte':'alta'; if(st.gear==='ridotte') st.awd=true; toast(st.gear==='ridotte'?'Ridotte inserite':'Marce alte',st.gear==='ridotte'?'tanta forza, fino a 25 km/h':'fino a 80 km/h'); }
 $('#lowB').addEventListener('click',toggleLow); function toggleLF(){ save.lowFast=!save.lowFast; persist(); toast(save.lowFast?'🐇 Ridotte veloci':'🐢 Ridotte lente',save.lowFast?'fino a '+Math.round(Math.max(2.5,ENG.vl*.97)*3.6)+' km/h: per i tratti facili':'fino a 10 km/h: per ostacoli e pietraie'); } $('#lfB').addEventListener('click',toggleLF);
 const PURC=['Ancora piantato? Aggancio la strop, tu metti in folle… e mi devi una cassa di birra!','Aggancio la strop, tu metti in folle!','Ti tiro fuori io, come sempre.','Ancora piantato? Una cassa di birra, eh!','Tieni dritto e non frenare!','Lo sapevo, ero già qui dietro la curva.'];
+function doUprig(){ const e=new THREE.Euler().setFromQuaternion(st.q,'YXZ'); const x=CX(st.s), dx=CX(st.s+2)-CX(st.s-2), p1=new V(st.pos.x+(x-st.pos.x)*(zoneAt(st.s).t==='galleria'?1:.6),0,st.pos.z); p1.y=height(p1.x,p1.z)+RW+LN-.198-MOUNTY+.05; st.uprig={t:0,p0:st.pos.clone(),q0:st.q.clone(),p1,q1:new THREE.Quaternion().setFromEuler(new THREE.Euler(0,Math.atan2(-dx,4),0))}; 
+}
+const FLIPT=[['Mirco','fl_m','«Ahahah! Fra, le ruote vanno sotto, non sopra!»'],['Costa','fl_c','«Bella cappottata! Te la metto su Instagram»'],['Giacu','fl_gi','«Dieci punti per lo stile, zero per la guida!»'],['Gusta','fl_gu','«Hai fatto la tartaruga! Chiamate il Purcello!»'],['Daniel','fl_d','«Ferma tutto, che faccio la foto col drone!»'],['Linus','fl_l','«Tranquillo, anche io mi ribalto sempre»'],['Renard','fl_r','«Guarda il lato positivo: adesso vedi i semiassi!»']];
+function startFlipSeq(skip){ if(st.flipSeq) return; st.flipSeq={t:skip?2.6:0,s0:clamp(st.s,2,LEN-2)}; st.rescues++; $('#helpB').hidden=true;
+  if(!skip){ let q; do q=FLIPT[Math.random()*FLIPT.length|0]; while(q[1]===st.lastFlipK); st.lastFlipK=q[1]; toast('🙃 Ribaltato!',q[0]+': '+q[2],2600); vBusy=0; say(q[0],'',q[1]); } }
+function updFlipSeq(dt){ const F=st.flipSeq; if(!F) return; F.t+=dt; const t=F.t;
+  if(!F.arr&&up.y>.6&&!st.uprig){ st.flipSeq=null; return; }
+  if(t<2.6) return;
+  if(!F.arr){ F.arr=1; toast('Arriva Purcello','«Sempre io, eh? Aggancio la strop e ti tiro su»',2600); vBusy=0; say('Purcello','','p_flip'); }
+  const u=t-2.6, sp=F.done?lerp(F.s0+7.5,F.s0+50,sstep(0,1.6,F.done)):u<1.8?lerp(F.s0+40,F.s0+7.5,sstep(0,1.8,u)):F.s0+7.5;
+  const P=trailPose(sp,.3); pur.position.copy(P.p); pur.quaternion.copy(P.q); pur.visible=true;
+  if(u>1.1&&!F.done){ const a=st.pos.clone().add(new V(0,.3,0)), b=new V(0,-.25,2.4).applyQuaternion(pur.quaternion).add(pur.position), mid=a.clone().lerp(b,.5); mid.y-=.6*(1-sstep(1.1,2.1,u)); strop.geometry.dispose(); strop.geometry=new THREE.TubeGeometry(new THREE.QuadraticBezierCurve3(a,mid,b),12,.035,6); strop.visible=true; }
+  if(u>2.2&&!F.up){ F.up=1; doUprig(); auBurst(500,.4,.3,'lowpass',2); }
+  if(F.up&&!st.uprig&&!F.done){ F.done=1e-4; strop.visible=false; toast('Si riparte! 💪','Purcello: «Fatto! Dai che si riparte»',2600); vBusy=0; say('Purcello','','p_ripa'); }
+  if(F.done){ F.done+=dt; if(F.done>1.7){ pur.visible=false; st.flipSeq=null; } } }
 function rescue(){
   if(st.rescue) return; if(st.winch) dropWinch();
   const flipped=up.y<.35;
-  if(flipped){ reset(st.s+2); toast('Ribaltato!','Purcello ti ha rimesso sulle ruote'); st.rescues++; return; }
+  if(flipped||st.flipSeq){ if(!st.flipSeq) startFlipSeq(true); else if(st.flipSeq.t<2.6) st.flipSeq.t=2.6; return; }
   const s0=clamp(st.s,2,LEN-2), sT=Math.min(LEN,s0+12), mirco=Math.random()<.3;
   st.rescue={t:0,off:mirco?1.8:0,s0,sT,p0:st.pos.clone(),q0:st.q.clone(),line:PURC[0],said:false};
   st.rescues++; $('#helpB').hidden=true;
@@ -1969,7 +1985,7 @@ const CAMS=['Dietro','Vicina','Bassa sulle ruote','Sopra il cofano','Abitacolo']
 function cycleCam(){ camMode=(camMode+1)%5; first=true; toast('Inquadratura',CAMS[camMode]); try{ localStorage.setItem('camp3d-cam',camMode); }catch(_){} }
 try{ camMode=(+localStorage.getItem('camp3d-cam'))%5||0; }catch(_){}
 $('#camB').addEventListener('click',cycleCam);
-let toastT=0; function toast(a,b){ const el=$('#toast'); el.innerHTML=''; el.append(a); if(b){ const s=document.createElement('small'); s.textContent=b; el.append(s); } el.classList.add('show'); toastT=performance.now()+2200; }
+let toastT=0, toastLk=0; function toast(a,b,lock){ const nw=performance.now(); if(nw<toastLk&&!lock) return; if(lock) toastLk=nw+lock; const el=$('#toast'); el.innerHTML=''; el.append(a); if(b){ const s=document.createElement('small'); s.textContent=b; el.append(s); } el.classList.add('show'); toastT=performance.now()+2200; }
 
 /* ---------- Suono ---------- */
 // Motore diesel: un ciclo di scoppi registrato in un buffer e suonato più o meno veloce secondo i giri.
@@ -2271,7 +2287,7 @@ function chartGo(){ const P=cs.party; if(MUS&&MUS.bt&&MUS.dur-(clk()-MUS.st)%MUS
     n+=step+(beer?ev(.8):0); }
   { const H2=$('#ptHelp'); setTimeout(()=>{ H2.innerHTML=`Stasera: <b>${MD[1]}</b>${MD[0]==='doppie'?' · tocca due corsie insieme':''}`; H2.style.opacity=1; setTimeout(()=>H2.style.opacity=0,2600); },3300);
     setTimeout(()=>{ if(cs&&cs.party===P&&!P.over){ H2.innerHTML='🎸 <b>ASSOLO!</b> mosse veloci, tutte ORO: punti doppi'; H2.style.opacity=1; setTimeout(()=>H2.style.opacity=0,3000); } },(bT(n0)-clk()+soloA-1.5)*1000); }
-  P.ch=ch; $('#ptBevi').hidden=true; P.t=-(bT(n0)-clk()); const cnt=$('#ptCount'); [3,2,1,'VIA!'].forEach((t,i)=>setTimeout(()=>{ cnt.textContent=t; cnt.classList.remove('go'); void cnt.offsetWidth; cnt.classList.add('go'); },(bT(n0-4+i)-clk())*1000));
+  P.ch=ch; if(ch.length) P.dur=Math.min(P.dur,ch.reduce((m,N)=>Math.max(m,N.t),0)-bT(n0)+.9); $('#ptBevi').hidden=true; P.t=-(bT(n0)-clk()); const cnt=$('#ptCount'); [3,2,1,'VIA!'].forEach((t,i)=>setTimeout(()=>{ cnt.textContent=t; cnt.classList.remove('go'); void cnt.offsetWidth; cnt.classList.add('go'); },(bT(n0-4+i)-clk())*1000));
   const L=$('#ptNotes'); for(const N of ch){ const e=el('i','',['🙌','🌀','👏','🦵','🍺 BEVI 🍺'][N.k]); e.dataset.k=N.k; if(N.gold) e.classList.add('gold'); if(N.beer) e.classList.add('beer'); N.e=e; L.append(e); } }
 function tutHit(k){ const T=cs.party.tut; if(T.y<.97){ ptFb('Aspetta: non è ancora nel cerchio','#f2d24b'); return; } if(T.seq[T.i]!==4&&k!==T.seq[T.i]){ ptFb('No! Tocca la corsia '+LNAME[T.seq[T.i]],'#f08a7c'); return; }
   const u=document.querySelector(`#jdTrack .rcp u[data-k="${k}"]`); u.classList.add('hit'); setTimeout(()=>u.classList.remove('hit'),160); auBurst(2600,.15,.12,'bandpass',3); ptFb('PERFETTO! ✔','#c9f0a8'); T.i++; T.y=0;
@@ -2319,7 +2335,7 @@ function updParty(dt){ const P=cs.party; if(!P) return; if(!MUS||MUS.loading){ $
   if(P.t>=P.dur&&!P.over){ P.over=true; const order=P.score.map((s,i)=>[s,i]).sort((a,b)=>b[0]-a[0]); cs.rank=order.findIndex(o=>o[1]===0)+1; const win=order[0][1];
     const names=['Tu',...FRIENDS.map(f=>f.n)];
     { const tot=P.np+P.nok+P.nm, acc=tot?Math.round((P.np+P.nok*.7)/tot*100):0, gr=acc>=95?'S':acc>=85?'A':acc>=70?'B':acc>=50?'C':'D'; const R=$('#ptRes'); R.innerHTML=`<div class="gr">${gr}</div><div class="rt">${cs.rank===1?'🏆 Hai vinto tu! Re della festa':`Vince ${names[win]} · sei ${cs.rank}°`}</div><div class="st"><span><b>${Math.round(P.score[0])}</b>punti</span><span><b>${acc}%</b>precisione</span><span><b>${P.np}</b>perfetti</span><span><b>×${P.maxc}</b>combo max</span></div>`; R.hidden=false; P.grade=gr; if(gr==='S'||gr==='A') auBurst(2600,.35,.25,'bandpass',2); } if(!win){ gabbah('g_si',0); setTimeout(()=>say('Gusta','','gu_win'),1900); } else { gabbah('g_dopo',0); setTimeout(()=>say('Daniel','','d_win'),2000); }
-    setTimeout(()=>{ $('#party').hidden=true; $('#ptRes').hidden=true; document.body.classList.remove('partyOn'); $('#party').classList.remove('fever'); $('#obj').hidden=false; $('#ctl').hidden=false; musicVol(.18); cs.party=null; if(cs.partyOnly){ endCamp(); return; } setStep(cs.step+1); },4200); } }
+    let finD=false; const fin=()=>{ if(finD) return; finD=true; $('#party').hidden=true; $('#ptRes').hidden=true; $('#ptRes').onclick=null; document.body.classList.remove('partyOn'); $('#party').classList.remove('fever'); $('#obj').hidden=false; $('#ctl').hidden=false; musicVol(.18); cs.party=null; if(cs.partyOnly){ endCamp(); return; } setStep(cs.step+1); }; setTimeout(fin,4200); setTimeout(()=>{ const R=$('#ptRes'); R.onclick=fin; R.insertAdjacentHTML('beforeend','<div class="tap">tocca per continuare</div>'); },900); } }
 
 // rientro: barra del barcollamento, si raddrizza inclinando o con le frecce
 function startWalk(){ setTimeout(()=>{ if(cs&&cs.walk) say('','',Math.random()<.5?'r_n':'l_n'); },1800); const S=STEPS.find(x=>x.id==='dormi'); const tgt=KIT.riparo==='maggiolina'?cs.pos.car:cs.pos.ham;
@@ -2889,11 +2905,12 @@ function frame(now){ UORG.value.copy(cam.position);
     // bloccato o ribaltato
     const flipped=up.y<.35; if((Math.abs(sp)<.4&&inp.gas)||flipped) st.stuckT+=dt; else st.stuckT=Math.max(0,st.stuckT-dt);
     if(st.s>(st.progS||0)+1.5){ st.progS=st.s; st.progT=0; } else st.progT=(st.progT||0)+dt; if(st.progT>7&&!st.done) st.stuckT=Math.max(st.stuckT,2.6);
-    $('#helpB').hidden=!!st.rescue||!!(st.winch&&st.winch.pull)||!(st.stuckT>2.5||flipped||st.sink>.85);
+    $('#helpB').hidden=!!st.rescue||!!st.flipSeq||!!(st.winch&&st.winch.pull)||!(st.stuckT>2.5||flipped||st.sink>.85);
     const wv0=0; const wv=own('winch')&&!st.done&&!st.rescue&&(Math.abs(sp)<1.5||st.winch); $('#winB').hidden=!wv; if(wv){ $('#winB').textContent=st.winch?(st.winch.pull?'Tiro…':'Tieni: tira il cavo'):'Verricello'; $('#winB').classList.toggle('on',!!(st.winch&&st.winch.pull)); }
+    updFlipSeq(dt);
     if(st.pos.y<height(st.pos.x,st.pos.z)-3||st.pos.y>height(st.pos.x,st.pos.z)+8) reset(st.s);
     { const z=zoneAt(st.s); if(z.t==='galleria'&&!st.rescue&&!st.uprig){ const d=Math.abs(st.pos.x-CX(st.s)); if(d>3.4||st.pos.y>height(CX(st.s),-st.s)+2.6){ st.wallT=(st.wallT||0)+dt; if(st.wallT>1.2){ st.wallT=0; reset(st.s); st.rescues++; toast('Rimesso in galleria','Purcello e Mirco ti hanno tirato giù dalla parete'); say('Purcello','','p_strop',4); } } else st.wallT=0; } }
-    if(flipped){ st.flipT=(st.flipT||0)+dt; if(st.flipT>2.2&&!st.uprig){ st.flipT=0; st.rescues++; const e=new THREE.Euler().setFromQuaternion(st.q,'YXZ'); const x=CX(st.s), dx=CX(st.s+2)-CX(st.s-2), p1=new V(st.pos.x+(x-st.pos.x)*(zoneAt(st.s).t==='galleria'?1:.6),0,st.pos.z); p1.y=height(p1.x,p1.z)+RW+LN-.198-MOUNTY+.05; st.uprig={t:0,p0:st.pos.clone(),q0:st.q.clone(),p1,q1:new THREE.Quaternion().setFromEuler(new THREE.Euler(0,Math.atan2(-dx,4),0))}; toast('Ribaltato!','Purcello e Mirco ti rimettono sulle ruote'); say('Purcello','','p_strop',4); } } else st.flipT=0;
+    if(flipped){ st.flipT=(st.flipT||0)+dt; if(st.flipT>.8&&!st.uprig&&!st.flipSeq&&!st.rescue){ st.flipT=0; startFlipSeq(false); } } else st.flipT=0;
     for(const k in st.dmg) st.dmg[k]=Math.min(100,st.dmg[k]);
     const fail=st.dmg.gomme>=100?['Gomma squarciata','Hai preso i sassi troppo forte: la gomma si è tagliata.']:st.dmg.coppa>=100?['Coppa dell\'olio spaccata','Un sasso ha bucato la coppa: olio a terra.']:st.dmg.semiassi>=100?['Semiasse rotto','Troppe botte sui massi: il semiasse ha ceduto.']:st.water>=1?['Motore annegato','Hai fatto l\'onda nel guado: l\'acqua è entrata dalla presa d\'aria.']:null;
     if(fail) failRun(fail);
@@ -3129,7 +3146,7 @@ function ghostUpd(dt){ if(st.done) return; st.ghT+=dt; if(st.ghT>=.25){ st.ghT-=
   const gs=-ghostCar.position.z; st.ghGap=gs-st.s; }
 function startRun(){ st.daily=dailyGo; dailyGo=null; st.fog0=null; rtt.userData.lidP.rotation.x=0; rtt.userData.tela.scale.y=.001; cam.clearViewOffset(); shS=-1; if(cs) clearCamp(); setTimeout(()=>{ if(st.running&&!campMode&&save.musGuida!==false&&AC) { if(TRACK_MP3[save.track]) mp3Start(TRACK_MP3[save.track],.32); else musicStart(TRACK_SONG[save.track]||'rock',.2); } },600); WX=save.meteo; if(WX==='random'){ const ks=Object.keys(METEO).filter(k=>k!=='random'), w=ks.map(k=>k==='sereno'?3:k==='temporale'?1:1.6); let r=Math.random()*w.reduce((a,b)=>a+b,0), q=0; while(r>w[q]){ r-=w[q]; q++; } WX=ks[q]; st.wxRnd=true; setTimeout(()=>toast('🎲 Meteo a sorpresa',METEO[WX].ic+' '+METEO[WX].n+' · '+METEO[WX].txt),900); } else st.wxRnd=false; if(builtTrack!==save.track) buildWorld(save.track); else { scene.fog.near=TR.theme==='neve'?25:60; scene.fog.far=TR.theme==='neve'?150:TR.theme==='alpino'?320:250; } applyUpgrades(); pressure=save.pressure;
   $('#hud').hidden=false; $('#hud2').hidden=false; $('#ctl').hidden=false; $('#tb').hidden=false; $('#lowB').hidden=false;
-  clearSplats(); placeFriendCars(); for(const o of OBST){ o.said=false; o.cut=0; } st.camCut=null; st.snowSaid=false; TR._pudO=null; st.pudSaid=0; Object.assign(st,{chk:null,uprig:null,drone:null,droneDone:false,panoSaid:false,awd:true,progS:0,progT:0,running:true,done:false,rescue:null,time:0,dirt:save.dirt||0,water:0,sink:0,rescues:0,paused:false,gear:'alta',dmg:{...save.dmg}}); reset(4); campMode=false; ghostStart(); clearRuts(); skyNow=-1; setSky(TR.night?1:0); lightsUpd(); $('#hq').hidden=false; setTimeout(()=>{ if(!save.tutDone) tutStart(); else showHelp('guida'); },400); }
+  clearSplats(); placeFriendCars(); for(const o of OBST){ o.said=false; o.cut=0; } st.camCut=null; st.snowSaid=false; st.flipSeq=null; pur.visible=false; strop.visible=false; TR._pudO=null; st.pudSaid=0; Object.assign(st,{chk:null,uprig:null,drone:null,droneDone:false,panoSaid:false,awd:true,progS:0,progT:0,running:true,done:false,rescue:null,time:0,dirt:save.dirt||0,water:0,sink:0,rescues:0,paused:false,gear:'alta',dmg:{...save.dmg}}); reset(4); campMode=false; ghostStart(); clearRuts(); skyNow=-1; setSky(TR.night?1:0); lightsUpd(); $('#hq').hidden=false; setTimeout(()=>{ if(!save.tutDone) tutStart(); else showHelp('guida'); },400); }
 // pausa
 function sensUI(){ document.querySelectorAll('.sens:not(.sm):not(.cr):not(.vb):not(.ac) button').forEach(b=>b.classList.toggle('on',+b.dataset.v===(save.sens||1))); }
 function optUI(){ document.querySelectorAll('.sens.sm button').forEach(b=>b.classList.toggle('on',b.dataset.m===(save.steerMode||'tilt'))); document.querySelectorAll('.sens.cr button').forEach(b=>b.classList.toggle('on',(b.dataset.c==='1')===(save.crawl!==false))); document.querySelectorAll('.sens.vb button').forEach(b=>b.classList.toggle('on',(b.dataset.b==='1')===(save.vib!==false))); document.querySelectorAll('.sens.ac button').forEach(b=>b.classList.toggle('on',(b.dataset.a==='1')===(save.autoCam!==false))); }
