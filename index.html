@@ -733,6 +733,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="pRes">Riprendi</button>
       <button class="ghost" id="pTut">🎓 Rivedi il tutorial di guida</button>
       <button class="ghost" id="pRst">Ricomincia il tracciato</button>
+      <button class="ghost" id="pFis">Fisica: nuova (ruote e ponti veri)</button>
       <button class="ghost" id="pGar">Torna al garage</button>
       <button class="ghost inst" id="instB2">📲 Metti il gioco nella Home</button>
       <div class="sens sm"><span>Come sterzi</span><button data-m="tilt">📱 Inclina</button><button data-m="frecce">◀ ▶ Frecce</button></div>
@@ -761,7 +762,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 101</small>
+      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 102</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -852,13 +853,13 @@ function setTrack(id){
   // ostacoli veri: tronchi di traverso, canali di scolo, gradini di roccia, twist con buche alternate
   OBST=[]; OBB=new Map(); { const types=TR.theme==='neve'?['ditch','twist','camber','log']:TR.theme==='alpino'?['step','ditch','twist','camber','step','vg']:TR.theme==='militare'?['ditch','twist','vg','step','camber','ditch']:['log','ditch','step','twist','camber','vg','log','step','twist'];
     let s=40+R()*20, i=0; while(s<LEN-30){ const z=zoneAt(s), z2=zoneAt(s+14); const ok=['terra','erba','ghiaia','sabbia','neve'].includes(z.t)&&z===z2&&!inFord(s,10)&&Math.abs(s-TR.panoS)>30;
-      if(ok){ const t=types[i++%types.length]; const o={t,s,a:(R()-.5)*.5,half:HALF+.4};
+      if(ok&&!z.humps){ let t=types[i++%types.length]; /* sui dossi niente altri ostacoli: i dossi bastano */ const o={t,s,a:(R()-.5)*.5,half:HALF+.4};
         if(t==='log'){ o.r=.22+R()*.12; o.half=HALF+2.4; o.off=0; }
         if(t==='ditch'){ o.w=.7+R()*.2; o.dep=.3+R()*.12; }
         if(t==='step'){ o.hg=.34+R()*.16; o.len=4+R()*4; }
         if(t==='twist'){ o.dep=.34+R()*.12; o.sd=R()<.5?1:-1; }
         if(t==='step'&&R()<.3){ o.hg=.46+R()*.05; o.len=3+R()*2; o.big=1; }
-        if(t==='camber'){ o.tilt=(R()<.5?-1:1)*(.3+R()*.1); o.len=14+R()*6; }
+        if(t==='camber'){ o.tilt=(R()<.5?-1:1)*(.22+R()*.08); o.len=14+R()*6; }
         // su neve e ghiaccio gli ostacoli sono più bassi: già il fondo fa scivolare
         if(Math.abs(z.sl||0)>.1){ if(o.hg){ o.hg*=.82; o.big=0; } if(o.tilt) o.tilt*=.85; }
         if(z.t==='neve'){ if(o.hg){ o.hg*=.72; o.big=0; } if(o.r) o.r*=.8; if(o.tilt) o.tilt*=.6; if(o.dep) o.dep*=.8; }
@@ -882,7 +883,7 @@ function baseH(x,z){
   if(zt==='fango'||zt==='fangoProf'){ const e=sstep(0,4,s-Z.a)*sstep(0,4,Z.b-s); h-=(zt==='fangoProf'?.28:.14)*e*(1-sstep(HALF,HALF+2,ad)); }
   for(const f of PUDS) if(s>f[0]-3&&s<f[1]+3){ /* pozza vera: conca dalla riva irregolare, non più una lastra larga quanto la pista */ const m=(f[0]+f[1])/2, r=Math.hypot((s-m)/((f[1]-f[0])/2+1.2),d/(HALF-.1))+(vnoise(x*.45+3,z*.45-8)-.5)*.42+(vnoise(x*1.3,z*1.3)-.5)*.12; h-=.32*(1-sstep(.62,1.02,r)); }
   for(const f of FORDS) if(s>f[0]-6&&s<f[1]+6){ const e=sstep(f[0]-6,f[0]+2,s)*sstep(f[1]+6,f[1]-2,s); h-=.58*e; }
-  if(Z.humps){ const e=sstep(0,3,s-Z.a)*sstep(0,3,Z.b-s), ph=(s-Z.a)/6.5+Math.sin(s*.37)*.12; h+=Z.humps*.62*Math.pow(.5-.5*Math.cos(ph*Math.PI*2),1.4)*2*e*(1-sstep(HALF+1,HALF+5,ad))*(1+.25*Math.sin(d*.9+s)); }
+  if(Z.humps){ const e=sstep(0,3,s-Z.a)*sstep(0,3,Z.b-s), ph=(s-Z.a)/8.5+Math.sin(s*.37)*.12; h+=Z.humps*.42*Math.pow(.5-.5*Math.cos(ph*Math.PI*2),1.4)*2*e*(1-sstep(HALF+1,HALF+5,ad))*(1+.25*Math.sin(d*.9+s)); }
   if(Z.lane){ const e=sstep(Z.a-6,Z.a+2,s)*sstep(Z.b+6,Z.b-2,s); if(ad>HALF-.5) h+=Math.min(2.4,(ad-HALF+.5)*2.2+fbm(x*.9,z*.9)*.6)*e; }
   if(zt==='galleria'){ const e=sstep(0,2,s-Z.a)*sstep(0,2,Z.b-s); if(ad>3.7) h+=Math.min(6,(ad-3.7)*7)*e; }
   // radura del campo base in cima: spiazzo in piano (prima amaca e tenda finivano sul pendio)
@@ -1177,7 +1178,7 @@ function sceneryFor(RT){ const ST=STY[TR.id]||{}, W=world, M=new THREE.Matrix4()
   // nevai: macchie di neve sul terreno alto (colorate nel terreno stesso)
 }
 function buildWorld(id){
-  GLAMPS.length=0; disposeWorld(); setTrack(id); builtTrack=id; const neve=TR.theme==='neve';
+  GLAMPS.length=0; disposeWorld(); setTrack(id); builtTrack=id; if(RAP&&RAP.ok) rapBuildWorld(); const neve=TR.theme==='neve';
   const RT=rng(11+id.length);
   // terreno
   { const cols=[]; for(let d=-330;d<-70;d+=20) cols.push(d); for(let d=-70;d<-10;d+=2.5) cols.push(d); for(let d=-10;d<=10;d+=.4) cols.push(+d.toFixed(2)); for(let d=12.5;d<=70;d+=2.5) cols.push(d); for(let d=90;d<=330;d+=20) cols.push(d);
@@ -1789,7 +1790,113 @@ function reset(s){
 const up=new V(),fw=new V(),rt=new V();
 let revMode=false, brkT=0; const HOOK=new V(0,-.25,-2.45);
 
+// ======================= FISICA NUOVA (Rapier) =======================
+// ruote vere (cilindri), sospensioni con corsa vera, ponti rigidi, ostacoli solidi. Il resto del gioco (fango, acqua, danni, verricello…) resta quello di prima e spinge sul telaio.
+let RAP=null;
+try{ const q=new URLSearchParams(location.search).get('fis'); if(q==='r'||q==='v') save.fis=q; }catch(e){}
+if(save.fis!=='v') setTimeout(()=>rapLoad(),50);
+function rapOn(){ return !!(RAP&&RAP.ok&&RAP.world&&save.fis!=='v'); }
+async function rapLoad(){ if(RAP) return RAP; RAP={ok:false}; try{ const R=(await import('https://cdn.jsdelivr.net/npm/@dimforge/rapier3d-compat@0.21.0/dist/rapier.mjs')).default; await R.init(); RAP.R=R; RAP.ok=true; if(TR) rapBuildWorld(); }catch(e){ console.warn('Rapier non caricato',e); RAP.ok=false; } return RAP; }
+const RG_W=0x0001ffff, RG_C=0x00020001;
+function hR(x,z){ let h=baseH(x,z); const k=Math.floor(-z/4), L=ROCKB.get(k); if(L) for(const b of L){ const dx=x-b.x, dz=z-b.z; if(dx*dx+dz*dz<b.r*b.r*2.6){ const rh=rockH(b,x,z); if(rh>h) h=rh; } } return obsAdj(x,z,h,false); }
+function rapBuildWorld(){ if(!RAP||!RAP.ok||!TR) return; const R=RAP.R; if(RAP.world){ try{ RAP.world.free(); }catch(e){} } RAP.car=null;
+  const Wd=new R.World({x:0,y:-9.81,z:0}); Wd.timestep=1/120; Wd.numSolverIterations=8; RAP.world=Wd; RAP.key=TR.id;
+  const DX=.3, CH=24; for(let s0=-30;s0<LEN+40;s0+=CH){ const s1=s0+CH; let xmin=1e9,xmax=-1e9; for(let s=s0;s<=s1;s+=2){ const c=CX(Math.max(-40,s)); xmin=Math.min(xmin,c); xmax=Math.max(xmax,c); } const mg=HALF+9+(s1>LEN-20?14:0); xmin-=mg; xmax+=mg;
+    const nx=Math.ceil((xmax-xmin)/DX)+1, nz=Math.ceil(CH/DX)+1, Wx=(nx-1)*DX, Lz=(nz-1)*DX, xc=xmin+Wx/2, zc=-(s0+Lz/2); const hs=new Float32Array(nx*nz);
+    for(let i=0;i<nx;i++) for(let j=0;j<nz;j++){ hs[i*nz+j]=hR(xmin+i*DX,zc-Lz/2+j*DX); }
+    const b=Wd.createRigidBody(R.RigidBodyDesc.fixed().setTranslation(xc,0,zc)); Wd.createCollider(R.ColliderDesc.heightfield(nz-1,nx-1,hs,{x:Wx,y:1,z:Lz}).setFriction(1).setCollisionGroups(RG_W),b); }
+  // tronchi: cilindri veri
+  for(const o of OBST){ if(o.t!=='log') continue; const AX=logAxis(o), ang=Math.atan2(CX(o.s+1)-CX(o.s-1),2); const q=new THREE.Quaternion().setFromEuler(new THREE.Euler(0,-ang-o.a,Math.atan(AX[1]),'YXZ')).multiply(new THREE.Quaternion().setFromAxisAngle(new V(0,0,1),Math.PI/2));
+    const b=Wd.createRigidBody(R.RigidBodyDesc.fixed().setTranslation(CX(o.s)+(o.off||0),AX[0],-o.s).setRotation({x:q.x,y:q.y,z:q.z,w:q.w})); Wd.createCollider(R.ColliderDesc.cylinder(o.half,o.r).setFriction(.9).setCollisionGroups(RG_W),b); }
+}
+function rapCarKey(){ return [save.veh,prevVeh,RW,LN,MASS,VEH.solidF?1:0,own('lift')?1:0,own('g33')?1:0,TR&&TR.id].join('|'); }
+function rapBuildCar(){ const R=RAP.R, Wd=RAP.world; if(RAP.car) for(const b of RAP.car.bodies) try{ Wd.removeRigidBody(b); }catch(e){}
+  const liftK=(own('lift')?1.3:1)*(1+(VEH.lift||0)*3), solidF=!!VEH.solidF, solidR=!VEH.indepR;
+  const tIFS=[-.075*liftK,.095*liftK], tAx=solidF?[-.17*liftK,.15*liftK]:[-.12*liftK,.13*liftK], rollF=.5*liftK, rollR=(solidF?.6:.24)*liftK;
+  const mC=MASS/4, kW=mC*66, cW=2*.38*Math.sqrt(kW*mC), mW=30;
+  const yW=MOUNTY-LN+.198; // centro ruota a riposo, rispetto al baricentro
+  const bodies=[], v3=(x,y,z)=>({x,y,z}), J=(d,a,b)=>Wd.createImpulseJoint(d,a,b,true);
+  const ch=Wd.createRigidBody(R.RigidBodyDesc.dynamic().setTranslation(0,0,0).setAdditionalMassProperties(MASS-4*mW-2*60,{x:0,y:0,z:0},{x:I.x,y:I.y,z:I.z},{x:0,y:0,z:0,w:1}).setCanSleep(false).setAngularDamping(.1).setLinearDamping(.01)); bodies.push(ch);
+  const bx=.92*VS[0], bz=2.15*VS[2];
+  Wd.createCollider(R.ColliderDesc.cuboid(bx,.34,bz).setTranslation(0,.0,0).setDensity(0).setFriction(.5).setCollisionGroups(RG_C),ch);
+  Wd.createCollider(R.ColliderDesc.cuboid(bx*.93,.32,bz*.6).setTranslation(0,.66,.1).setDensity(0).setFriction(.5).setCollisionGroups(RG_C),ch);
+  const lite=(x,y,z,m)=>{ const b=Wd.createRigidBody(R.RigidBodyDesc.dynamic().setTranslation(x,y,z).setAdditionalMassProperties(m,{x:0,y:0,z:0},{x:m*.06,y:m*.06,z:m*.06},{x:0,y:0,z:0,w:1}).setCanSleep(false)); bodies.push(b); return b; };
+  const wheels=[], steer=[], susp=[];
+  const mkWheel=(par,anc,pos,i)=>{ const w=Wd.createRigidBody(R.RigidBodyDesc.dynamic().setTranslation(pos.x,pos.y,pos.z).setCanSleep(false).setAngularDamping(.05)); bodies.push(w);
+    const c=Wd.createCollider(R.ColliderDesc.roundCylinder(.1,RW-.05,.05).setRotation({x:0,y:0,z:Math.sin(Math.PI/4),w:Math.cos(Math.PI/4)}).setMass(mW).setFriction(1).setFrictionCombineRule(R.CoefficientCombineRule.Multiply).setCollisionGroups(RG_C),w);
+    const j=J(R.JointData.revolute(anc,v3(0,0,0),v3(1,0,0)),par,w); j.configureMotorModel(R.MotorModel.ForceBased); wheels[i]={b:w,c,j}; };
+  const mkSteer=(par,anc,pos)=>{ const kn=lite(pos.x,pos.y,pos.z,12); const sj=J(R.JointData.revolute(anc,v3(0,0,0),v3(0,1,0)),par,kn); sj.setLimits(-.65,.65); sj.configureMotorModel(R.MotorModel.ForceBased); steer.push(sj); return kn; };
+  const axle=(ia,ib,front)=>{ const A=WH[ia], B=WH[ib], z=(A.z+B.z)/2, hx=Math.abs(B.x-A.x)/2; const t=front?tAx:tAx; const sl=lite(0,yW,z,20);
+    const pj=J(R.JointData.prismatic(v3(0,yW,z),v3(0,0,0),v3(0,1,0)),ch,sl); pj.setLimits(t[0],t[1]); pj.configureMotorModel(R.MotorModel.ForceBased); const sag=mC*9.81/kW; pj.configureMotorPosition(-sag*.9,2*kW,2*cW);
+    const ax=lite(0,yW,z,60); Wd.createCollider(R.ColliderDesc.cylinder(hx*.8,.07).setRotation({x:0,y:0,z:Math.sin(Math.PI/4),w:Math.cos(Math.PI/4)}).setDensity(0).setFriction(.4).setCollisionGroups(RG_C),ax);
+    const rj=J(R.JointData.revolute(v3(0,0,0),v3(0,0,0),v3(0,0,1)),sl,ax); const rl=front?rollF:rollR; rj.setLimits(-rl,rl); rj.configureMotorModel(R.MotorModel.ForceBased); rj.configureMotorPosition(0,kW*hx*hx*2*.6,cW*hx*hx*2*.5);
+    susp.push({t:'ax',pj,rj,ax,sl,ids:[ia,ib],hx,lim:t});
+    for(const [i,sd] of [[ia,A.x<0?-1:1],[ib,B.x<0?-1:1]]){ const pos=v3(WH[i].x,yW,z); if(front){ const kn=mkSteer(ax,v3(sd*hx,0,0),pos); mkWheel(kn,v3(0,0,0),pos,i); } else mkWheel(ax,v3(sd*hx,0,0),pos,i); } };
+  const indep=(i,front)=>{ const W=WH[i], pos=v3(W.x,yW,W.z); const sl=lite(pos.x,pos.y,pos.z,18); const t=front?tIFS:tAx;
+    const pj=J(R.JointData.prismatic(v3(W.x,yW,W.z),v3(0,0,0),v3(0,1,0)),ch,sl); pj.setLimits(t[0],t[1]); pj.configureMotorModel(R.MotorModel.ForceBased); const sag=mC*9.81/kW; pj.configureMotorPosition(-sag*.9,kW,cW);
+    susp.push({t:'in',pj,sl,ids:[i],lim:t}); if(front){ const kn=mkSteer(sl,v3(0,0,0),pos); mkWheel(kn,v3(0,0,0),pos,i); } else mkWheel(sl,v3(0,0,0),pos,i); };
+  if(solidF) axle(0,1,true); else { indep(0,true); indep(1,true); }
+  if(solidR) axle(2,3,false); else { indep(2,false); indep(3,false); }
+  const loc=bodies.map(b=>{ const t=b.translation(); return new V(t.x,t.y,t.z); });
+  RAP.car={ch,bodies,loc,wheels,steer,susp,yW,key:rapCarKey(),lp:null,lq:null,lv:new V(),lw:new V(),spinPrev:[0,0,0,0],slV:[0,0,0,0]};
+  rapTeleport(st.pos,st.q,st.vel,st.w); }
+function rapTeleport(p,q,v,w){ const c=RAP.car; c.bodies.forEach((b,k)=>{ const r=c.loc[k].clone().applyQuaternion(q); const P=r.clone().add(p); b.setTranslation({x:P.x,y:P.y,z:P.z},true); b.setRotation({x:q.x,y:q.y,z:q.z,w:q.w},true); const vv=new V().copy(w).cross(r).add(v); b.setLinvel({x:vv.x,y:vv.y,z:vv.z},true); b.setAngvel({x:w.x,y:w.y,z:w.z},true); b.resetForces(true); b.resetTorques(true); });
+  c.lp=p.clone(); c.lq=q.clone(); c.lv.copy(v); c.lw.copy(w); }
+function rapPre(){ if(!RAP.car||RAP.car.key!==rapCarKey()){ rapBuildCar(); return; } const c=RAP.car;
+  if(c.lp&&(st.pos.distanceToSquared(c.lp)>1e-8||Math.abs(st.q.dot(c.lq))<.999999)) rapTeleport(st.pos,st.q,st.vel,st.w); }
+const _rv=new V(), _rq=new THREE.Quaternion();
+function rapWheels(dt,inp,thr,brake,low,Fmax,vmax,semiK,gomK){ const R=RAP.R, c=RAP.car, Wd=RAP.world; let contacts=0;
+  const chQ=st.q, upv=new V(0,1,0).applyQuaternion(chQ), fwv=new V(0,0,-1).applyQuaternion(chQ);
+  for(const sj of c.steer) sj.configureMotorPosition(-(st.steer+(st.stOff||0)),MASS*28,MASS*1.1);
+  const om=[0,0,0,0], lim=[0,0,0,0];
+  for(let i=0;i<4;i++){ const w=c.wheels[i]; const t=w.b.translation(), r=w.b.rotation(); const P=new V(t.x,t.y,t.z);
+    _rq.set(r.x,r.y,r.z,r.w); const ax=new V(1,0,0).applyQuaternion(_rq); const av=w.b.angvel(); om[i]=av.x*ax.x+av.y*ax.y+av.z*ax.z;
+    // corsa della sospensione per la grafica: posizione della ruota nel telaio
+    const lp=P.clone().sub(st.pos).applyQuaternion(chQ.clone().invert()); const comp=.198+(lp.y-c.yW); const cprev=st.comp[i]; st.comp[i]=comp;
+    const vComp=(comp-cprev)/Math.max(dt,1e-4);
+    const ray=new R.Ray({x:t.x,y:t.y,z:t.z},{x:-upv.x,y:-upv.y,z:-upv.z}); const hh=Wd.castRayAndGetNormal(ray,RW+.12,true,undefined,RG_C);
+    st.contact[i]=0; st.dspin[i]=0;
+    if(hh&&hh.timeOfImpact<RW+.07){ const hp=ray.pointAt(hh.timeOfImpact); st.contact[i]=1; contacts++; st.cp[i].set(hp.x,hp.y,hp.z); st.cn[i].set(hh.normal.x,hh.normal.y,hh.normal.z);
+      const su=surfAt(hp.x,hp.z); st.wsurf[i]=su; st.surf=su;
+      const mu=(1-Math.max(0,st.dmg.gomme-45)/220)*(st.inFord>.12&&!isSoft(su)?.72:1)*muOf(su)*gripMul(su)*(isSoft(su)?(1-.5*st.sink)*Math.pow(2100/MASS,.25):1)*(isSoft(su)?1:1-.28*(st.tmud||0));
+      w.c.setFriction(Math.max(.05,mu*1.05)); lim[i]=mu;
+      // spigolo: la gomma spinge contro uno scalino/tronco
+      const edge=st.cn[i].dot(upv)<.82; (st.el=st.el||[0,0,0,0])[i]=edge?.12:0; if(edge&&inp.gas>0) (st.climbW=st.climbW||[0,0,0,0])[i]=st.time;
+      // fondo corsa preso forte: botta a semiassi e gomme
+      const L=c.susp.find(s=>s.ids.includes(i)); if(L&&vComp>1.8&&comp-.198>L.lim[1]-.02&&st.time-st.bumpT[i]>.4){ st.bumpT[i]=st.time; const k=vComp-1.8; st.dmg.semiassi+=k*5*semiK; st.dmg.gomme+=k*3.5*gomK; if(k>.6) hit(vComp*1.6); }
+      if(vComp>1.6&&st.time-(st.thudT||0)>.25){ st.thudT=st.time; st.thud=Math.min(1,(vComp-1.6)/3); }
+      (st.fz=st.fz||[0,0,0,0])[i]=MASS*9.81/4*(1+(comp-.198)*6);
+    } else { (st.el=st.el||[0,0,0,0])[i]=0; }
+    // velocità del suolo sotto la ruota lungo la sua direzione di marcia
+    const vw=w.b.linvel(); const wf=new V(0,0,-1).applyQuaternion(_rq).projectOnPlane(upv).normalize(); const vg=vw.x*wf.x+vw.y*wf.y+vw.z*wf.z; const vs=-om[i]*RW;
+    st.slip[i]=st.contact[i]?Math.min(1,Math.abs(vs-vg)/Math.max(1.2,Math.abs(vg)+.6)):0; st.spin[i]+= -om[i]*dt;
+  }
+  // trasmissione
+  const g=inp.gas||0, rev=thr<0, dmgK=(1-Math.max(0,st.dmg.semiassi-45)/260)*(1-Math.max(0,st.dmg.coppa-60)/300)*((st.cut||0)>0?.12:1);
+  const pedal=rev?.8:(g>0?(low?.45+.55*g:g):0); const Ttot=Fmax*RW*pedal*dmgK;
+  const vt=rev?-(vmax*(low?.6:.3)):(low?(save.lowFast?Math.max(2.5,ENG.vl*.97):2.5)*(.3+.7*g)+.3:vmax*(.25+.75*g)); const wT=-vt/RW;
+  const awd=st.awd!==false, AX=[[0,1,st.lock&&hasLockF()],[2,3,st.lock]];
+  AX.forEach(([a,b,lk],k)=>{ let Tax=awd?Ttot/2:(k?Ttot:0); let f=1; if(!lk){ const d=Math.abs(om[a]-om[b]); f=Math.max(.07,Math.min(1,1-(d-1.5)/4)); if(f<.6){ if(Math.abs(om[a])>Math.abs(om[b])) st.dspin[a]=1; else st.dspin[b]=1; } }
+    for(const i of [a,b]){ const j=c.wheels[i].j;
+      if(brake){ j.configureMotorVelocity(0,1e6); j.setMotorMaxForce(5200*RW*(inp.brk||1)); }
+      else if(pedal>0){ j.configureMotorVelocity(wT,1e6); j.setMotorMaxForce(Tax/2*f*(lk?1.7:1)); }
+      else { j.configureMotorVelocity(0,1e6); j.setMotorMaxForce(low?ENG.eb*RW/4:70); }
+      (st.dv=st.dv||[0,0,0,0])[i]=Tax/2*f/RW; } });
+  // resistenza al rotolamento e fango che tiene
+  const sp=st.vel.dot(fwv); for(let i=0;i<4;i++){ if(!st.contact[i]) continue; const su=st.wsurf[i]; const rr=(CRR[su]||.02)*(isSoft(su)?Math.pow(MASS/2100,.35):1)+(isSoft(su)?st.sink*(thr<0?.12:.2):0); c.rr=(c.rr||0)+rr*MASS*9.81/4; }
+  return contacts; }
+function rapPost(dt,F,T){ const c=RAP.car, ch=c.ch;
+  F.y+=9.81*MASS; // la gravità la mette Rapier
+  { const sp=st.vel.dot(fw); if(c.rr){ F.addScaledVector(new V(fw.x,0,fw.z).normalize(),-Math.sign(sp)*Math.min(c.rr,Math.abs(sp)*MASS/dt*.3)); c.rr=0; } }
+  // chi ha cambiato la velocità a mano (botte, guadi, remata): lo applico a tutto il mezzo
+  const dv=st.vel.clone().sub(c.lv), dw=st.w.clone().sub(c.lw); if(dv.lengthSq()>1e-8||dw.lengthSq()>1e-8){ for(const b of c.bodies){ const v=b.linvel(); b.setLinvel({x:v.x+dv.x,y:v.y+dv.y,z:v.z+dv.z},true); } const a=ch.angvel(); ch.setAngvel({x:a.x+dw.x,y:a.y+dw.y,z:a.z+dw.z},true); }
+  ch.resetForces(true); ch.resetTorques(true); ch.addForce({x:F.x,y:F.y,z:F.z},true); ch.addTorque({x:T.x,y:T.y,z:T.z},true);
+  RAP.world.timestep=dt; RAP.world.step();
+  const t=ch.translation(), r=ch.rotation(), v=ch.linvel(), a=ch.angvel(); st.pos.set(t.x,t.y,t.z); st.q.set(r.x,r.y,r.z,r.w); st.vel.set(v.x,v.y,v.z); st.w.set(a.x,a.y,a.z);
+  c.lp.copy(st.pos); c.lq.copy(st.q); c.lv.copy(st.vel); c.lw.copy(st.w); }
+// ======================= fine fisica nuova =======================
 function physStep(dt,inp){
+  if(rapOn()) rapPre();
   up.set(0,1,0).applyQuaternion(st.q); fw.set(0,0,-1).applyQuaternion(st.q); rt.set(1,0,0).applyQuaternion(st.q);
   const F=new V(0,-9.81*MASS,0), T=new V();
   const sp=st.vel.dot(fw);
@@ -1807,6 +1914,7 @@ function physStep(dt,inp){
   const rate=Math.abs(inp.steer)<.05?5:3.8; st.steer+=clamp(tgt-st.steer,-rate*dt,rate*dt);
   let contacts=0, surf='erba'; const WD=[null,null,null,null];
   const semiK=(own('turbo')?1.15:1)*(own('v6')?1.15:1)*(VEH.tough||1), gomK=(pressure===0?1.4:1)*(own('mt')?.75:1)*(VEH.tough||1);
+  const RON=rapOn(); if(RON){ contacts=rapWheels(dt,inp,thr,brake,low,Fmax,vmax,semiK,gomK); surf=st.surf; } else {
   for(let i=0;i<4;i++){
     const W=WH[i];
     const mount=new V(W.x,MOUNTY,W.z).applyQuaternion(st.q).add(st.pos);
@@ -1867,6 +1975,7 @@ function physStep(dt,inp){
     F.add(f); T.add(new V().crossVectors(r,f));
     st.spin[i]+=vl/RW*dt*(1+st.slip[i]*2)+(st.dspin[i]?thr*dt*10:0);
   }
+  }
   st.surf=surf; st.contacts=contacts;
   { const softW=st.wsurf.filter((w,i)=>st.contact[i]&&isSoft(w)).length, deep=st.wsurf.some(w=>w==='fangoProf');
     const slip=(st.slip[0]+st.slip[1]+st.slip[2]+st.slip[3])/4, asp=Math.abs(sp), snowK=st.wsurf.some(w=>w==='neve')&&!st.wsurf.some(isMud)?.85:1;
@@ -1889,7 +1998,7 @@ function physStep(dt,inp){
     // danni che si sentono mentre guidi
     dmgFeel(dt,asp,thr);
     // gas a tavoletta sugli ostacoli: colpi di frusta su semiassi e crociere, gomme che girano sui sassi e si tagliano (prima in ridotte a fondo arrivavi in cima quasi intatto)
-    { const g=inp.gas||0; if(g>.9&&thr>0){ const CW=st.climbW||[], sl=st.slip, EL=st.el||[0,0,0,0]; let cl=0, sp2=0; for(let i=0;i<4;i++){ if(st.contact[i]&&EL[i]>.1&&st.time-(CW[i]||-9)<.12) cl++; if(st.contact[i]&&sl[i]>.3&&!isSoft(st.wsurf[i])&&st.wsurf[i]!=='acqua') sp2++; }
+    { const g=inp.gas||0; if(g>.9&&thr>0){ const CW=st.climbW||[], sl=st.slip, EL=st.el||[0,0,0,0]; let cl=0, sp2=0; for(let i=0;i<4;i++){ if(st.contact[i]&&EL[i]>.1&&st.time-(CW[i]||-9)<.12) cl++; if(st.contact[i]&&sl[i]>(RON?.5:.3)&&!isSoft(st.wsurf[i])&&st.wsurf[i]!=='acqua') sp2+=RON?.45:1; }
         const hard=st.wsurf.some(w=>w==='roccia'||w==='ghiaia')||(st.el&&st.el.some(e=>e>.06)); const G=(g-.9)/.1;
         if(cl) st.dmg.semiassi+=dt*cl*(low?11:7)*G*semiK;
         if(sp2&&hard){ st.dmg.semiassi+=dt*sp2*(low?4:2.5)*G*semiK; st.dmg.gomme+=dt*sp2*3.6*G*gomK; if(Math.random()<dt*sp2*1.5){ auBurst(2200,.04,.3,'bandpass',5); vib(15); } }
@@ -1907,7 +2016,7 @@ function physStep(dt,inp){
   // galleria: le pareti ad arco fermano la scocca (prima ci passavi attraverso)
   { const sc=-st.pos.z, zg=zoneAt(sc); if(zg.t==='galleria'&&sc>zg.a-1&&sc<zg.b+1){ const d=st.pos.x-CX(sc), ad=Math.abs(d), lim=1.55; if(ad>lim){ const pen=ad-lim, sg=Math.sign(d), vl=st.vel.x; F.x+=-sg*(pen*90000)-(vl*sg>0?vl*14000:0); st.vel.x*=sg*vl>0?.985:1; if(st.time-(st.wallT||0)>.25&&Math.abs(st.vel.z)>.8){ st.wallT=st.time; auBurst(2600,.12,.2,'highpass',2); vib(25); const p=st.pos.clone().add(new V(sg*1,.6,0)); for(let q=0;q<4;q++) emit(p,new V(-sg*Math.random(),1+Math.random(),(Math.random()-.5)*2),[1,.75,.3],{k:1,s:.035,life:.3,a:1}); st.dmg.carrozzeria=Math.min(100,st.dmg.carrozzeria+.4); } } } }
   // scocca: punti che non devono entrare nel terreno
-  for(const [bx,by,bz] of [[-.95,-.35,-2.2],[.95,-.35,-2.2],[-.95,-.35,2.2],[.95,-.35,2.2],[0,-.45,0],[-.9,1.15,0],[.9,1.15,0],[0,1.3,-1],[0,1.3,1]]){
+  if(!RON) for(const [bx,by,bz] of [[-.95,-.35,-2.2],[.95,-.35,-2.2],[-.95,-.35,2.2],[.95,-.35,2.2],[0,-.45,0],[-.9,1.15,0],[.9,1.15,0],[0,1.3,-1],[0,1.3,1]]){
     const P=new V(bx*VS[0],by*VS[1],bz*VS[2]).applyQuaternion(st.q).add(st.pos); const gh=height(P.x,P.z); const pen=gh-P.y;
     if(pen>0){ const r=P.clone().sub(st.pos); const vp=new V().copy(st.w).cross(r).add(st.vel); const n=normalAt(P.x,P.z);
       const vn=vp.dot(n); const Fn=clamp(60000*Math.min(pen,.3)-7000*vn,0,16000); const vt=vp.clone().addScaledVector(n,-vn); const f=n.clone().multiplyScalar(Fn).addScaledVector(vt,-Math.min(Fn*.6/(vt.length()+1e-3),4000));
@@ -1928,6 +2037,7 @@ function physStep(dt,inp){
   // aria
   F.addScaledVector(st.vel,-st.vel.length()*1.1);
   // integrazione
+  if(RON){ rapPost(dt,F,T); return; }
   st.vel.addScaledVector(F,dt/MASS); if(st.vel.y>5) st.vel.y=5; const vl2=st.vel.length(); if(vl2>30) st.vel.multiplyScalar(30/vl2); st.pos.addScaledVector(st.vel,dt);
   const qi=st.q.clone().invert(); const tb=T.applyQuaternion(qi); const wb=st.w.clone().applyQuaternion(qi);
   wb.x+=tb.x/I.x*dt; wb.y+=tb.y/I.y*dt; wb.z+=tb.z/I.z*dt; wb.x*=1-.4*dt; wb.z*=1-.4*dt; wb.y*=1-1.1*dt;
@@ -3068,7 +3178,7 @@ function frame(now){ UORG.value.copy(cam.position);
     ren.render(scene,cam); requestAnimationFrame(frame); return; }
   if(!st.running&&!campMode&&(!$('#gar').hidden||!$('#over').hidden)&&carRoot){ showroom(dt); requestAnimationFrame(frame); return; }
   if(st.running&&!st.paused){
-    const inp=st.done||st.drone?{gas:0,brk:1,steer:0}:readInput(); const n=Math.ceil(dt/(1/240)); st.brkOn=!!inp.brk;
+    const inp=st.done||st.drone?{gas:0,brk:1,steer:0}:readInput(); const n=Math.ceil(dt/(rapOn()?1/120:1/240)); st.brkOn=!!inp.brk;
     if(st.uprig){ const U=st.uprig; U.t+=dt; const k=sstep(0,1.8,U.t), lift=Math.sin(Math.min(1,U.t/1.8)*Math.PI)*.9; st.pos.lerpVectors(U.p0,U.p1,k); st.pos.y+=lift; st.q.copy(U.q0).slerp(U.q1,k); st.vel.set(0,0,0); st.w.set(0,0,0);
       up.set(0,1,0).applyQuaternion(st.q); fw.set(0,0,-1).applyQuaternion(st.q); rt.set(1,0,0).applyQuaternion(st.q); if(U.t>1.9){ st.uprig=null; st.stuckT=0; auThud(.5); } }
     else if(st.rescue){ updRescue(dt); up.set(0,1,0).applyQuaternion(st.q); fw.set(0,0,-1).applyQuaternion(st.q); } else if(st.drone||(st.done&&!campMode)){ st.vel.set(0,0,0); st.w.set(0,0,0); } else for(let k=0;k<n;k++) physStep(dt/n,inp);
@@ -3393,6 +3503,7 @@ addEventListener('blur',()=>clearTouches());
 function pause(){ clearTouches(); try{ if(AC&&AC.state==='running') AC.suspend(); }catch(_){}  if(!(st.running&&!st.done)&&!(campMode&&cs&&!cs.sleeping)) return; if(!$('#msg').hidden||!$('#gar').hidden) return; st.paused=true; snapshot(); $('#invS2').checked=!!tilt.inv; $('#pause').hidden=false; }
 $('#pauB').addEventListener('click',pause);
 $('#pRes').addEventListener('click',()=>{ clearTouches(); auInit(); $('#pause').hidden=true; st.paused=false; last=performance.now(); calibrate(); });
+{ const B=$('#pFis'); const lab=()=>{ B.textContent=save.fis==='v'?'Fisica: classica · tocca per la nuova':'Fisica: nuova (ruote e ponti veri) · tocca per la classica'; }; lab(); B.addEventListener('click',()=>{ save.fis=save.fis==='v'?'r':'v'; persist(); lab(); if(save.fis!=='v') rapLoad().then(()=>{ if(RAP&&RAP.ok&&!RAP.world) rapBuildWorld(); }); toast(save.fis==='v'?'Fisica classica':'Fisica nuova',save.fis==='v'?'quella di prima':'ruote e ponti veri, ostacoli solidi (Rapier)'); }); }
 $('#pRst').addEventListener('click',()=>{ $('#pause').hidden=true; startRun(); calibrate(); });
 $('#pGar').addEventListener('click',()=>{ clearResume(); $('#pause').hidden=true; st.running=false; st.paused=false; save.dmg={...st.dmg}; save.money=Math.max(0,save.money-st.rescues*40); persist(); dropWinch(); toGarage(); });
 $('#invS2').addEventListener('change',e=>{ tilt.inv=e.target.checked; $('#invS').checked=tilt.inv; try{ localStorage.setItem('camp3d-inv',tilt.inv?'1':'0'); }catch(_){} });
