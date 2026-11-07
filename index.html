@@ -761,7 +761,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 99</small>
+      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 100</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -885,6 +885,8 @@ function baseH(x,z){
   if(Z.humps){ const e=sstep(0,3,s-Z.a)*sstep(0,3,Z.b-s), ph=(s-Z.a)/6.5+Math.sin(s*.37)*.12; h+=Z.humps*.62*Math.pow(.5-.5*Math.cos(ph*Math.PI*2),1.4)*2*e*(1-sstep(HALF+1,HALF+5,ad))*(1+.25*Math.sin(d*.9+s)); }
   if(Z.lane){ const e=sstep(Z.a-6,Z.a+2,s)*sstep(Z.b+6,Z.b-2,s); if(ad>HALF-.5) h+=Math.min(2.4,(ad-HALF+.5)*2.2+fbm(x*.9,z*.9)*.6)*e; }
   if(zt==='galleria'){ const e=sstep(0,2,s-Z.a)*sstep(0,2,Z.b-s); if(ad>3.7) h+=Math.min(6,(ad-3.7)*7)*e; }
+  // radura del campo base in cima: spiazzo in piano (prima amaca e tenda finivano sul pendio)
+  if(s>LEN+1){ const dc=Math.hypot((d-6)*.9,s-(LEN+18)); if(dc<19){ const k=1-sstep(11,19,dc); h=lerp(h,hsAt(LEN+16)+(fbm(x*.5,z*.5)-.5)*.06,k); } }
   return h;
 }
 // tronco rigido: asse dritto appoggiato sui punti più alti del terreno (fisica = quello che vedi)
@@ -1270,11 +1272,11 @@ function buildWorld(id){
     const sm=(f[0]+f[1])/2, wy=waterY(sm), P=[], U=[], I=[], C=[], ds=[], ss=[]; for(let d=-30;d<=30;d+=1) ds.push(d); for(let s=f[0]-6;s<=f[1]+6;s+=1) ss.push(s);
     const nc=ds.length, DP=[]; for(const s of ss){ const cx=CX(s), wl=f.pud?hsAt(s)-.36:waterY(s); for(const d of ds){ const x=cx+d, z=-s, dep=wl-height(x,z); DP.push(dep); P.push(x-CX(sm),wl-wy,z+sm); U.push(x/6-Math.floor(CX(sm)/6),z/6-Math.floor(-sm/6)); } }
     const used=new Uint8Array(P.length/3);
-    for(let r=0;r<ss.length-1;r++) for(let c=0;c<nc-1;c++){ const a=r*nc+c, b=a+1, e=a+nc, q=e+1; let lo=0, deep=0; for(const k of [a,b,e,q]){ if(DP[k]>-.02) lo++; if(DP[k]>1.4) deep++; } if(lo>0&&deep===0&&Math.abs(ds[c])<HALF+12){ I.push(a,b,e,b,q,e); used[a]=used[b]=used[e]=used[q]=1; } }
-    for(let k=0;k<DP.length;k++){ const r=Math.floor(k/nc), c=k%nc; let edge=0; for(const [dr,dc] of [[-1,0],[1,0],[0,-1],[0,1]]){ const rr=r+dr, cc=c+dc; if(rr<0||cc<0||rr>=ss.length||cc>=nc||!used[rr*nc+cc]) edge=1; } const a=Math.min(1,Math.max(0,(DP[k]+.03)/.22))*(edge?.0:1)*(1-sstep(1.0,1.4,DP[k])); if(f.pud){ const t=Math.min(1,Math.max(0,DP[k]/.24)), nn=vnoise(P[k*3]*.7+5,P[k*3+2]*.7); C.push(1.25-.5*t+nn*.12,1.18-.5*t+nn*.1,1.05-.45*t+nn*.08,Math.min(1,a*1.6)); } else C.push(1,1,1,a); }
+    for(let r=0;r<ss.length-1;r++) for(let c=0;c<nc-1;c++){ const a=r*nc+c, b=a+1, e=a+nc, q=e+1; let lo=0, deep=0; for(const k of [a,b,e,q]){ if(DP[k]>-.02) lo++; if(DP[k]>1.4) deep++; } if(lo>0&&deep===0&&Math.abs(ds[c])<(f.pud?HALF+3:HALF+6)){ I.push(a,b,e,b,q,e); used[a]=used[b]=used[e]=used[q]=1; } }
+    for(let k=0;k<DP.length;k++){ const r=Math.floor(k/nc), c=k%nc; let edge=0; for(const [dr,dc] of [[-1,0],[1,0],[0,-1],[0,1]]){ const rr=r+dr, cc=c+dc; if(rr<0||cc<0||rr>=ss.length||cc>=nc||!used[rr*nc+cc]) edge=1; } const a=Math.min(1,Math.max(0,(DP[k]+.03)/.22))*(edge?.0:1)*(1-sstep(1.0,1.4,DP[k]))*(f.pud?1:1-sstep(HALF+1.5,HALF+5.5,Math.abs(ds[k%nc]))); if(f.pud){ const t=Math.min(1,Math.max(0,DP[k]/.24)), nn=vnoise(P[k*3]*.7+5,P[k*3+2]*.7); C.push(1.25-.5*t+nn*.12,1.18-.5*t+nn*.1,1.05-.45*t+nn*.08,Math.min(1,a*1.6)); } else C.push(1,1,1,a); }
     const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(P,3)); g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2)); g.setAttribute('color',new THREE.Float32BufferAttribute(C,4)); g.setIndex(I); g.computeVertexNormals();
-    const mt=new THREE.MeshStandardMaterial({color:f.pud?0x6a4e30:0x4a6e64,roughness:f.pud?.04:.05,metalness:f.pud?.15:.05,transparent:true,opacity:f.pud?.93:.62,vertexColors:true,depthWrite:false,normalMap:waterNrm.clone(),normalScale:new THREE.Vector2(.45,.45),envMapIntensity:.75});
-    mt.normalMap.repeat.set(1,1); mt.normalMap.needsUpdate=true; if(f.pud){ mt.normalScale.set(.18,.18); mt.envMapIntensity=1.25; }
+    const mt=new THREE.MeshStandardMaterial({color:f.pud?0x6a4e30:0x3f6f78,roughness:f.pud?.04:.03,metalness:f.pud?.15:.1,transparent:true,opacity:f.pud?.93:.78,vertexColors:true,depthWrite:false,normalMap:waterNrm.clone(),normalScale:new THREE.Vector2(.45,.45),envMapIntensity:.75});
+    mt.normalMap.repeat.set(1,1); mt.normalMap.needsUpdate=true; if(f.pud){ mt.normalScale.set(.18,.18); mt.envMapIntensity=1.25; } else { mt.normalScale.set(.3,.3); mt.envMapIntensity=1.3; mt.normalMap.repeat.set(.6,1.4); }
     const w=new THREE.Mesh(g,mt); w.position.set(CX(sm),wy,-sm); w.userData.flow=f.pud?0:1; world.add(w); waters.push(w);
     if(f.pud){ // riva di fango bagnato scuro e lucido intorno alla pozza, e foglie/pagliuzze a galla
       const R=[], RA=[], RI=[]; for(let k=0;k<DP.length;k++){ const dp=DP[k]; const x=P[k*3]+CX(sm), z=P[k*3+2]-sm; R.push(x,height(x,z)+.03,z); const rim=dp<0?Math.max(0,1-(-dp)/.16)*(vnoise(x*.8,z*.8)*.5+.6):(used[k]?0:1); RA.push(.12,.08,.04,Math.min(.82,rim*.85)); }
@@ -1799,7 +1801,7 @@ function physStep(dt,inp){
     st.comp[i]=xs<.02?xs:x; st.contact[i]=1; contacts++; st.cp[i].copy(P); st.cn[i].copy(n);
     const wf=new V().copy(fw); if(W.f) wf.applyAxisAngle(up,-(st.steer+(st.stOff||0)));
     wf.addScaledVector(n,-wf.dot(n)).normalize(); const ws=new V().crossVectors(wf,n).normalize();
-    const mu=(1-Math.max(0,st.dmg.gomme-45)/220)*muOf(su)*gripMul(su)*(isSoft(su)?(1-.5*st.sink)*Math.pow(2100/MASS,.25):1)*(isSoft(su)?1:1-.28*(st.tmud||0));
+    const mu=(1-Math.max(0,st.dmg.gomme-45)/220)*(st.inFord>.12&&!isSoft(su)?.72:1)*muOf(su)*gripMul(su)*(isSoft(su)?(1-.5*st.sink)*Math.pow(2100/MASS,.25):1)*(isSoft(su)?1:1-.28*(st.tmud||0));
     const N=Fs*Math.max(.2,n.dot(up));
     WD[i]={n,su,r,Fs,N,wf,ws,vl:vp.dot(wf),vs:vp.dot(ws),lim:mu*N};
   }
@@ -1854,14 +1856,22 @@ function physStep(dt,inp){
         ouch(.5+k*.5); auBurst(1900,.09,.35+k*.3,'bandpass',3); } }
     // danni che si sentono mentre guidi
     dmgFeel(dt,asp,thr);
+    // gas a tavoletta sugli ostacoli: colpi di frusta su semiassi e crociere, gomme che girano sui sassi e si tagliano (prima in ridotte a fondo arrivavi in cima quasi intatto)
+    { const g=inp.gas||0; if(g>.9&&thr>0){ const CW=st.climbW||[], sl=st.slip, EL=st.el||[0,0,0,0]; let cl=0, sp2=0; for(let i=0;i<4;i++){ if(st.contact[i]&&EL[i]>.1&&st.time-(CW[i]||-9)<.12) cl++; if(st.contact[i]&&sl[i]>.3&&!isSoft(st.wsurf[i])&&st.wsurf[i]!=='acqua') sp2++; }
+        const hard=st.wsurf.some(w=>w==='roccia'||w==='ghiaia')||(st.el&&st.el.some(e=>e>.06)); const G=(g-.9)/.1;
+        if(cl) st.dmg.semiassi+=dt*cl*(low?11:7)*G*semiK;
+        if(sp2&&hard){ st.dmg.semiassi+=dt*sp2*(low?4:2.5)*G*semiK; st.dmg.gomme+=dt*sp2*3.6*G*gomK; if(Math.random()<dt*sp2*1.5){ auBurst(2200,.04,.3,'bandpass',5); vib(15); } }
+        if((cl||sp2&&hard)&&st.time-(st.fgSaid||-99)>18){ st.fgSaid=st.time; toast('Molla il gas!','a tavoletta sugli ostacoli le ruote picchiano: semiassi e gomme non reggono'); } } }
 
     if(pressure===2&&(st.surf==='terra')&&asp>12) st.dmg.gomme+=dt*.9;
     const sc=-st.pos.z, gc=height(st.pos.x,st.pos.z), depth=waterY(sc)-gc;
-    if(inWet(sc,2)&&depth>0){ F.addScaledVector(st.vel,-depth*(inPud(sc,2)?1900:2600)*Math.sqrt(MASS/2100)); if(inPud(sc,2)&&depth>.22&&!st.pudSaid){ st.pudSaid=1; toast('🟤 Pozza profonda','acqua e fango fino alle portiere: piano e costante, senza fare l\'onda'); } const kmh=asp*3.6, wave=depth+kmh*.045*Math.min(1,depth/.25), lim=hasSnork()?1.75:.9; if(wave>lim) st.water=Math.min(1,st.water+dt*(wave-lim)*2.2); st.inWater=depth;
+    if(inWet(sc,2)&&depth>0){ F.addScaledVector(st.vel,-depth*(inPud(sc,2)?1900:2600)*Math.sqrt(MASS/2100)); { /* in acqua: il mezzo galleggia un po' (meno peso sulle gomme), la corrente del torrente spinge di lato, l'acqua frena col quadrato della velocità */
+        const dd=Math.min(depth,.9), fd=!inPud(sc,2); F.y+=dd*MASS*9.81*.22; const v2=st.vel.length(); F.addScaledVector(st.vel,-dd*v2*420*Math.sqrt(MASS/2100));
+        if(fd){ const fl=TR.flowDir||(TR.flowDir=(Math.floor(LEN)%2?1:-1)); F.x+=fl*dd*dd*MASS*2.4*(1-Math.min(1,st.contacts/4)*.35); st.inFord=dd; if(dd>.25&&st.time-(st.flowSaid||-99)>40){ st.flowSaid=st.time; toast('🌊 La corrente ti spinge','sassi bagnati e viscidi sotto: piano, dritto e controsterza'); } } else st.inFord=0; } if(inPud(sc,2)&&depth>.22&&!st.pudSaid){ st.pudSaid=1; toast('🟤 Pozza profonda','acqua e fango fino alle portiere: piano e costante, senza fare l\'onda'); } const kmh=asp*3.6, wave=depth+kmh*.045*Math.min(1,depth/.25), lim=hasSnork()?1.75:.9; if(wave>lim) st.water=Math.min(1,st.water+dt*(wave-lim)*2.2); st.inWater=depth;
       // guado preso forte: muro d'acqua, sassi nascosti sotto, ventola e impianto elettrico che bevono
       if(depth>.15&&kmh>10){ const o=(kmh-10)/10; if(!st.wEntry){ st.wEntry=1; const k=o*depth*4; st.vel.multiplyScalar(Math.max(.45,1-k*.25)); hit(3+k*3); st.dmg.carrozzeria+=k*6*(own('sliders')?.6:1); shake=Math.max(shake,.25+k*.1); for(let q=0;q<40;q++) emit(st.pos.clone().addScaledVector(fw,2.3).add(new V((Math.random()-.5)*2,.4,0)),fw.clone().multiplyScalar(2+Math.random()*3).add(new V((Math.random()-.5)*4,3+Math.random()*4,0)),[.8,.87,.9],{k:2,s:.12+Math.random()*.2,a:.85,life:1.3}); if(st.time-(st.wFastSaid||-99)>15){ st.wFastSaid=st.time; toast('💥 Muro d\'acqua!','troppo forte: sassi nascosti, paraurti e ventola presi in pieno'+(hasSnork()?'':' · l\'acqua arriva al filtro')); } }
         st.dmg.gomme+=o*o*dt*6*gomK; st.dmg.semiassi+=o*o*dt*4*semiK; st.dmg.coppa+=o*dt*5*(own('plate')?.3:1); if(kmh>16) st.water=Math.min(1,st.water+dt*o*depth*(hasSnork()?.25:.9)); }
-      else if(depth<.08) st.wEntry=0; } else { st.inWater=0; st.wEntry=0; } }
+      else if(depth<.08) st.wEntry=0; } else { st.inWater=0; st.wEntry=0; st.inFord=0; } }
   // galleria: le pareti ad arco fermano la scocca (prima ci passavi attraverso)
   { const sc=-st.pos.z, zg=zoneAt(sc); if(zg.t==='galleria'&&sc>zg.a-1&&sc<zg.b+1){ const d=st.pos.x-CX(sc), ad=Math.abs(d), lim=1.55; if(ad>lim){ const pen=ad-lim, sg=Math.sign(d), vl=st.vel.x; F.x+=-sg*(pen*90000)-(vl*sg>0?vl*14000:0); st.vel.x*=sg*vl>0?.985:1; if(st.time-(st.wallT||0)>.25&&Math.abs(st.vel.z)>.8){ st.wallT=st.time; auBurst(2600,.12,.2,'highpass',2); vib(25); const p=st.pos.clone().add(new V(sg*1,.6,0)); for(let q=0;q<4;q++) emit(p,new V(-sg*Math.random(),1+Math.random(),(Math.random()-.5)*2),[1,.75,.3],{k:1,s:.035,life:.3,a:1}); st.dmg.carrozzeria=Math.min(100,st.dmg.carrozzeria+.4); } } } }
   // scocca: punti che non devono entrare nel terreno
@@ -2575,7 +2585,7 @@ function startCamp(){ if(ghostCar){ ghostCar.visible=false; ghostData=null; } ca
   const at=(d,ds)=>{ const p=O.clone().addScaledVector(rtv,d).addScaledVector(fh,ds); p.y=height(p.x,p.z); return p; };
   const C=at(6,0); cs.C=C; cs.fh=fh; cs.rt=rtv; if(TR.camp.mark!=='cairn') cs.markP=at(-11,8.5);
   // amaca: il punto più in piano della radura (prima su certi campi finiva sul pendio, montata in discesa)
-  let HD=11.5, HS=0; { let best=1e9; for(const [d,ds] of [[11.5,0],[11.5,3],[11.5,-3],[10,5],[13,1],[9.5,-5],[13.5,-3],[10.5,9]]){ const a=at(d,ds-1.9), b=at(d,ds+1.9), m=at(d,ds), c=at(d-1,ds), e=at(d+1,ds); const sc=Math.abs(a.y-b.y)*2+Math.abs(c.y-e.y)+Math.abs(m.y-(a.y+b.y)/2)+Math.abs(d-11.5)*.03+Math.abs(ds)*.02; if(sc<best){ best=sc; HD=d; HS=ds; } } }
+  let HD=11.5, HS=0; { let best=1e9; for(const [d,ds] of [[11.5,0],[11.5,2],[11,-2.5],[10.5,4]]){ const a=at(d,ds-1.9), b=at(d,ds+1.9), m=at(d,ds), c=at(d-1,ds), e=at(d+1,ds); const sc=Math.abs(a.y-b.y)*2+Math.abs(c.y-e.y)+Math.abs(m.y-(a.y+b.y)/2)+Math.abs(d-11.5)*.03+Math.abs(ds)*.02; if(sc<best){ best=sc; HD=d; HS=ds; } } }
   cs.pos={fire:C.clone(),hamA:at(HD,HS-1.9),hamB:at(HD,HS+1.9),ham:at(HD,HS),dead:at(5,8.5),stove:at(7.7,-1.4),block:at(6.3,6.8),cool:at(4.2,-1.9)};
   // il fuoristrada va a parcheggiare a bordo radura
   { const pk=at(2.6,-4.5), q1=new THREE.Quaternion().setFromEuler(new THREE.Euler(0,Math.atan2(-fh.x,-fh.z),0)); pk.y=height(pk.x,pk.z)+RW+LN-.198-MOUNTY;
