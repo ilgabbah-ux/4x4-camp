@@ -746,7 +746,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 96</small>
+      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 97</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -865,7 +865,7 @@ function baseH(x,z){
   if(ad<HALF+1.5&&s>18&&s<LEN-8){ const rk=RUFK[zt]??1, m=(1-sstep(HALF-.3,HALF+1.5,ad))*rk*sstep(18,32,s)*sstep(LEN-8,LEN-22,s);
     if(m>0) h+=m*((vnoise(x*.42+11,z*.42)-.5)*.34+(vnoise(x*.95-5,z*.95+2)-.5)*.13-.13*sstep(.7,.86,vnoise(x*.6+40,z*.6-9))+.07*sstep(.78,.9,vnoise(x*1.6+3,z*1.6+7))); }
   if(zt==='fango'||zt==='fangoProf'){ const e=sstep(0,4,s-Z.a)*sstep(0,4,Z.b-s); h-=(zt==='fangoProf'?.28:.14)*e*(1-sstep(HALF,HALF+2,ad)); }
-  for(const f of PUDS) if(s>f[0]-2&&s<f[1]+2){ const e=sstep(f[0]-2,f[0]+2,s)*sstep(f[1]+2,f[1]-2,s); h-=.13*e*(1-sstep(HALF-.6,HALF+1.4,ad)); }
+  for(const f of PUDS) if(s>f[0]-3&&s<f[1]+3){ /* pozza vera: conca dalla riva irregolare, non più una lastra larga quanto la pista */ const m=(f[0]+f[1])/2, r=Math.hypot((s-m)/((f[1]-f[0])/2+1.2),d/(HALF-.1))+(vnoise(x*.45+3,z*.45-8)-.5)*.42+(vnoise(x*1.3,z*1.3)-.5)*.12; h-=.32*(1-sstep(.62,1.02,r)); }
   for(const f of FORDS) if(s>f[0]-6&&s<f[1]+6){ const e=sstep(f[0]-6,f[0]+2,s)*sstep(f[1]+6,f[1]-2,s); h-=.58*e; }
   if(Z.humps){ const e=sstep(0,3,s-Z.a)*sstep(0,3,Z.b-s), ph=(s-Z.a)/6.5+Math.sin(s*.37)*.12; h+=Z.humps*.62*Math.pow(.5-.5*Math.cos(ph*Math.PI*2),1.4)*2*e*(1-sstep(HALF+1,HALF+5,ad))*(1+.25*Math.sin(d*.9+s)); }
   if(Z.lane){ const e=sstep(Z.a-6,Z.a+2,s)*sstep(Z.b+6,Z.b-2,s); if(ad>HALF-.5) h+=Math.min(2.4,(ad-HALF+.5)*2.2+fbm(x*.9,z*.9)*.6)*e; }
@@ -904,7 +904,7 @@ function surfAt(x,z){
   if(d>HALF+.6&&zt!=='galleria') return TR.theme==='neve'?'neve':TR.theme==='militare'&&zt==='sabbia'?'sabbia':'erba';
   return zt;
 }
-const waterY=s=>hsAt(s)-.15;
+const waterY=s=>hsAt(s)-(typeof inPud==='function'&&inPud(s,3)?.36:.15);
 // presa delle gomme per tipo: H/T stradali (di serie), A/T, M/T
 const GRIP={ht:{terra:1,fango:.5,fangoProf:.36,roccia:.85,acqua:.6,erba:.75,neve:.42,ghiaccio:.21,ghiaia:.82,sabbia:.55,galleria:.7},
  at:{terra:1.02,fango:.6,fangoProf:.44,roccia:.95,acqua:.66,erba:.8,neve:.5,ghiaccio:.24,ghiaia:.9,sabbia:.62,galleria:.78},
@@ -1253,14 +1253,22 @@ function buildWorld(id){
   for(const f of FORDS.concat(PUDS.map(p=>Object.assign([...p],{pud:1})))){ // acqua solo dove il terreno sta sotto il pelo: niente lastre sospese sul vuoto
     // pelo dell'acqua che segue la pista (come la fisica: prima era una lastra piatta che sul pendio usciva dal guado), riva sfumata invece del taglio netto
     const sm=(f[0]+f[1])/2, wy=waterY(sm), P=[], U=[], I=[], C=[], ds=[], ss=[]; for(let d=-30;d<=30;d+=1) ds.push(d); for(let s=f[0]-6;s<=f[1]+6;s+=1) ss.push(s);
-    const nc=ds.length, DP=[]; for(const s of ss){ const cx=CX(s), wl=waterY(s); for(const d of ds){ const x=cx+d, z=-s, dep=wl-height(x,z); DP.push(dep); P.push(x-CX(sm),wl-wy,z+sm); U.push(x/6-Math.floor(CX(sm)/6),z/6-Math.floor(-sm/6)); } }
+    const nc=ds.length, DP=[]; for(const s of ss){ const cx=CX(s), wl=f.pud?hsAt(s)-.36:waterY(s); for(const d of ds){ const x=cx+d, z=-s, dep=wl-height(x,z); DP.push(dep); P.push(x-CX(sm),wl-wy,z+sm); U.push(x/6-Math.floor(CX(sm)/6),z/6-Math.floor(-sm/6)); } }
     const used=new Uint8Array(P.length/3);
     for(let r=0;r<ss.length-1;r++) for(let c=0;c<nc-1;c++){ const a=r*nc+c, b=a+1, e=a+nc, q=e+1; let lo=0, deep=0; for(const k of [a,b,e,q]){ if(DP[k]>-.02) lo++; if(DP[k]>1.4) deep++; } if(lo>0&&deep===0&&Math.abs(ds[c])<HALF+12){ I.push(a,b,e,b,q,e); used[a]=used[b]=used[e]=used[q]=1; } }
-    for(let k=0;k<DP.length;k++){ const r=Math.floor(k/nc), c=k%nc; let edge=0; for(const [dr,dc] of [[-1,0],[1,0],[0,-1],[0,1]]){ const rr=r+dr, cc=c+dc; if(rr<0||cc<0||rr>=ss.length||cc>=nc||!used[rr*nc+cc]) edge=1; } const a=Math.min(1,Math.max(0,(DP[k]+.03)/.22))*(edge?.0:1)*(1-sstep(1.0,1.4,DP[k])); C.push(1,1,1,a); }
+    for(let k=0;k<DP.length;k++){ const r=Math.floor(k/nc), c=k%nc; let edge=0; for(const [dr,dc] of [[-1,0],[1,0],[0,-1],[0,1]]){ const rr=r+dr, cc=c+dc; if(rr<0||cc<0||rr>=ss.length||cc>=nc||!used[rr*nc+cc]) edge=1; } const a=Math.min(1,Math.max(0,(DP[k]+.03)/.22))*(edge?.0:1)*(1-sstep(1.0,1.4,DP[k])); if(f.pud){ const t=Math.min(1,Math.max(0,DP[k]/.24)), nn=vnoise(P[k*3]*.7+5,P[k*3+2]*.7); C.push(1.25-.5*t+nn*.12,1.18-.5*t+nn*.1,1.05-.45*t+nn*.08,Math.min(1,a*1.6)); } else C.push(1,1,1,a); }
     const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(P,3)); g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2)); g.setAttribute('color',new THREE.Float32BufferAttribute(C,4)); g.setIndex(I); g.computeVertexNormals();
-    const mt=new THREE.MeshStandardMaterial({color:f.pud?0x4a3520:0x4a6e64,roughness:f.pud?.12:.05,metalness:.05,transparent:true,opacity:f.pud?.9:.62,vertexColors:true,depthWrite:false,normalMap:waterNrm.clone(),normalScale:new THREE.Vector2(.45,.45),envMapIntensity:.75});
-    mt.normalMap.repeat.set(1,1); mt.normalMap.needsUpdate=true;
+    const mt=new THREE.MeshStandardMaterial({color:f.pud?0x6a4e30:0x4a6e64,roughness:f.pud?.04:.05,metalness:f.pud?.15:.05,transparent:true,opacity:f.pud?.93:.62,vertexColors:true,depthWrite:false,normalMap:waterNrm.clone(),normalScale:new THREE.Vector2(.45,.45),envMapIntensity:.75});
+    mt.normalMap.repeat.set(1,1); mt.normalMap.needsUpdate=true; if(f.pud){ mt.normalScale.set(.18,.18); mt.envMapIntensity=1.25; }
     const w=new THREE.Mesh(g,mt); w.position.set(CX(sm),wy,-sm); w.userData.flow=f.pud?0:1; world.add(w); waters.push(w);
+    if(f.pud){ // riva di fango bagnato scuro e lucido intorno alla pozza, e foglie/pagliuzze a galla
+      const R=[], RA=[], RI=[]; for(let k=0;k<DP.length;k++){ const dp=DP[k]; const x=P[k*3]+CX(sm), z=P[k*3+2]-sm; R.push(x,height(x,z)+.03,z); const rim=dp<0?Math.max(0,1-(-dp)/.16)*(vnoise(x*.8,z*.8)*.5+.6):(used[k]?0:1); RA.push(.12,.08,.04,Math.min(.82,rim*.85)); }
+      for(let r=0;r<ss.length-1;r++) for(let c=0;c<nc-1;c++){ const a=r*nc+c; if(Math.abs(ds[c])<HALF+3&&(RA[a*4+3]+RA[(a+1)*4+3]+RA[(a+nc)*4+3]>.02)) RI.push(a,a+1,a+nc,a+1,a+nc+1,a+nc); }
+      const rg=new THREE.BufferGeometry(); rg.setAttribute('position',new THREE.Float32BufferAttribute(R,3)); rg.setAttribute('color',new THREE.Float32BufferAttribute(RA,4)); rg.setIndex(RI); rg.computeVertexNormals();
+      const rm=new THREE.Mesh(rg,new THREE.MeshStandardMaterial({color:0xffffff,vertexColors:true,roughness:.15,metalness:0,transparent:true,depthWrite:false,envMapIntensity:1,normalMap:waterNrm,normalScale:new THREE.Vector2(.25,.25),polygonOffset:true,polygonOffsetFactor:-1})); world.add(rm);
+      const lg=new THREE.PlaneGeometry(.16,.07).rotateX(-Math.PI/2), lm=new THREE.MeshStandardMaterial({color:0x8a6a32,roughness:.7,side:THREE.DoubleSide}), li=new THREE.InstancedMesh(lg,lm,40); const M=new THREE.Matrix4(), Q=new THREE.Quaternion(), S=new THREE.Vector3(), Pv=new THREE.Vector3(); let n=0;
+      for(let k=0;k<300&&n<40;k++){ const s2=f[0]+Math.random()*(f[1]-f[0]), d2=(Math.random()-.5)*(HALF*2), x=CX(s2)+d2, z=-s2, wl=hsAt(s2)-.36; if(height(x,z)>wl-.05) continue; M.compose(Pv.set(x,wl+.012,z),Q.setFromAxisAngle(new V(0,1,0),Math.random()*6),S.setScalar(.6+Math.random()*1.2)); li.setMatrixAt(n++,M); }
+      li.count=n; world.add(li); }
     if(!f.pud){ const sg=new THREE.DodecahedronGeometry(1,0), sm2=new THREE.MeshStandardMaterial({color:0x8a8478,roughness:.6,flatShading:true}), im=new THREE.InstancedMesh(sg,sm2,140); const M=new THREE.Matrix4(), Q=new THREE.Quaternion(), S=new THREE.Vector3(), Pv=new THREE.Vector3(); let n=0;
       for(let k=0;k<400&&n<140;k++){ const ss=f[0]-2+Math.random()*(f[1]-f[0]+4), d=(Math.random()-.5)*(HALF*2+6), x=CX(ss)+d, z=-ss, gy=height(x,z); if(gy>wy-.08) continue; const r=.08+Math.pow(Math.random(),2)*.28; M.compose(Pv.set(x,gy+r*.3,z),Q.setFromEuler(new THREE.Euler(Math.random()*3,Math.random()*3,0)),S.set(r,r*.6,r)); im.setMatrixAt(n++,M); }
       im.count=n; world.add(im); } }
