@@ -763,7 +763,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 105</small>
+      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 106</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -1030,6 +1030,23 @@ function refreshEnv(t){ if(Math.abs(t-envT)<.08) return; envT=t; const old=envRT
 /* ---------- Mondo (si ricostruisce per ogni tracciato) ---------- */
 const world=new THREE.Group(); scene.add(world);
 let waters=[], snow=null, grassMat=null, builtTrack=null;
+// ---------- segni delle gomme: solchi nel fango e nella neve, impronte nella polvere ----------
+const TRK={N:2400,k:0,last:[null,null,null,null],v:[0,0,0,0],mesh:null};
+function trkBuild(){ const N=TRK.N, pos=new Float32Array(N*4*3), uv=new Float32Array(N*4*2), col=new Float32Array(N*4*4), idx=[]; for(let q=0;q<N;q++){ const a=q*4; idx.push(a,a+1,a+2,a+1,a+3,a+2); }
+  const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(pos,3).setUsage(THREE.DynamicDrawUsage)); g.setAttribute('uv',new THREE.BufferAttribute(uv,2).setUsage(THREE.DynamicDrawUsage)); g.setAttribute('color',new THREE.BufferAttribute(col,4).setUsage(THREE.DynamicDrawUsage)); g.setIndex(idx);
+  if(!TRK.tex){ const c=document.createElement('canvas'); c.width=64; c.height=128; const x=c.getContext('2d'); x.fillStyle='rgba(255,255,255,.55)'; x.fillRect(0,0,64,128); x.fillStyle='rgba(255,255,255,1)'; for(let y=0;y<128;y+=16){ x.fillRect(4,y,24,9); x.fillRect(36,y+8,24,9); } const gr=x.createLinearGradient(0,0,64,0); gr.addColorStop(0,'rgba(0,0,0,1)'); gr.addColorStop(.12,'rgba(0,0,0,0)'); gr.addColorStop(.88,'rgba(0,0,0,0)'); gr.addColorStop(1,'rgba(0,0,0,1)'); x.globalCompositeOperation='destination-out'; x.fillStyle=gr; x.fillRect(0,0,64,128); TRK.tex=new THREE.CanvasTexture(c); TRK.tex.wrapT=THREE.RepeatWrapping; }
+  const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({map:TRK.tex,vertexColors:true,transparent:true,depthWrite:false,roughness:.55,metalness:0,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3})); m.frustumCulled=false; m.renderOrder=2; TRK.mesh=m; TRK.k=0; TRK.last=[null,null,null,null]; world.add(m); }
+const TRK_S={fangoProf:[.1,.07,.04,.85,.25],fango:[.13,.09,.05,.78,.3],neve:[.62,.66,.74,.7,.5],sabbia:[.42,.32,.21,.55,.9],terra:[.26,.19,.12,.42,.9],erba:[.2,.22,.11,.45,.9],ghiaccio:[.75,.8,.86,.35,.4],ghiaia:[.3,.28,.25,.22,.9]};
+function trkUpd(){ if(!TRK.mesh||TRK.mesh.parent!==world) trkBuild(); const g=TRK.mesh.geometry, P=g.attributes.position, U=g.attributes.uv, C=g.attributes.color; let dirty=false;
+  for(let i=0;i<4;i++){ const sp=TRK_S[st.wsurf[i]]; if(!st.contact[i]||!sp){ TRK.last[i]=null; continue; } const cp=st.cp[i], L=TRK.last[i];
+    if(!L){ TRK.last[i]={p:cp.clone(),v:0}; continue; } const d=Math.hypot(cp.x-L.p.x,cp.z-L.p.z); if(d<.32) continue; if(d>2.5){ TRK.last[i]={p:cp.clone(),v:0}; continue; }
+    const dir=new V(cp.x-L.p.x,0,cp.z-L.p.z).normalize(), lat=new V(-dir.z,0,dir.x).multiplyScalar(.15*(RW/.41)), q=TRK.k%TRK.N, a=q*4; TRK.k++;
+    const yA=height(L.p.x,L.p.z)+.025, yB=height(cp.x,cp.z)+.025, v0=L.v, v1=L.v+d/.6;
+    P.setXYZ(a,L.p.x-lat.x,yA,L.p.z-lat.z); P.setXYZ(a+1,L.p.x+lat.x,yA,L.p.z+lat.z); P.setXYZ(a+2,cp.x-lat.x,yB,cp.z-lat.z); P.setXYZ(a+3,cp.x+lat.x,yB,cp.z+lat.z);
+    U.setXY(a,0,v0); U.setXY(a+1,1,v0); U.setXY(a+2,0,v1); U.setXY(a+3,1,v1);
+    const k=Math.min(1,.6+st.slip[i]*.6+(st.sink||0)*.6); for(let j=0;j<4;j++) C.setXYZW(a+j,sp[0],sp[1],sp[2],sp[3]*k);
+    TRK.last[i]={p:cp.clone(),v:v1}; dirty=true; }
+  if(dirty){ P.needsUpdate=U.needsUpdate=C.needsUpdate=true; } }
 function disposeWorld(){ world.userData={}; world.traverse(o=>{ if(o.geometry) o.geometry.dispose(); if(o.material) for(const m of [].concat(o.material)) m.dispose(); }); world.clear(); waters=[]; snow=null; grassMat=null; }
 function pineGeometry(neve){
   // pino in unità: alto 1, largo 1; colori per vertice (sotto scuro, punte chiare, neve sopra)
@@ -3213,7 +3230,7 @@ function frame(now){ UORG.value.copy(cam.position);
     const inp=st.done||st.drone?{gas:0,brk:1,steer:0}:readInput(); const n=Math.ceil(dt/(rapOn()?1/120:1/240)); st.brkOn=!!inp.brk;
     if(st.uprig){ const U=st.uprig; U.t+=dt; const k=sstep(0,1.8,U.t), lift=Math.sin(Math.min(1,U.t/1.8)*Math.PI)*.9; st.pos.lerpVectors(U.p0,U.p1,k); st.pos.y+=lift; st.q.copy(U.q0).slerp(U.q1,k); st.vel.set(0,0,0); st.w.set(0,0,0);
       up.set(0,1,0).applyQuaternion(st.q); fw.set(0,0,-1).applyQuaternion(st.q); rt.set(1,0,0).applyQuaternion(st.q); if(U.t>1.9){ st.uprig=null; st.stuckT=0; auThud(.5); } }
-    else if(st.rescue){ updRescue(dt); up.set(0,1,0).applyQuaternion(st.q); fw.set(0,0,-1).applyQuaternion(st.q); } else if(st.drone||(st.done&&!campMode)){ st.vel.set(0,0,0); st.w.set(0,0,0); } else for(let k=0;k<n;k++) physStep(dt/n,inp);
+    else if(st.rescue){ updRescue(dt); up.set(0,1,0).applyQuaternion(st.q); fw.set(0,0,-1).applyQuaternion(st.q); } else if(st.drone||(st.done&&!campMode)){ st.vel.set(0,0,0); st.w.set(0,0,0); } else for(let k=0;k<n;k++) physStep(dt/n,inp); if(!campMode) trkUpd();
     updWinch(dt);
     { const z=zoneAt(st.s), inT=z.t==='galleria'&&st.s>z.a+3&&st.s<z.b-3; tun=lerp(tun,inT?1:0,1-Math.pow(.05,dt)); sun.intensity=sunBase*(1-.9*tun); hemi.intensity=hemiBase*(1-.6*tun); scene.environment=envRT&&envRT.texture; if(scene.environmentIntensity!==undefined) scene.environmentIntensity=1-.6*tun;
       { const near=GLAMPS.map(p=>[p.distanceToSquared(st.pos),p]).sort((a,b)=>a[0]-b[0]); tunL.forEach((l,i)=>{ const q=near[i]; if(q&&tun>.02){ l.position.copy(q[1]); l.intensity=22*Math.min(1,tun*1.5); } else l.intensity=0; }); }
