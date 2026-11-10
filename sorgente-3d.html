@@ -601,7 +601,8 @@ body.incamp #mini .mbar,body.incamp #mini .mtrack{border-radius:6px!important}
 body.incamp #miniZ{border-radius:5px}
 body.incamp #actB{font-family:var(--fc)!important;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-radius:12px!important;background:#f2d24b;border:1.5px solid #ffe680;box-shadow:0 4px 0 #8a7410,0 8px 22px rgba(0,0,0,.45)!important;animation:none}
 body.incamp #actB .dst{font-family:var(--fc);letter-spacing:.02em;text-transform:none}
-body.incamp #goB,body.incamp #skipB{font-family:var(--fc)!important;font-weight:700;text-transform:uppercase;letter-spacing:.06em;background:linear-gradient(180deg,rgba(20,20,22,.86),rgba(10,10,11,.86))!important;border:1px solid rgba(255,255,255,.18)!important;border-left:3px solid #d7262b!important;border-radius:8px!important;color:#fff}
+#unlB{position:absolute;z-index:3;right:max(16px,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 172px);padding:10px 14px;font-size:13px;color:#fff}
+body.incamp #goB,body.incamp #skipB,body.incamp #unlB{font-family:var(--fc)!important;font-weight:700;text-transform:uppercase;letter-spacing:.06em;background:linear-gradient(180deg,rgba(20,20,22,.86),rgba(10,10,11,.86))!important;border:1px solid rgba(255,255,255,.18)!important;border-left:3px solid #d7262b!important;border-radius:8px!important;color:#fff}
 body.incamp #tasks .tk{border-radius:8px;background:linear-gradient(180deg,rgba(20,20,22,.86),rgba(10,10,11,.86));border:1px solid rgba(255,255,255,.16);box-shadow:0 3px 0 rgba(0,0,0,.45)}
 body.incamp #tasks .tk.cur{border:1.5px solid #f2d24b;box-shadow:0 0 0 2px rgba(215,38,43,.9),0 0 14px rgba(242,210,75,.5)}
 body.incamp #tasks .tk.done{background:linear-gradient(180deg,rgba(28,70,34,.92),rgba(16,44,20,.92));border-color:rgba(127,208,138,.7)}
@@ -688,7 +689,7 @@ body.incamp #toast small{font-family:var(--fc)}
   <div id="tasks" hidden></div><canvas id="mmap" width="180" height="180" hidden></canvas><div id="obj" class="pl" hidden><div class="on"><b id="objT"></b><span id="objN"></span></div><small id="objS"></small></div>
   <div id="joy" hidden><i></i></div>
   <button id="actB" hidden></button><button id="treeB" hidden>🌲 Altro albero</button><button id="unhB" hidden>✖ Sgancia verricello</button><button id="starB" hidden>🌠 Fotografa la stella!</button><button id="reqB" hidden></button><div id="reqC" hidden></div>
-  <button id="goB" class="cb" hidden>Vai al segno giallo</button><button id="skipB">⏭ Salta al mattino</button>
+  <button id="goB" class="cb" hidden>Vai al segno giallo</button><button id="skipB">⏭ Salta al mattino</button><button id="unlB" hidden>⏩ Ci pensano gli amici</button>
   <div id="mini" hidden>
     <div id="miniF"></div>
     <div class="mtop"><b id="miniT"></b><span id="miniS"></span></div>
@@ -748,7 +749,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 108</small>
+      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 109</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -2887,6 +2888,9 @@ function updPark(dt){ if(!cs.park) return; const P=cs.park;
 const cNext=()=>{ const C=cs.carry, pk=STEPS[cs.step]&&STEPS[cs.step].id==='smonta'; if(pk) return cs.unl.find(o=>o.visible&&!o.userData.held); return C?cs.unl[C.i]:cs.unl[0]; };
 function carryTgt(){ const C=cs.carry, pk=STEPS[cs.step]&&STEPS[cs.step].id==='smonta'; if(C&&C.hold) return pk?cs.pos.trunk:C.hold.userData.home; if(!pk) return cs.pos.trunk; const n=cNext(); return n?n.userData.home:cs.pos.trunk; }
 function carryAct(){ const C=cs.carry, pk=STEPS[cs.step].id==='smonta', n=cNext(), cap=x=>x?x[0].toUpperCase()+x.slice(1):''; if(C&&C.hold) return pk?'Carica nel bagagliaio':'Posa '+C.hold.userData.lbl; if(!pk&&!C) return 'Apri il portellone'; return 'Prendi '+(n?n.userData.lbl:''); }
+$('#unlB').addEventListener('click',()=>{ if(!cs) return; const S=STEPS[cs.step]; if(!S||(S.id!=='scarica'&&S.id!=='smonta')) return; const pk=S.id==='smonta';
+  for(const o of cs.unl){ o.userData.held=false; if(pk) o.visible=false; else { o.visible=true; o.position.copy(o.userData.home); o.rotation.y=o.userData.hr; } } cs.carry=null; if(own('tendalino')) setAwning(pk?0:1); auThud(.4);
+  toast(pk?'Caricato dagli amici':'Scaricato dagli amici',pk?'tutto nel bagagliaio: si torna a valle':'sedie, frigo e tavolino al loro posto (niente premio velocità)'); setStep(cs.step+1); });
 function carryDo(pk){ let C=cs.carry; auThud(.25);
   if(!C||C.pk!==pk){ C=cs.carry={pk,i:0,hold:null,t:0,aw:0,n:pk?cs.unl.filter(o=>o.visible).length:cs.unl.length,done:0}; if(!pk){ auBurst(700,.35,.25,'lowpass',2); toast('Portellone aperto',`porta fuori ${C.n} cose, una alla volta: il segno giallo ti dice dove`); if(own('tendalino')) C.aw=.01; return; } }
   if(!C.hold){ const o=cNext(); if(!o) return; C.hold=o; o.visible=true; o.userData.held=true; auBurst(900,.12,.15,'lowpass',2); return; }
@@ -3128,7 +3132,7 @@ function updCamp(dt){
   // pulsante azione
   const S=STEPS[cs.step]; const busy=cs.walk||cs.party||!$('#sheet').hidden; const nt=S&&S.target&&nearTarget()&&!cs.mini&&!cs.sleeping&&!busy;
   $('#actB').hidden=!nt||!S.target||!!cs.unloading||!!cs.packing||!!cs.mini||!!cs.walk||!!cs.sleeping||!!cs.party||(S.id==='dormi'&&!!cs.walkDone); { const a=typeof S.action==='function'?S.action():S.action, tp=S.target&&cs.pos[S.target], dm=tp?Math.round(Math.hypot(man.position.x-tp.x,man.position.z-tp.z)):0, key=nt+'|'+a+'|'+dm; if(cs.actK!==key){ cs.actK=key; const B=$('#actB'); B.textContent=nt?a:'▶ '+a; if(!nt&&dm>2){ const sp=document.createElement('span'); sp.className='dst'; sp.textContent=dm+' m'; B.append(sp); } } }
-  $('#goB').hidden=true;
+  $('#goB').hidden=true; $('#unlB').hidden=!(S&&(S.id==='scarica'||S.id==='smonta')&&!cs.mini&&!cs.party&&!cs.sleeping);
   // minigioco
   if(!cs.mini&&cs.obj.stove.userData.fl.visible&&cs.cook) cs.obj.stove.userData.fl.visible=false;
   if(cs.mini&&cs.mini.mash){ const m=cs.mini; m.fill=Math.max(0,m.fill-dt*.16); cs.fire=Math.max(.15,m.fill*.9); drawMini(); }
