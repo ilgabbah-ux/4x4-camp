@@ -616,7 +616,7 @@ body.incamp #mini .mbar,body.incamp #mini .mtrack{border-radius:6px!important}
 body.incamp #miniZ{border-radius:5px}
 body.incamp #actB{font-family:var(--fc)!important;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-radius:12px!important;background:#f2d24b;border:1.5px solid #ffe680;box-shadow:0 4px 0 #8a7410,0 8px 22px rgba(0,0,0,.45)!important;animation:none}
 body.incamp #actB .dst{font-family:var(--fc);letter-spacing:.02em;text-transform:none}
-#unlB{position:absolute;z-index:3;right:max(16px,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 172px);padding:10px 14px;font-size:13px;color:#fff}
+#unlB{position:absolute;z-index:4;right:max(14px,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 214px);padding:9px 12px;font-size:13px;line-height:1;color:#fff;white-space:nowrap}#unlB[hidden]{display:none!important}
 body.incamp #goB,body.incamp #skipB,body.incamp #unlB{font-family:var(--fc)!important;font-weight:700;text-transform:uppercase;letter-spacing:.06em;background:linear-gradient(180deg,rgba(20,20,22,.86),rgba(10,10,11,.86))!important;border:1px solid rgba(255,255,255,.18)!important;border-left:3px solid #d7262b!important;border-radius:8px!important;color:#fff}
 body.incamp #tasks .tk{border-radius:8px;background:linear-gradient(180deg,rgba(20,20,22,.86),rgba(10,10,11,.86));border:1px solid rgba(255,255,255,.16);box-shadow:0 3px 0 rgba(0,0,0,.45)}
 body.incamp #tasks .tk.cur{border:1.5px solid #f2d24b;box-shadow:0 0 0 2px rgba(215,38,43,.9),0 0 14px rgba(242,210,75,.5)}
@@ -764,7 +764,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 109</small>
+      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 110</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -1244,22 +1244,30 @@ function buildWorld(id){
     const idx=[]; for(let r=0;r<nr-1;r++) for(let c=0;c<nc-1;c++){ const a=r*nc+c,b=a+1,d2=a+nc,e=d2+1; idx.push(a,b,d2,b,e,d2); }
     const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(pos,3)); g.setAttribute('color',new THREE.BufferAttribute(col,3)); g.setAttribute('uv',new THREE.BufferAttribute(uv,2)); g.setAttribute('sw',new THREE.BufferAttribute(swA,4)); g.setIndex(idx); g.computeVertexNormals();
     const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({vertexColors:true,map:groundMap,roughness:neve?.8:.96,metalness:0,envMapIntensity:.55}));
-    { const T0=tex(TR.theme==='militare'?'t_sabbia':neve?'t_neve':'t_terra'), T1=tex('t_fango'), T2=tex('t_sassi'), T3=tex(neve?'t_neve':'t_erba');
+    { const T0=tex(TR.theme==='militare'?'t_sabbia':neve?'t_neve':TR.theme==='alpino'?'t_ghiaia':'t_terra'), T1=tex('t_fango'), T2=tex('t_sassi'), T3=tex(neve?'t_neve':'t_erba');
       terrU={uO:UORG,uT4:{value:tex('t_parete')},uT0:{value:T0},uT1:{value:T1},uT2:{value:T2},uT3:{value:T3},uReady:{value:[T0,T1,T2,T3].every(t=>t.userData.ok)?1:0}};
       m.material.onBeforeCompile=sh=>{ Object.assign(sh.uniforms,terrU);
       sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nattribute vec4 sw; uniform vec3 uO; varying vec4 vSW; varying vec3 vWP; varying vec3 vWN; varying vec4 vA,vB,vC,vD,vF; varying vec2 vE; varying float vDist;').replace('#include <project_vertex>','#include <project_vertex>\n vSW=sw; vec3 wp=(modelMatrix*vec4(transformed,1.0)).xyz; vWP=wp; vWN=normalize(mat3(modelMatrix)*objectNormal);\n vA=vec4(wp.xz/3.2-floor(uO.xz/3.2), wp.xz/2.6-floor(uO.xz/2.6)+vec2(.37,.11)); vB=vec4(wp.xz/4.0-floor(uO.xz/4.0), wp.xz/3.0-floor(uO.xz/3.0)); vC=vec4(wp.zy/4.0-floor(uO.zy/4.0), wp.xy/4.0-floor(uO.xy/4.0)); vD=vec4(wp.xz/2.5-floor(uO.xz/2.5), wp.zy/2.5-floor(uO.zy/2.5)); vE=wp.xy/2.5-floor(uO.xy/2.5); vF=vec4(wp.zy/37.0-floor(uO.zy/37.0), wp.xy/37.0-floor(uO.xy/37.0)); vDist=length(wp-cameraPosition);');
       sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform sampler2D uT0,uT1,uT2,uT3,uT4; uniform float uReady; varying vec4 vSW; varying vec3 vWP; varying vec3 vWN; varying vec4 vA,vB,vC,vD,vF; varying vec2 vE; varying float vDist; float gH=0.;').replace('#include <map_fragment>',`
         vec3 bw=pow(abs(normalize(vWN)),vec3(4.0)); bw/=bw.x+bw.y+bw.z;
         vec3 t0=texture2D(uT0,vA.xy).rgb, t1=texture2D(uT1,vA.zw).rgb, t3=texture2D(uT3,vB.xy).rgb;
-        float fr=smoothstep(30.,140.,vDist); vec3 rkX=mix(texture2D(uT4,vC.xy).rgb,texture2D(uT4,vF.xy).rgb,fr), rkZ=mix(texture2D(uT4,vC.zw).rgb,texture2D(uT4,vF.zw).rgb,fr);
-        rkX*=mix(.72,1.2,texture2D(uT2,vF.xy).g); rkZ*=mix(.72,1.2,texture2D(uT2,vF.zw).g);
-        vec3 t2=texture2D(uT2,vB.zw).rgb*bw.y+rkX*bw.x+rkZ*bw.z;
         vec4 w=max(vSW,vec4(0.)); float ws=w.x+w.y+w.z+w.w+1e-4; w/=ws;
+        vec3 t2=texture2D(uT2,vB.zw).rgb;
+        if(w.z>.01&&bw.x+bw.z>.03){ float fr=smoothstep(30.,140.,vDist); vec3 rkX=texture2D(uT4,vC.xy).rgb, rkZ=texture2D(uT4,vC.zw).rgb; if(fr>.01){ rkX=mix(rkX,texture2D(uT4,vF.xy).rgb,fr); rkZ=mix(rkZ,texture2D(uT4,vF.zw).rgb,fr); }
+          rkX*=mix(.72,1.2,texture2D(uT2,vF.xy).g); rkZ*=mix(.72,1.2,texture2D(uT2,vF.zw).g); t2=t2*bw.y+rkX*bw.x+rkZ*bw.z; } /* pareti di roccia solo dove servono: meno lavoro per la scheda grafica del telefono */
         vec3 tc=t0*w.x+t1*w.y+t2*w.z+t3*w.w; gH=dot(tc,vec3(.3,.5,.2))*(w.x*.6+w.y*.8+w.z*1.4+w.w*.4);
-        vec3 old=(texture2D(map,vD.xy).rgb*bw.y+texture2D(map,vD.zw).rgb*bw.x+texture2D(map,vE).rgb*bw.z);
+        vec3 old=vec3(1.); if(uReady<.5) old=(texture2D(map,vD.xy).rgb*bw.y+texture2D(map,vD.zw).rgb*bw.x+texture2D(map,vE).rgb*bw.z);
         vec3 tint=mix(vec3(1.),clamp(vColor*1.9,0.,1.4),.45);
         diffuseColor.rgb=mix(diffuseColor.rgb*old, tc*tint*diffuse, uReady);`).replace('#include <color_fragment>','if(uReady<.5) diffuseColor.rgb*=vColor;').replace('#include <normal_fragment_maps>','#include <normal_fragment_maps>\n if(uReady>.5&&vDist<42.){ vec3 sx=dFdx(-vViewPosition), sy=dFdy(-vViewPosition); vec3 R1=cross(sy,normal), R2=cross(normal,sx); float fd=dot(sx,R1); float bx=dFdx(gH), by=dFdy(gH); vec3 gr=sign(fd)*(bx*R1+by*R2); float kb=.9*(1.-smoothstep(12.,42.,vDist)); normal=normalize(abs(fd)*normal-gr*kb); }').replace('#include <aomap_fragment>','#include <aomap_fragment>\n if(uReady>.5){ float ao=smoothstep(.12,.55,gH); reflectedLight.indirectDiffuse*=mix(.55,1.05,ao); reflectedLight.directDiffuse*=mix(.75,1.0,ao); }'); }; }
-    m.receiveShadow=true; world.add(m); window.__terrain=m; }
+    /* terreno a fette lungo il percorso: il telefono disegna solo i pezzi che la telecamera vede */
+    { const TG=new THREE.Group(); const RW_=96, cA=cols.findIndex(d=>d>=-10.01), cB=cols.findIndex(d=>d>10.01), cL=Math.max(0,cols.findIndex(d=>d>=-70.01)), cR=cols.findIndex(d=>d>70.01), CB=[[0,cL],[cL,cA],[cA,cB],[cB,cR<0?nc-1:cR],[cR<0?nc-1:cR,nc-1]]; const P=g.attributes.position.array;
+      for(let r0=0;r0<nr-1;r0+=RW_) for(const [c0,c1] of CB){ if(c1<=c0) continue; const r1=Math.min(nr-1,r0+RW_); const I=new (nr*nc>65535?Uint32Array:Uint16Array)((r1-r0)*(c1-c0)*6); let k=0; let mnx=1e9,mny=1e9,mnz=1e9,mxx=-1e9,mxy=-1e9,mxz=-1e9;
+        for(let r=r0;r<r1;r++) for(let c=c0;c<c1;c++){ const a=r*nc+c,b=a+1,d2=a+nc,e=d2+1; I[k++]=a;I[k++]=b;I[k++]=d2;I[k++]=b;I[k++]=e;I[k++]=d2; }
+        for(let r=r0;r<=r1;r++) for(let c=c0;c<=c1;c++){ const o=(r*nc+c)*3, x=P[o],y=P[o+1],z=P[o+2]; if(x<mnx)mnx=x; if(x>mxx)mxx=x; if(y<mny)mny=y; if(y>mxy)mxy=y; if(z<mnz)mnz=z; if(z>mxz)mxz=z; }
+        const g2=new THREE.BufferGeometry(); for(const k2 of ['position','normal','color','uv','sw']) if(g.attributes[k2]) g2.setAttribute(k2,g.attributes[k2]); g2.setIndex(new THREE.BufferAttribute(I,1));
+        g2.boundingBox=new THREE.Box3(new V(mnx,mny,mnz),new V(mxx,mxy,mxz)); g2.boundingSphere=g2.boundingBox.getBoundingSphere(new THREE.Sphere());
+        const mc=new THREE.Mesh(g2,m.material); mc.receiveShadow=true; TG.add(mc); }
+      world.add(TG); window.__terrain=TG; } }
   // fango lucido e ghiaccio a specchio sopra le zone
   for(const z of ZONES){ if(!isMud(z.t)) continue;
     const ds=[]; for(let d=-HALF-.8;d<=HALF+.8;d+=.3) ds.push(d); const P=[], A=[], U=[]; let nr=0;
@@ -2195,7 +2203,7 @@ hold($('#gas'),'gas'); hold($('#brk'),'brk');
 let drag=null, dragS=0; cv.addEventListener('pointerdown',e=>{ drag={id:e.pointerId,x:e.clientX,y:e.clientY,t:performance.now()}; try{ cv.setPointerCapture(e.pointerId); }catch(_){} });
 addEventListener('pointerup',e=>{ if(drag&&drag.id===e.pointerId) setTimeout(()=>{ if(drag&&drag.id===e.pointerId){ drag=null; dragS=0; } },0); },true); addEventListener('pointercancel',e=>{ if(drag&&drag.id===e.pointerId){ drag=null; dragS=0; } },true);
 cv.addEventListener('pointerup',e=>{ if(!campMode||!cs||cs.mini||cs.sleeping||!drag) return; if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>12||performance.now()-drag.t>350) return;
-  const r=cv.getBoundingClientRect(); const ndc=new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1); const rc=new THREE.Raycaster(); rc.setFromCamera(ndc,cam); const hit=rc.intersectObject(window.__terrain,false)[0];
+  const r=cv.getBoundingClientRect(); const ndc=new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1); const rc=new THREE.Raycaster(); rc.setFromCamera(ndc,cam); const hit=rc.intersectObject(window.__terrain,true)[0];
   if(hit){ cs.dest={x:hit.point.x,z:hit.point.z}; tapFx(hit.point); } }); cv.addEventListener('pointermove',e=>{ if(drag&&drag.id===e.pointerId) dragS=clamp((e.clientX-drag.x)/55,-1,1); }); for(const t of ['pointerup','pointercancel']) cv.addEventListener(t,e=>{ if(drag&&drag.id===e.pointerId){ drag=null; dragS=0; } });
 function readInput(){ const kl=keys.has('arrowleft')||keys.has('a'), kr=keys.has('arrowright')||keys.has('d'); let s=0;
   if(kl||kr||pad.l||pad.r) s=((kr||pad.r)?1:0)-((kl||pad.l)?1:0); else if(drag&&Math.abs(dragS)>.15&&!campMode) s=dragS; else if(drag&&campMode&&Math.abs(dragS)>.02) s=dragS; else if(tilt.ok&&!(save.steerMode==='frecce'&&!campMode)){ tilt.sm=lerp(tilt.sm,tilt.ang,.4); const g=tilt.sm, a=Math.abs(g); const k=save.sens||1, dz=1.8/Math.sqrt(k); s=a<dz?0:Math.sign(g)*Math.pow(clamp((a-dz)/(16/k),0,1),1.15); }
@@ -3230,7 +3238,7 @@ function worldAnim(dt){ skyU.time.value+=dt;
     p.needsUpdate=true; } }
 function frame(now){ UORG.value.copy(cam.position);
   const dt=Math.min(.05,(now-last)/1000); last=now;
-  if(st.running&&!st.paused&&!helpOpen&&document.visibilityState==='visible'){ const A=frame.aq=frame.aq||{n:0,t:0,stage:0}; A.n++; A.t+=(now-(A.l||now))/1000; A.l=now; if(A.t>5){ const fps=A.n/A.t; A.n=0; A.t=0; if(fps<26&&A.stage<2&&st.time>6){ A.stage++; if(A.stage===1){ ren.setPixelRatio(Math.max(1,ren.getPixelRatio()*.72)); sun.castShadow=false; } else { ren.setPixelRatio(1); world.traverse(o=>{ if(o.isInstancedMesh&&o.material===grassMat) o.visible=false; }); }
+  if(st.running&&!st.paused&&!helpOpen&&document.visibilityState==='visible'){ const A=frame.aq=frame.aq||{n:0,t:0,stage:0}; A.n++; A.t+=(now-(A.l||now))/1000; A.l=now; if(A.t>5){ const fps=A.n/A.t; A.n=0; A.t=0; A.low=fps<22&&st.time>8?(A.low||0)+1:0; if(A.low>=2&&A.stage<2){ A.low=0; A.stage++; if(A.stage===1){ ren.setPixelRatio(Math.max(1,ren.getPixelRatio()*.72)); sun.castShadow=false; } else { ren.setPixelRatio(1); world.traverse(o=>{ if(o.isInstancedMesh&&o.material===grassMat) o.visible=false; }); }
       const ord=['alta','media','bassa'], qi=ord.indexOf(save.q); if(qi<2){ save.q=ord[qi+1]; persist(); } toast('Grafica alleggerita','il telefono andava a scatti: ora è più fluido (puoi cambiarla in garage)'); } } } else if(frame.aq) frame.aq.l=now;
   if(helpOpen){ ren.render(scene,cam); requestAnimationFrame(frame); return; }
   worldAnim(dt); lightsUpd(); if(TR) weatherUpd(dt);
@@ -3254,7 +3262,9 @@ function frame(now){ UORG.value.copy(cam.position);
     if(!TR.night&&WX==='sereno'&&tun<.05){ const g=clamp(st.s/LEN,0,1); const tg=g<.6?g*.12:.072+(g-.6)*.6; if(Math.abs(tg-skyNow)>.01) setSky(tg); }
     if(!st.done&&save.voci){ st.cbT=(st.cbT??(25+Math.random()*20))-dt; if(st.cbT<0){ st.cbT=40+Math.random()*35; const L=CBL.filter(x=>!(st.cbUsed||[]).includes(x[1])); const q=L.length?L[Math.random()*L.length|0]:CBL[Math.random()*CBL.length|0]; st.cbUsed=[...(st.cbUsed||[]).slice(-8),q[1]]; toast('📻 Radio CB · '+q[0],q[2]||'gli amici in colonna'); auBurst(2600,.18,.12,'bandpass',6); setTimeout(()=>say(q[0],'',q[1]),220); } }
     // qualità automatica: se il telefono fatica, alleggerisce la grafica (si può rimettere in garage)
-    if(!save.qManual){ fpsA.n++; fpsA.t+=dt; if(fpsA.t>6){ const fps=fpsA.n/fpsA.t; fpsA.n=0; fpsA.t=0; if(fps<26&&save.q!=='bassa'){ save.q=save.q==='alta'?'media':'bassa'; persist(); applyQuality(); builtTrack=null; toast('Grafica alleggerita','per andare più fluido · la cambi in garage'); } } }
+    /* qualità automatica: misura i fotogrammi veri (non quelli limitati), ignora gli scatti di caricamento e abbassa solo se il telefono fatica davvero per 12 secondi di fila */
+    if(!save.qManual&&st.time>8){ const rdt=Math.min(.25,(performance.now()-(fpsA.l||performance.now()))/1000); fpsA.l=performance.now(); if(rdt<.2){ fpsA.n++; fpsA.t+=rdt; } if(fpsA.t>6){ const fps=fpsA.n/fpsA.t; fpsA.n=0; fpsA.t=0; fpsA.low=fps<(save.q==='alta'?27:21)?(fpsA.low||0)+1:0;
+        if(fpsA.low>=2&&save.q!=='bassa'){ fpsA.low=0; save.q=save.q==='alta'?'media':'bassa'; persist(); applyQuality(); builtTrack=null; toast('Grafica alleggerita','per andare più fluido · la cambi in garage'); } } } else fpsA.l=performance.now();
     if(!st.chk&&st.s>LEN*.5&&!st.done){ if(safeOk(st.s)){ st.chk={s:st.s,time:st.time,rescues:st.rescues,dmg:{...st.dmg}}; toast('🚩 Punto di controllo','se rompi il mezzo puoi ripartire da qui'); auBurst(1800,.15,.15,'bandpass',3); } }
     const sp=st.vel.dot(fw);
     // fango, neve, acqua e polvere: zolle lanciate dal battistrada, gocce, nebbia, cerchi sull'acqua
