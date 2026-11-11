@@ -464,6 +464,8 @@ body.incamp #awdB,body.incamp #tb{display:none!important}
 #brk{background:rgba(70,30,28,.38)!important}
 .pedal{backdrop-filter:blur(2px);font-size:17px!important}.pedal small{font-size:10px!important}
 #ctl .cen .cb{background:rgba(20,22,18,.55)!important;backdrop-filter:blur(2px)}
+#ctl .cen .cb.help{background:#f2d24b!important;color:#1a1505!important;font-weight:800;box-shadow:0 0 0 2px rgba(0,0,0,.25),0 4px 14px rgba(242,210,75,.45)}#ctl .cen .cb.help small{color:#3a2e05;font-weight:600}
+#ctl .cen .cb.win{background:rgba(30,60,90,.75)!important}
 @media (orientation:landscape) and (max-height:520px){
  .pedal{width:clamp(84px,12vw,110px)!important;height:clamp(96px,34vh,140px)!important}
  #ctl .cen .cb{min-height:30px!important;padding:3px 8px!important;font-size:11px!important}
@@ -786,7 +788,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button><button class="big" id="ovPlay" hidden>🏁 Parti<small id="ovPlayS"></small></button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 116</small>
+      <button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 117</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -1481,7 +1483,9 @@ function buildWorld(id){
     im.count=n; im.castShadow=true; im.receiveShadow=true; world.add(im);
     if(TR.theme!=='castagni'&&!TR.flat) swapToAsset(im,(STY[TR.id]||{}).tree==='larice'?'larice':'pino',1.9,neve?[1.25,1.3,1.35]:null); else swapToAsset(im,'latifoglia',1.9,[.9,1,.85]); } /* bosco di pianura: latifoglie (robinie, querce, pioppi), non pini */
   /* Ristoro Trial Team: tettoia di lamiera, container bianco col murale, tavoli e sedie */
-  if(TR.ristoro){ const rs=TR.ristoro*1.3, th=-Math.atan2(CX(rs+1)-CX(rs-1),2), G=new THREE.Group(); G.position.set(CX(rs),hsAt(rs)+.02,-rs); G.rotation.y=th; world.add(G); TR._rist=rs;
+  if(TR.ristoro){ const rs=TR.ristoro*1.3, th=-Math.atan2(CX(rs+1)-CX(rs-1),2), G=new THREE.Group(); G.position.set(CX(rs),hsAt(rs)+.02,-rs); G.rotation.y=th; world.add(G); TR._rist=rs; { const pc=document.createElement('canvas'); pc.width=256; pc.height=384; const q=pc.getContext('2d'); q.fillStyle='rgba(0,0,0,0)'; q.fillRect(0,0,256,384); q.strokeStyle='rgba(245,240,225,.92)'; q.lineWidth=14; q.setLineDash([34,22]); q.strokeRect(14,14,228,356); q.setLineDash([]); q.fillStyle='rgba(245,240,225,.95)'; q.font='bold 86px Impact, Arial Black, sans-serif'; q.textAlign='center'; q.fillText('STOP',128,150); q.font='bold 96px sans-serif'; q.fillText('☕',128,290);
+      const pt=new THREE.CanvasTexture(pc); pt.colorSpace=THREE.SRGBColorSpace; pt.anisotropy=4; const pad=new THREE.Mesh(new THREE.PlaneGeometry(4.2,6.3),new THREE.MeshStandardMaterial({map:pt,transparent:true,roughness:1,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4}));
+      pad.rotation.x=-Math.PI/2; pad.position.set(CX(rs),hsAt(rs)+.06,-rs); pad.rotation.z=th; pad.renderOrder=2; world.add(pad); }
     const M=(c,o={})=>new THREE.MeshStandardMaterial({color:c,roughness:.8,...o}), B=(w,h,d,m,x,y,z)=>{ const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m); b.position.set(x,y,z); b.castShadow=true; b.receiveShadow=true; G.add(b); return b; };
     // murale TRIAL TEAM 4X4
     const cv=document.createElement('canvas'); cv.width=1024; cv.height=440; const g=cv.getContext('2d'); g.fillStyle='#e9e7df'; g.fillRect(0,0,1024,440); g.strokeStyle='rgba(0,0,0,.08)'; for(let x=0;x<1024;x+=16){ g.beginPath(); g.moveTo(x,0); g.lineTo(x,440); g.stroke(); }
@@ -2341,7 +2345,8 @@ function updRescue(dt){
   if(t>6.2){ st.rescue=null; pur.visible=false; strop.visible=false; st.sink=0; st.stuckT=0; st.vel.set(0,0,0); toast('Fuori!','una cassa di birra a Purcello'); }
 }
 $('#helpB').addEventListener('click',rescue);
-$('#ristB').addEventListener('click',()=>{ if(st.ristDone||!st.running) return; st.ristDone=1; $('#ristB').hidden=true; const D=st.dmg, before=Object.values(D).reduce((a,b)=>a+b,0); for(const k of ['gomme','coppa','semiassi','carrozzeria']) D[k]=Math.max(0,(D[k]||0)*.55-6); st.dmg0={...D}; st.time+=25; const saved=Math.round(before-Object.values(D).reduce((a,b)=>a+b,0)); auThud(.3); vib(30); toast('☕ Caffè corretto!','gli amici del Trial Team ti sistemano il mezzo (danni −'+saved+') · pausa +25 s'); });
+function doRist(){ if(st.ristDone||!st.running) return; st.ristDone=1; $('#ristB').hidden=true; const D=st.dmg, before=Object.values(D).reduce((a,b)=>a+b,0); for(const k of ['gomme','coppa','semiassi','carrozzeria']) D[k]=Math.max(0,(D[k]||0)*.55-6); st.dmg0={...D}; st.time+=25; const saved=Math.round(before-Object.values(D).reduce((a,b)=>a+b,0)); auThud(.3); vib([30,60,30]); toast('☕ Caffè corretto!',saved>0?'gli amici del Trial Team ti sistemano il mezzo: danni −'+saved+' · pausa +25 s':'mezzo già a posto, ma il caffè ci stava · pausa +25 s',3500); }
+$('#ristB').addEventListener('click',doRist);
 // verricello: cerca un albero davanti al muso, aggancia la fascia, tenendo premuto recupera il cavo
 function attachWinch(){
   if(!own('winch')||st.rescue||st.winch) return !!st.winch;
@@ -3391,7 +3396,11 @@ function frame(now){ UORG.value.copy(cam.position);
     // bloccato o ribaltato
     const flipped=up.y<.35; if((Math.abs(sp)<.4&&inp.gas)||flipped) st.stuckT+=dt; else st.stuckT=Math.max(0,st.stuckT-dt);
     if(st.s>(st.progS||0)+1.5){ st.progS=st.s; st.progT=0; } else st.progT=(st.progT||0)+dt; if(st.progT>7&&!st.done) st.stuckT=Math.max(st.stuckT,2.6);
-    if(TR._rist){ const near=Math.abs(st.s-TR._rist)<9&&Math.abs(sp)<.6&&!st.ristDone&&!st.rescue; $('#ristB').hidden=!near; if(!st.ristSaid&&st.s>TR._rist-70&&st.s<TR._rist-20){ st.ristSaid=1; toast('☕ Ristoro Trial Team tra poco','fermati sotto la tettoia: caffè corretto e il mezzo riparte sistemato'); } } else $('#ristB').hidden=true;
+    if(TR._rist){ const ds=st.s-TR._rist, zone=ds>-18&&ds<12&&!st.ristDone&&!st.rescue, ferma=zone&&Math.abs(sp)<1.1;
+      if(ferma){ st.ristW=(st.ristW||0)+dt; const sm=$('#ristB small'); if(sm) sm.textContent='il barista prepara… '+Math.min(100,Math.round(st.ristW/1.4*100))+'%'; if(st.ristW>1.4) doRist(); } else st.ristW=0;
+      $('#ristB').hidden=!zone||st.ristDone;
+      if(!st.ristSaid&&ds>-80&&ds<-22){ st.ristSaid=1; toast('☕ Ristoro Trial Team qui avanti','fermati sulla piazzola STOP: caffè corretto e il mezzo riparte sistemato',3000); }
+      if(!st.ristDone&&!st.ristMiss&&ds>12){ st.ristMiss=1; toast('☕ Hai tirato dritto al ristoro!','niente caffè: i danni restano',2500); } } else $('#ristB').hidden=true;
     $('#helpB').hidden=!!st.rescue||!!st.flipSeq||!!(st.winch&&st.winch.pull)||!(st.stuckT>2.5||flipped||st.sink>.85);
     const wv0=0; const wv=own('winch')&&!st.done&&!st.rescue&&(Math.abs(sp)<1.5||st.winch); $('#winB').hidden=!wv; if(wv){ $('#winB').textContent=st.winch?(st.winch.pull?'Tiro…':'Tieni: tira il cavo'):'Verricello'; $('#winB').classList.toggle('on',!!(st.winch&&st.winch.pull)); }
     updFlipSeq(dt);
@@ -3651,7 +3660,7 @@ function ghostUpd(dt){ if(st.done) return; st.ghT+=dt; if(st.ghT>=.25){ st.ghT-=
   const gs=-ghostCar.position.z; st.ghGap=gs-st.s; }
 function startRun(){ st.daily=dailyGo; dailyGo=null; st.fog0=null; rtt.userData.lidP.rotation.x=0; rtt.userData.tela.scale.y=.001; cam.clearViewOffset(); shS=-1; if(cs) clearCamp(); setTimeout(()=>{ if(st.running&&!campMode&&save.musGuida!==false&&AC) { if(TRACK_MP3[save.track]) mp3Start(TRACK_MP3[save.track],.32); else musicStart(TRACK_SONG[save.track]||'rock',.2); } },600); WX=save.meteo; if(WX==='random'){ const ks=Object.keys(METEO).filter(k=>k!=='random'), w=ks.map(k=>k==='sereno'?3:k==='temporale'?1:1.6); let r=Math.random()*w.reduce((a,b)=>a+b,0), q=0; while(r>w[q]){ r-=w[q]; q++; } WX=ks[q]; st.wxRnd=true; setTimeout(()=>toast('🎲 Meteo a sorpresa',METEO[WX].ic+' '+METEO[WX].n+' · '+METEO[WX].txt),900); } else st.wxRnd=false; if(builtTrack!==save.track) buildWorld(save.track); else { scene.fog.near=TR.theme==='neve'?25:90; scene.fog.far=TR.theme==='neve'?150:TR.theme==='alpino'?760:640; } applyUpgrades(); pressure=save.pressure;
   $('#hud').hidden=false; $('#hud2').hidden=false; $('#ctl').hidden=false; $('#tb').hidden=false; $('#lowB').hidden=false;
-  clearSplats(); placeFriendCars(); for(const o of OBST){ o.said=false; o.cut=0; } st.camCut=null; st.snowSaid=false; st.dmgW={}; st.dmg0={...st.dmg}; st.ippoSaid=0; st.ristDone=0; st.ristSaid=0; st.lock=false; if(typeof updLockB==='function') updLockB(); st.flipSeq=null; pur.visible=false; strop.visible=false; TR._pudO=null; st.pudSaid=0; Object.assign(st,{chk:null,uprig:null,drone:null,droneDone:false,panoSaid:false,awd:true,progS:0,progT:0,running:true,done:false,rescue:null,time:0,dirt:save.dirt||0,water:0,sink:0,rescues:0,paused:false,gear:'alta',dmg:{...save.dmg}}); reset(4); campMode=false; ghostStart(); clearRuts(); skyNow=-1; setSky(TR.night?1:0); lightsUpd(); $('#hq').hidden=false; setTimeout(()=>{ if(!save.tutDone) tutStart(); else showHelp('guida'); },400); }
+  clearSplats(); placeFriendCars(); for(const o of OBST){ o.said=false; o.cut=0; } st.camCut=null; st.snowSaid=false; st.dmgW={}; st.dmg0={...st.dmg}; st.ippoSaid=0; st.ristDone=0; st.ristSaid=0; st.ristMiss=0; st.ristW=0; st.lock=false; if(typeof updLockB==='function') updLockB(); st.flipSeq=null; pur.visible=false; strop.visible=false; TR._pudO=null; st.pudSaid=0; Object.assign(st,{chk:null,uprig:null,drone:null,droneDone:false,panoSaid:false,awd:true,progS:0,progT:0,running:true,done:false,rescue:null,time:0,dirt:save.dirt||0,water:0,sink:0,rescues:0,paused:false,gear:'alta',dmg:{...save.dmg}}); reset(4); campMode=false; ghostStart(); clearRuts(); skyNow=-1; setSky(TR.night?1:0); lightsUpd(); $('#hq').hidden=false; setTimeout(()=>{ if(!save.tutDone) tutStart(); else showHelp('guida'); },400); }
 // pausa
 function sensUI(){ document.querySelectorAll('.sens:not(.sm):not(.cr):not(.vb):not(.ac) button').forEach(b=>b.classList.toggle('on',+b.dataset.v===(save.sens||1))); }
 function optUI(){ document.querySelectorAll('.sens.sm button').forEach(b=>b.classList.toggle('on',b.dataset.m===(save.steerMode||'tilt'))); document.querySelectorAll('.sens.cr button').forEach(b=>b.classList.toggle('on',(b.dataset.c==='1')===(save.crawl!==false))); document.querySelectorAll('.sens.vb button').forEach(b=>b.classList.toggle('on',(b.dataset.b==='1')===(save.vib!==false))); document.querySelectorAll('.sens.ac button').forEach(b=>b.classList.toggle('on',(b.dataset.a==='1')===(save.autoCam!==false))); }
