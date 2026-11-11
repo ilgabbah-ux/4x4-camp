@@ -633,6 +633,27 @@ body.incamp #lkB{display:none!important}
 #sheet #shGo{font-family:var(--fc);font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-radius:10px}
 body.incamp #toast{border-left:3px solid #d7262b;border-radius:10px;font-family:var(--fd)}
 body.incamp #toast small{font-family:var(--fc)}
+
+/* menu iniziale v113: logo sotto il mezzo, pulsanti tutti uguali, polvere solo sull'immagine */
+#ovSet{font:700 14px/1 var(--fc);color:#cfc9bd;background:none;border:0;padding:6px 10px;width:auto!important;margin:0 auto!important;min-height:0;opacity:.85}
+#ovSet.on{color:#f2b43b}
+#over .ovMini[hidden]{display:none!important}
+#ovFx{-webkit-mask-image:linear-gradient(180deg,#000 0,#000 34%,transparent 52%);mask-image:linear-gradient(180deg,#000 0,#000 34%,transparent 52%)}
+#over .plate{background:linear-gradient(180deg,#22252a,#141619)!important;border:1.5px solid rgba(242,140,40,.55)!important;box-shadow:0 4px 0 #0c0d0f,0 8px 18px rgba(0,0,0,.45)!important;font:800 19px/1 var(--fc)!important;letter-spacing:.04em;text-transform:uppercase;color:#f1ece2!important;-webkit-text-stroke:0!important;text-shadow:none!important;display:flex;align-items:center;justify-content:center;gap:8px}
+#over .plate::before,#over .plate::after{display:none!important}
+#over .plate{flex-direction:row!important;min-height:54px!important;padding:8px 10px!important}#over .plate i{font-size:20px;display:inline!important;margin:0!important}#over .plate span{white-space:nowrap;font-size:17px!important}
+#over .plate span{font:inherit!important;-webkit-text-stroke:0!important;text-shadow:none!important}
+#ovTxt{font:500 15px/1.35 var(--fc)!important;color:#d8d2c6!important;letter-spacing:.02em;margin:0!important}
+#ovDaily small{font-size:12px;color:#e7c766;opacity:.9}
+@media (orientation:portrait){
+ #over{align-items:end!important}
+ #over::before{background-position:50% 0!important;background-size:auto 47vh!important}
+ #over .card{gap:9px!important;padding-bottom:4px;max-width:min(92vw,470px)!important;width:100%}
+ #over{justify-items:center!important;background:var(--grana),linear-gradient(180deg,rgba(0,0,0,0) 0,rgba(0,0,0,0) 36%,rgba(8,8,9,.75) 52%,#0b0b0c 64%)!important}
+ #over .brand img{width:min(34vw,170px)!important}
+ #over .brand .pie{font-size:24px!important;padding:4px 18px!important}
+ #over .brand .sub{font-size:11px!important;margin-top:4px}
+}
 </style>
 
 <div id="app">
@@ -760,12 +781,12 @@ body.incamp #toast small{font-family:var(--fc)}
   <div id="over"><canvas id="ovFx"></canvas><div class="ovSweep"></div>
     <div class="card">
       <div class="brand"><img id="ovLogo" alt="4x4 Off-Road"><span class="pie">PIEMONTE</span><span class="sub">il gioco · ridotte inserite</span></div>
-      <p id="ovTxt">Fango, massi, guadi, neve e pietraie fino in vetta. Lassù il campo, il fuoco e la festa con gli amici.</p>
+      <p id="ovTxt">Gas dolce e occhio alle ruote: in fondo al giro ti aspettano il campo, il fuoco e gli amici.</p>
       <div id="ovSave" hidden></div>
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button><button class="big" id="ovPlay" hidden>🏁 Parti<small id="ovPlayS"></small></button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <div class="ovMini"><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 112</small>
+      <button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 113</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -3566,7 +3587,7 @@ const parT=T=>Math.round((T.len||400)*1.3*.36);
 function starOf(id){ save.stars=save.stars||{}; return save.stars[id]=save.stars[id]||{}; }
 function giveStar(id,k){ const S=starOf(id); if(S[k]) return 0; S[k]=1; save.money+=60; persist(); const d=STARS.find(x=>x[0]===k); setTimeout(()=>toast(`⭐ Stella: ${d[2]}!`,'+60 € · '+Object.keys(S).length+'/'+STARS.length+' su questo percorso'),1200); vib(60); return 1; }
 function starsTxt(id){ const S=(save.stars||{})[id]||{}; return STARS.map(x=>S[x[0]]?'★':'☆').join(''); }
-function arrive(){ st.done=true; { const id0=TR.id; giveStar(id0,'vetta'); if(st.rescues===0) giveStar(id0,'pulito'); if(st.time<=parT(TR)) giveStar(id0,'tempo'); { const D0=st.dmg0||{}; if(['gomme','coppa','semiassi','carrozzeria'].every(k=>(st.dmg[k]||0)-(D0[k]||0)<10)) giveStar(id0,'intatto'); } if(st.daily){ save.daily=save.daily||{}; const dk=st.daily; if(!save.daily[dk]||st.time<save.daily[dk]){ save.daily[dk]=st.time; persist(); } setTimeout(()=>toast('🗓️ Sfida del giorno',`tempo ${fmtT1(st.time)} · record di oggi ${fmtT1(save.daily[dk])}`),2600); submitScore('daily'+dk,st.time,st.rescues); } } dropWinch(); const id=TR.id, t=st.time; const nb=!save.best[id]||t<save.best[id]; if(nb&&st.ghRec&&st.ghRec.length>8){ try{ localStorage.setItem('ghost_'+id,JSON.stringify({t,veh:VEH.model||'',f:st.ghRec})); }catch(e){} } save.done[id]=true; if(nb) save.best[id]=t; persist();
+function arrive(){ st.done=true; { const id0=TR.id; giveStar(id0,'vetta'); if(st.rescues===0) giveStar(id0,'pulito'); if(st.time<=parT(TR)) giveStar(id0,'tempo'); { const D0=st.dmg0||{}; if(['gomme','coppa','semiassi','carrozzeria'].every(k=>(st.dmg[k]||0)-(D0[k]||0)<10)) giveStar(id0,'intatto'); } if(st.daily){ save.daily=save.daily||{}; const dk=st.daily; if(!save.daily[dk]){ const bo=Math.round((TR.reward||300)*.5); save.money=(save.money||0)+bo; setTimeout(()=>toast('🗓️ Premio della sfida','+'+eur(bo)+' per la prima volta di oggi'),5200); } if(!save.daily[dk]||st.time<save.daily[dk]){ save.daily[dk]=st.time; persist(); } setTimeout(()=>toast('🗓️ Sfida del giorno',`tempo ${fmtT1(st.time)} · record di oggi ${fmtT1(save.daily[dk])}`),2600); submitScore('daily'+dk,st.time,st.rescues); } } dropWinch(); const id=TR.id, t=st.time; const nb=!save.best[id]||t<save.best[id]; if(nb&&st.ghRec&&st.ghRec.length>8){ try{ localStorage.setItem('ghost_'+id,JSON.stringify({t,veh:VEH.model||'',f:st.ghRec})); }catch(e){} } save.done[id]=true; if(nb) save.best[id]=t; persist();
   toast(nb?'Vetta! Record':'Vetta!',`in ${fmtT1(t)} · si monta il campo`); gabbah('g_si',0); setTimeout(()=>say('Purcello','','p_vetta'),1900); submitScore(id,t,st.rescues); setTimeout(()=>{ if(st.done&&st.running){ startCamp(); if(save.onlyDrive){ cs.skipped=true; setTimeout(()=>{ if(cs) endCamp(); },50); } } },2200); }
 function failRun(f){ st.running=false; clearResume(); gabbah('g_dopo',0); dropWinch(); const tow=150, resc=st.rescues*40; save.money=Math.max(0,save.money-tow-resc); save.dmg={...st.dmg}; persist();
   lastCp=st.chk?{...st.chk,track:TR.id}:null;
@@ -3825,15 +3846,17 @@ $('#ovPlay').addEventListener('click',async()=>{ if($('#go').disabled) return; a
 // ---- menù: scheda partita, sfida del giorno, musica, polvere che vola ----
 function ovInfo(){ try{ const Rs=save.resume, V=VEHS[save.veh]||{}, stTot=Object.values(save.stars||{}).reduce((a,o)=>a+Object.keys(o).length,0), stMax=ORDER.length*STARS.length; const box=$('#ovSave');
   const id=Rs?Rs.track:save.track, T=TRACKS[id]||TRACKS[ORDER[0]]; let ic, l1, l2, pr=null;
+  const TIC={colle:'🍇',bassa:'🌊',lombardore:'🪖',mombracco:'🪨',neve:'❄️',jafferau:'🏰',sommelier:'🏔️',trial:'🌳'};
   if(Rs&&Rs.camp){ ic='⛺'; l1=T.name+' · al campo'; l2='la serata ti aspetta · '+(V.n||''); }
-  else if(Rs){ ic='🏔️'; pr=Math.max(0,Math.min(1,(Rs.s||0)/(T.len||400))); l1=T.name; l2=Math.round(pr*100)+'% del percorso · '+(V.n||''); }
-  else { ic='🚙'; l1=V.n||'Il tuo 4x4'; l2='prossima uscita: '+T.name+' '+starsTxt(id); }
+  else if(Rs){ ic=TIC[id]||'🏔️'; pr=Math.max(0,Math.min(1,(Rs.s||0)/(T.len||400))); l1=T.name; l2='mancano '+Math.max(0,Math.round((T.len||400)-(Rs.s||0)))+' m · col tuo '+(V.n||'4x4'); }
+  else { ic=TIC[id]||'🚙'; l1=T.name; l2='col tuo '+(V.n||'4x4')+' · '+starsTxt(id); }
   box.innerHTML=`<span class="ic">${ic}</span><b>${l1}</b><span class="mo">${eur(save.money||0)}<small>★ ${stTot}/${stMax}</small></span><small>${l2}</small>`+(pr!=null?`<div class="pr"><i style="width:${(pr*100).toFixed(0)}%"></i></div>`:''); box.hidden=false; { const T2=TRACKS[save.track]; $('#ovPlayS').textContent=T2.name+' · '+METEO[save.meteo].ic+' '+METEO[save.meteo].n; }
-  const D=dailyInfo(), done=(save.daily||{})[D.key], dd=$('#ovDaily'); dd.innerHTML=`<span style="font-size:24px">🗓️</span><span><b>Sfida di oggi</b><br>${TRACKS[D.track].name} · ${METEO[D.meteo].ic} ${METEO[D.meteo].n}${done?' · tuo tempo '+fmtT1(done):''}</span><span class="go">${done?'Migliora':'Gioca'} ›</span>`; dd.hidden=false;
+  const D=dailyInfo(), done=(save.daily||{})[D.key], dd=$('#ovDaily'); dd.innerHTML=`<span style="font-size:24px">🗓️</span><span><b>Sfida di oggi</b><br>${TRACKS[D.track].name} · ${METEO[D.meteo].ic} ${METEO[D.meteo].n}<br><small>${done?'tuo tempo '+fmtT1(done)+' · riprova a batterlo':'premio extra +'+eur(Math.round((TRACKS[D.track].reward||300)*.5))+' alla prima volta'}</small></span><span class="go">${done?'Migliora':'Gioca'} ›</span>`; dd.hidden=false;
   dd.onclick=async()=>{ if($('#go').disabled) return; ovRev(); auInit(); askSensors(); calibrate(); save.track=D.track; save.meteo=D.meteo; persist(); $('#over').hidden=true; toGarage(); dailyGo=D.key; $('#garGo').click(); };
  }catch(e){ console.warn(e); } }
 function ovRev(){ if(!AC) return; const t=AC.currentTime, o=AC.createOscillator(), o2=AC.createOscillator(), f=AC.createBiquadFilter(), g=AC.createGain(); o.type='sawtooth'; o2.type='square'; o.frequency.setValueAtTime(38,t); o.frequency.exponentialRampToValueAtTime(95,t+.28); o.frequency.exponentialRampToValueAtTime(42,t+.75); o2.frequency.setValueAtTime(19,t); o2.frequency.exponentialRampToValueAtTime(48,t+.28); o2.frequency.exponentialRampToValueAtTime(21,t+.75); f.type='lowpass'; f.frequency.value=420; g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.32,t+.05); g.gain.exponentialRampToValueAtTime(.001,t+.85); o.connect(f); o2.connect(f); f.connect(g); g.connect(M); o.start(t); o2.start(t); o.stop(t+.9); o2.stop(t+.9); auBurst(900,.25,.05,'bandpass',1.5); }
 let ovMusOn=false; function ovMusic(on){ if(on===undefined) on=save.menuMus!==false; if(!AC) return; if(on&&!MUS){ mp3Start('guida_rock',.38); ovMusOn=true; } else if(!on&&MUS&&ovMusOn){ musicStop(); ovMusOn=false; } $('#ovMus').textContent=on?'🔊 Musica':'🔇 Musica'; $('#ovMus').classList.toggle('off',!on); }
+$('#ovSet').addEventListener('click',e=>{ e.stopPropagation(); const m=$('#over .ovMini'); m.hidden=!m.hidden; $('#ovSet').classList.toggle('on',!m.hidden); });
 $('#ovMus').addEventListener('click',e=>{ e.stopPropagation(); auInit(); save.menuMus=save.menuMus===false; persist(); ovMusic(save.menuMus!==false); });
 $('#over').addEventListener('pointerdown',e=>{ const first=!AC; auInit(); if(first||!MUS) ovMusic(); if(first){ const o=$('#over'); o.classList.remove('slam'); void o.offsetWidth; o.classList.add('slam'); if(AC) auThud(.8); } if(e.target.closest('button')&&!e.target.closest('.ovMini')) ovRev(); vib(15); },true);
 if(save.menuMus===false) $('#ovMus').classList.add('off'),$('#ovMus').textContent='🔇 Musica';
