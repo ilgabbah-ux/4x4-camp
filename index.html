@@ -786,7 +786,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button><button class="big" id="ovPlay" hidden>🏁 Parti<small id="ovPlayS"></small></button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 114</small>
+      <button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 115</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -913,7 +913,7 @@ function baseH(x,z){
   let h=hsAt(s);
   let side=Math.max(0,ad-lerp(4.2,15,sstep(LEN-6,LEN+4,s))); if(side>55) side=55+(side-55)*.45; if(s>LEN+60) side+=(s-LEN-60)*.5*sstep(0,40,ad); const sk=TR.theme==='militare'||TR.flat?.12:1; { let up=(Math.pow(side,1.25)*.32+fbm(x*.08,z*.08)*side*.35)*sk; const dd=Math.max(0,d-6.5), pW=120+dd*1.15, pds=Math.abs(s-(TR.panoS||-1e9)); const pk=TR.panoS&&d>0&&!TR.flat?sstep(pW+650,pW,pds):0; if(pk>0){ let dn=-Math.min(118,Math.pow(dd,1.06)*.5)-sstep(6,14,d)*1.5; dn+=(fbm(x*.012+5,z*.012)-.5)*55*sstep(90,220,dd); up=lerp(up,dn,pk); } h+=up; }
   h+=(fbm(x*.6,z*.6)-.5)*.12*(ad<HALF?1:3.2);
-  if(TR.flat){ let fk=1; for(const f of FORDS) fk*=1-sstep(f[0]-24,f[0]-8,s)*sstep(f[1]+24,f[1]+8,s); h+=fk*((vnoise(x*.028+5,z*.028-3)-.5)*3.2+(vnoise(x*.07,z*.07+9)-.5)*1.1); } /* pianura nel bosco: collinette morbide, niente montagne */
+  if(TR.flat){ let fk=1; for(const f of FORDS) fk*=1-sstep(f[0]-24,f[0]-8,s)*sstep(f[1]+24,f[1]+8,s); h+=fk*(1-sstep(34,48,ad))*((vnoise(x*.028+5,z*.028-3)-.5)*3.2+(vnoise(x*.07,z*.07+9)-.5)*1.1); } /* pianura nel bosco: collinette morbide, niente montagne */
   { let lw=sstep(10,24,s)*sstep(LEN+20,LEN-10,s); for(const f of FORDS) lw*=1-sstep(f[0]-16,f[0]-4,s)*sstep(f[1]+16,f[1]+4,s); h+=lw*((vnoise(x*.11+3,z*.11)-.5)*.75+(vnoise(x*.23-7,z*.23+5)-.5)*.35); if(ad>HALF+.8) h+=lw*sstep(HALF+.8,HALF+3,ad)*Math.max(0,vnoise(x*.35+9,z*.35-4)-.45)*1.6; }
   if(ad<HALF+.5) h-=.11*Math.exp(-Math.pow((ad-.85)/.3,2));
   const Z=zoneAt(s), zt=Z.t;
@@ -1259,6 +1259,8 @@ function buildWorld(id){
         if(!mud&&zt!=='ghiaccio'&&zt!=='galleria'&&zt!=='neve'&&rutk>.5) tc=C.rut.slice();
         if(mud){ const mp=sstep(.38,.62,fbm(x*.55,z*.55)+rutk*.35+(zt==='fangoProf'?.25:0)); tc=tc.map((v,j)=>lerp(lerp(C.terra[j],v,.55),v*(.8+.2*n2),mp)); }
         let gc=(n>.55?C.dry:C.erba).slice(); if(zt==='galleria') gc=[.3,.28,.26];
+        let fldP=0; if(TR.flat&&ad>40){ /* pianura: campi coltivati a riquadri (arato, grano, mais, prato) oltre il bosco */ const fx=Math.floor((x+1000)/70), fz=Math.floor((z+1000)/90), hsh=(Math.sin(fx*12.9898+fz*78.233)*43758.5453)%1, ty=Math.floor(Math.abs(hsh)*4), rw=.93+.07*Math.sin((ty%2?x:z)*1.6);
+          const FC=[[.42,.33,.22],[.72,.62,.36],[.36,.48,.2],[.42,.55,.26]][ty]; const k=sstep(40,52,ad); gc=gc.map((v,j)=>lerp(v,FC[j]*rw*(.94+.12*n2),k)); fldP=ty<2?k:0; }
         if(neve&&inFord(s,4)) gc=C.dry;
         if(alp&&s>LEN*(TR.id==='sommelier'?.4:.45)&&n>(TR.id==='sommelier'?.5:.58)) gc=[.9,.92,.96];
         if(alp&&s>LEN*.35) gc=gc.map((v,j)=>lerp(v,C.cliff[j],sstep(LEN*.35,LEN*.7,s)*.6));
@@ -1275,7 +1277,7 @@ function buildWorld(id){
           if(mud){ const mp=sstep(.3,.6,fbm(x*.55,z*.55)+rutk*.4+(zt==='fangoProf'?.3:0)); rd[1]=mp; rd[0]=1-mp; }
           if(Math.abs(odl)>.05&&ad<HALF+1.5){ const k=Math.min(1,Math.abs(odl)/.2); const tg=odl<0?1:2; for(let q=0;q<4;q++) rd[q]=lerp(rd[q],q===tg?1:0,k); }
           const snowHi=alp&&s>LEN*(TR.id==='sommelier'?.4:.45)&&n>(TR.id==='sommelier'?.5:.58);
-          const off=zt==='galleria'?[0,0,1,0]:[0,0,clf,1-clf]; if(snowHi){ off[3]=0; off[0]=0; off[2]=clf; off[3]=1-clf; }
+          const off=zt==='galleria'?[0,0,1,0]:[0,0,clf,1-clf]; if(fldP>0){ off[0]=fldP; off[3]=(1-clf)*(1-fldP); } if(snowHi){ off[3]=0; off[0]=0; off[2]=clf; off[3]=1-clf; }
           if(mud&&ad<HALF+4.5){ const sp=sstep(.55,.75,vnoise(x*.9,z*.9))*(1-sstep(HALF,HALF+4.5,ad)); off[1]=sp*.8; off[3]*=1-sp*.8; }
           for(let q=0;q<4;q++) swA[i*4+q]=lerp(off[q],rd[q],onT); }
         i++; } }
@@ -1470,14 +1472,20 @@ function buildWorld(id){
     const M=new THREE.Matrix4(), Q=new THREE.Quaternion(), S=new THREE.Vector3(), P=new THREE.Vector3(), col=new THREE.Color(); let n=0;
     for(let k=0;k<N*3&&n<N;k++){ const s=-30+RT()*(LEN+100), side=RT()<.5?-1:1, d=side*(HALF+2.2+Math.pow(RT(),1.6)*60);
       if(inFord(s,6)&&Math.abs(d)<22) continue; if(s>LEN-12&&s<LEN+40&&Math.abs(d)<19) continue; if(s<36&&Math.abs(d)<17) continue;
-      if(TR.treeline&&s>LEN*TR.treeline+RT()*40) continue; if(zoneAt(s).t==='galleria'&&Math.abs(d)<12) continue; if(d>0&&Math.abs(s-TR.panoS)<120&&d<(TR.theme==='militare'?95:45)) continue;
+      if(TR.treeline&&s>LEN*TR.treeline+RT()*40) continue; if(TR.flat&&(d<-30||d>36)) continue; /* in pianura il bosco è una striscia: fuori ci sono campi */ if(zoneAt(s).t==='galleria'&&Math.abs(d)<12) continue; if(!TR.flat&&d>0&&Math.abs(s-TR.panoS)<120&&d<(TR.theme==='militare'?95:45)) continue;
       const x=CX(s)+d, z=-s, y=baseH(x,z), h=(TR.theme==='castagni'?7:6)+RT()*10, r=TR.theme==='castagni'?h*(.45+RT()*.15):1.2+RT()*1.5+h*.04;
       M.compose(P.set(x,y-.15,z),Q.setFromEuler(new THREE.Euler(0,RT()*6,0)),S.set(r,h,r)); im.setMatrixAt(n,M);
       const TT=(STY[TR.id]||{}).tree; if(neve) col.setRGB(.92+RT()*.08,.94+RT()*.06,.96+RT()*.04); else if(TT==='larice') { if(RT()<.45) col.setHSL(.09+RT()*.05,.55+RT()*.2,.42+RT()*.12); else col.setHSL(.22+RT()*.08,.3+RT()*.2,.3+RT()*.12); } else if(TR.theme==='alpino') col.setHSL(.2+RT()*.1,.3+RT()*.2,.32+RT()*.14); else if(TR.id==='bassa') col.setHSL(.29+RT()*.06,.3+RT()*.2,.24+RT()*.12); else col.setHSL(.24+RT()*.1,.22+RT()*.22,.3+RT()*.16); im.setColorAt(n,col);
       if(Math.abs(d)<20) TREES.push({x,z,r:.22+r*.04});
       n++; }
     im.count=n; im.castShadow=true; im.receiveShadow=true; world.add(im);
-    if(TR.theme!=='castagni') swapToAsset(im,(STY[TR.id]||{}).tree==='larice'?'larice':'pino',1.9,neve?[1.25,1.3,1.35]:null); else swapToAsset(im,'latifoglia',1.9,[.9,1,.85]); }
+    if(TR.theme!=='castagni'&&!TR.flat) swapToAsset(im,(STY[TR.id]||{}).tree==='larice'?'larice':'pino',1.9,neve?[1.25,1.3,1.35]:null); else swapToAsset(im,'latifoglia',1.9,[.9,1,.85]); } /* bosco di pianura: latifoglie (robinie, querce, pioppi), non pini */
+  /* campi da calcio di Villastellone accanto al bosco della pista */
+  if(TR.id==='trial'){ const c=document.createElement('canvas'); c.width=256; c.height=400; const g=c.getContext('2d');
+    for(let i=0;i<10;i++){ g.fillStyle=i%2?'#3f7a33':'#478a3a'; g.fillRect(0,i*40,256,40); } g.strokeStyle='rgba(255,255,255,.9)'; g.lineWidth=3; g.strokeRect(8,8,240,384); g.beginPath(); g.moveTo(8,200); g.lineTo(248,200); g.stroke(); g.beginPath(); g.arc(128,200,34,0,7); g.stroke(); g.strokeRect(68,8,120,60); g.strokeRect(68,332,120,60); g.strokeRect(100,8,56,22); g.strokeRect(100,370,56,22);
+    const pt=new THREE.CanvasTexture(c); pt.anisotropy=4; const pm=new THREE.MeshStandardMaterial({map:pt,roughness:.95,polygonOffset:true,polygonOffsetFactor:-2});
+    for(const [fs,fd] of [[.22,-78],[.5,-80],[.74,-76]]){ const sC=LEN*fs, yaw=Math.atan2(CX(sC+1)-CX(sC-1),2); const x=CX(sC)+fd, z=-sC; const m=new THREE.Mesh(new THREE.PlaneGeometry(64,100),pm); m.rotation.set(-Math.PI/2,0,-yaw); m.position.set(x,baseH(x,z)+.08,z); m.receiveShadow=true; world.add(m);
+      const gp=new THREE.MeshStandardMaterial({color:0xf2f2f2,roughness:.5}); for(const e of [-1,1]){ const go=new THREE.Group(); for(const [px,py,sx,sy] of [[-3.6,1.2,.12,2.44],[3.6,1.2,.12,2.44],[0,2.44,7.4,.12]]){ const b=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,.12),gp); b.position.set(px,py,0); go.add(b); } go.position.set(x+Math.sin(yaw)*0,baseH(x,z),z); go.translateZ(0); go.rotation.y=-yaw; go.position.add(new V(-Math.sin(-yaw)*0,0,0)); const off=new V(0,0,e*49).applyAxisAngle(new V(0,1,0),-yaw); go.position.add(off); world.add(go); } } }
   /* quercia robusta subito dopo la Pozza dell'Ippopotamo: è l'albero buono per il verricello */
   for(const Z of ZONES) if(Z.ippo){ for(const sd of [1,-1]){ const sA=Z.b+4, x=CX(sA)+sd*4.2, z=-sA, y=baseH(x,z); const g=new THREE.Group();
       const tr=new THREE.Mesh(new THREE.CylinderGeometry(.26,.38,5.5,9),new THREE.MeshStandardMaterial({map:tex('t_corteccia'),roughness:.95})); tr.position.y=2.6; tr.castShadow=true; g.add(tr);
@@ -1543,7 +1551,7 @@ function buildWorld(id){
       for(let i=0;i<9;i++){ const m=new THREE.Mesh(new THREE.PlaneGeometry(1.6+Math.random()*2.2,22),sm); m.userData.o=new V((Math.random()-.5)*26,0,-6-Math.random()*30); world.add(m); shafts.push(m); } world.userData.shafts=shafts; world.userData.shaftM=sm; } }
   // catene di montagne sullo sfondo: creste vere con canaloni, nevai e foschia, diverse per ogni zona del Piemonte
   { const ST=STY[TR.id]||STY.colle, RM=rng(3+TR.id.length); const hz=neve?new THREE.Color(0x1a2440):new THREE.Color(ST.haze||0xc9d6e2);
-    { const pn=neve?'neve':(TR.theme==='alpino'||TR.id==='colle')?'alpi':'colli', pt=tex('pan_'+pn+'.png',false); pt.wrapS=THREE.RepeatWrapping; pt.repeat.set(3,1); pt.anisotropy=4; const R=950, H=340, y0=hsAt(LEN/2)-120;
+    { const pn=neve?'neve':TR.flat?'pianura':(TR.theme==='alpino'||TR.id==='colle')?'alpi':'colli', pt=tex('pan_'+pn+'.png',false); pt.wrapS=THREE.RepeatWrapping; pt.repeat.set(3,1); pt.anisotropy=4; const R=950, H=340, y0=hsAt(LEN/2)-120;
       const cyl=new THREE.Mesh(new THREE.CylinderGeometry(R,R,H,96,1,true),new THREE.MeshBasicMaterial({map:pt,transparent:true,alphaTest:.02,side:THREE.BackSide,fog:false,depthWrite:false,color:TR.night?0x47506a:0xf2f2f2})); cyl.position.set(CX(LEN/2),y0+H/2,-LEN/2); cyl.renderOrder=-1; cyl.frustumCulled=false; world.add(cyl); }
     for(const [R0,H0,amp,hzK,seed] of []){ if(!H0) continue;
       const NA=320, NR=7, P=[], C=[], I=[], cx=CX(LEN/2), cz=-LEN/2, rock=new THREE.Color(neve?0x3f4658:ST.rock||0x5f6b73), grassC=new THREE.Color(ST.slope||0x4f5f3c), snowC=new THREE.Color(neve?0xdfe6f2:0xf3f6fa);
@@ -3469,7 +3477,7 @@ function droneScore(){ const D=st.drone; cam.updateMatrixWorld(true); const pc=s
     const fwd=new V(); cam.getWorldDirection(fwd); const pitch=Math.asin(clamp(fwd.y,-1,1)); const pd=-pitch*180/Math.PI; let open=pd<12?clamp(pd/12,0,1):pd<30?1:clamp(1-(pd-30)/25,0,1); open*=clamp((D.pos.y-height(D.pos.x,D.pos.z)-1.5)/3,0,1);
     const alt=Math.min(1,(D.pos.y-height(D.pos.x,D.pos.z))/10), steady=Math.max(0,1-D.spd/6)*(D.user>.02?.4:1);
     const side=Math.abs(new V(fw.x,0,fw.z).normalize().dot(new V(fwd.x,0,fwd.z).normalize())); const ang=clamp(1-Math.abs(side-.6)/.35,0,1); // 3/4 anteriore o posteriore: il taglio più bello
-    let vale=0; { const hd=fwd.clone().setY(0).normalize(); for(const d of [60,100,150]){ const q=st.pos.clone().addScaledVector(hd,d); vale+=clamp((st.pos.y-height(q.x,q.z)-4)/20,0,1); } vale/=3; } /* dietro al mezzo si vede la valle, non il muro della montagna */
+    let vale=0; { const hd=fwd.clone().setY(0).normalize(); for(const d of [60,100,150]){ const q=st.pos.clone().addScaledVector(hd,d); vale+=clamp((st.pos.y-height(q.x,q.z)-4)/20,0,1); } vale/=3; if(TR.flat) vale=1; } /* dietro al mezzo si vede la valle, non il muro della montagna (in pianura non serve) */
     sc=Math.round(100*(.25*sizeS+.2*open+.25*clamp(ang,0,1)+.2*vale+.1*steady)); if(st.drone) st.drone.parts={thirds,sizeS,size,open,steady,ang,vale};
     if(sizeS<.6) why.push(size<.18?'troppo lontano: GAS per avvicinarti':'troppo vicino: FRENO per allontanarti'); if(open<.5) why.push(pd>=38?'troppo dall\'alto: trascina giù per scendere':'troppo basso: trascina su per salire'); if(steady<.5) why.push('mosso: fermati un attimo prima di scattare'); if(vale<.45) why.push('dietro c\'è la montagna: gira finché vedi la valle'); if(ang<.6) why.push('gira attorno: più bello di tre quarti'); }
   return {sc,why}; }
