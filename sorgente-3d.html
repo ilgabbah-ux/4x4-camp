@@ -661,7 +661,7 @@ body.incamp #toast small{font-family:var(--fc)}
   <div id="ctl" hidden>
     <button class="pedal" id="brk">FRENO<small>tieni = retro</small></button>
     <div class="cen">
-      <button class="cb help" id="helpB" hidden>Chiama Purcello<br><small>strop · cassa di birra</small></button>
+      <button class="cb help" id="ristB" hidden>☕ Caffè corretto<br><small>al ristoro: si sistema il mezzo</small></button><button class="cb help" id="helpB" hidden>Chiama Purcello<br><small>strop · cassa di birra</small></button>
       <button class="cb win" id="winB" hidden>Verricello</button>
       <button class="cb drone" id="droneB" hidden>🚁 Foto col drone</button>
       <button class="cb" id="presB" hidden>Gomme 1,6 bar</button>
@@ -771,7 +771,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button><button class="big" id="ovPlay" hidden>🏁 Parti<small id="ovPlayS"></small></button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 115</small>
+      <button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 116</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -837,18 +837,18 @@ const TRACKS={
   zones:[{a:0,b:40,t:'ghiaia',sl:.06},{a:40,b:60,t:'acqua',sl:0,lab:'Guado del torrente'},{a:60,b:120,t:'ghiaia',sl:.11},{a:120,b:160,t:'roccia',sl:.13,rocks:1},{a:160,b:220,t:'ghiaia',sl:.12},
    {a:220,b:260,t:'neve',sl:.1,lab:'Nevaio'},{a:260,b:300,t:'ghiaia',sl:.14},{a:300,b:350,t:'roccia',sl:.17,rocks:2},{a:350,b:390,t:'neve',sl:.08,lab:'Nevaio'},
    {a:390,b:430,t:'ghiaccio',sl:.1,lab:'Ghiacciaio del Sommeiller'},{a:430,b:490,t:'roccia',sl:.2,rocks:1},{a:490,b:620,t:'terra',sl:0}]},
- trial:{id:'trial',name:'Campo Trial Team Villastellone',sub:'la pista del Trial Team 4x4 nel bosco: giro facile, giri medi e il giro hard con la Pozza dell\'Ippopotamo, dove ci si pianta tutti',len:480,theme:'bosco',flat:1,night:false,reward:460,ph:[.9,2.4,1.6],amp:[12,6,2.2],camp:{trees:true,wood:'pile',mark:'cairn'},
+ trial:{id:'trial',name:'Campo Trial Team Villastellone',sub:'la pista del Trial Team 4x4 nel bosco: giro facile, giri medi e il giro hard con la Pozza dell\'Ippopotamo, dove ci si pianta tutti',len:480,theme:'bosco',flat:1,night:false,reward:460,ristoro:288,ph:[.9,2.4,1.6],amp:[12,6,2.2],camp:{trees:true,wood:'pile',mark:'cairn'},
   zones:[{a:0,b:16,t:'terra',sl:0,lab:'Ingresso'},{a:16,b:38,t:'terra',sl:0,lab:'Giro facile'},{a:38,b:48,t:'terra',sl:0,humps:.55,lab:'Rampa'},{a:48,b:60,t:'terra',sl:0},{a:60,b:73,t:'terra',sl:0,humps:.95,lab:'Panettone'},
    {a:73,b:88,t:'terra',sl:0},{a:88,b:98,t:'terra',sl:0,humps:.72,lab:'Giro medio · Rampa'},{a:98,b:200,t:'terra',sl:0},{a:200,b:212,t:'fango',sl:0,lab:'Fango nel bosco'},{a:212,b:238,t:'terra',sl:0},
-   {a:238,b:248,t:'terra',sl:0,humps:.78,lab:'Rampa'},{a:248,b:256,t:'terra',sl:0},{a:256,b:266,t:'terra',sl:0,humps:.62,lab:'Rampe'},{a:266,b:292,t:'terra',sl:0},
-   {a:292,b:410,t:'terra',sl:0,lab:'Giro hard'},{a:410,b:436,t:'fangoProf',sl:0,ippo:1,lab:'Pozza dell\'Ippopotamo'},{a:436,b:446,t:'terra',sl:0},{a:446,b:458,t:'terra',sl:0,humps:.95,lab:'Rampa hard'},{a:458,b:600,t:'terra',sl:0,lab:'Uscita'}],
+   {a:238,b:248,t:'terra',sl:0,humps:.78,lab:'Rampa'},{a:248,b:256,t:'terra',sl:0},{a:256,b:266,t:'terra',sl:0,humps:.62,lab:'Rampe'},{a:266,b:282,t:'terra',sl:0},{a:282,b:294,t:'terra',sl:0,lab:'☕ Ristoro Trial Team'},
+   {a:294,b:402,t:'terra',sl:0,lab:'Giro hard'},{a:402,b:413,t:'terra',sl:-.17,lab:'Discesone'},{a:413,b:436,t:'fangoProf',sl:0,ippo:1,lab:'Pozza dell\'Ippopotamo'},{a:436,b:446,t:'terra',sl:.17,lab:'Risalita'},{a:446,b:458,t:'terra',sl:0,humps:.95,lab:'Rampa hard'},{a:458,b:600,t:'terra',sl:0,lab:'Uscita'}],
   /* ostacoli nell'ordine della mappa del campo: verde facile, giallo medio, rosso hard */
   obs:[{nm:'Serie twist · facile',t:'twist',s:24,dep:.3},
    {nm:'Buca · medio',t:'vg',s:108,dep:.45,len:11},{nm:'Serie di buche · medio',t:'ditch',s:126,dep:.35,w:.7},{nm:'Serie di buche · medio',t:'ditch',s:131,dep:.36,w:.7},{nm:'Serie di buche · medio',t:'ditch',s:136,dep:.35,w:.7},
    {nm:'Serie twist · medio',t:'twist',s:154,dep:.38},{nm:'Serie twist · medio',t:'twist',s:170,dep:.4},{nm:'Buca · medio',t:'vg',s:186,dep:.5,len:11},
-   {nm:'Laterale · facile',t:'camber',s:218,tilt:.17,len:12},{nm:'Serie twist · facile',t:'twist',s:230,dep:.32},{nm:'Buca · medio',t:'vg',s:276,dep:.5,len:11},
-   {nm:'Serie twist · HARD',t:'twist',s:298,dep:.46},{nm:'Serie di buche · HARD',t:'ditch',s:315,dep:.45,w:.8},{nm:'Serie di buche · HARD',t:'ditch',s:320,dep:.46,w:.8},{nm:'Serie di buche · HARD',t:'ditch',s:325,dep:.45,w:.8},{nm:'Serie di buche · HARD',t:'ditch',s:330,dep:.47,w:.8},
-   {nm:'Curva in laterale · HARD',t:'camber',s:348,tilt:.26,len:12},{nm:'Curva in laterale · HARD',t:'camber',s:365,tilt:.28,len:12},{nm:'Serie twist · HARD',t:'twist',s:382,dep:.48},{nm:'Laterale · HARD',t:'camber',s:398,tilt:.32,len:14}]}
+   {nm:'Laterale · facile',t:'camber',s:218,tilt:.17,len:12},{nm:'Serie twist · facile',t:'twist',s:230,dep:.32},{nm:'Buca · medio',t:'vg',s:269,dep:.5,len:10},
+   {nm:'Serie twist · HARD',t:'twist',s:300,dep:.46},{nm:'Serie di buche · HARD',t:'ditch',s:315,dep:.45,w:.8},{nm:'Serie di buche · HARD',t:'ditch',s:320,dep:.46,w:.8},{nm:'Serie di buche · HARD',t:'ditch',s:325,dep:.45,w:.8},{nm:'Serie di buche · HARD',t:'ditch',s:330,dep:.47,w:.8},
+   {nm:'Curva in laterale · HARD',t:'camber',s:345,tilt:.26,len:12},{nm:'Curva in laterale · HARD',t:'camber',s:360,tilt:.28,len:12},{nm:'Serie twist · HARD',t:'twist',s:374,dep:.48},{nm:'Laterale · HARD',t:'camber',s:386,tilt:.32,len:13}]}
 };
 const ORDER=['colle','bassa','lombardore','mombracco','neve','jafferau','sommelier','trial'];
 const PANO={trial:'la pianura e le colline del Roero',colle:'giù in fondo la valle e le borgate',bassa:'lassù si vedono girare le pale del mulino',lombardore:'la pianura del Canavese fino alle Alpi',mombracco:'il Monviso proprio davanti',neve:'le luci del paese laggiù',jafferau:'Bardonecchia sotto di te',sommelier:'il ghiacciaio sopra la testa'};
@@ -898,7 +898,7 @@ function baseH(x,z){
   let h=hsAt(s);
   let side=Math.max(0,ad-lerp(4.2,15,sstep(LEN-6,LEN+4,s))); if(side>55) side=55+(side-55)*.45; if(s>LEN+60) side+=(s-LEN-60)*.5*sstep(0,40,ad); const sk=TR.theme==='militare'||TR.flat?.12:1; { let up=(Math.pow(side,1.25)*.32+fbm(x*.08,z*.08)*side*.35)*sk; const dd=Math.max(0,d-6.5), pW=120+dd*1.15, pds=Math.abs(s-(TR.panoS||-1e9)); const pk=TR.panoS&&d>0&&!TR.flat?sstep(pW+650,pW,pds):0; if(pk>0){ let dn=-Math.min(118,Math.pow(dd,1.06)*.5)-sstep(6,14,d)*1.5; dn+=(fbm(x*.012+5,z*.012)-.5)*55*sstep(90,220,dd); up=lerp(up,dn,pk); } h+=up; }
   h+=(fbm(x*.6,z*.6)-.5)*.12*(ad<HALF?1:3.2);
-  if(TR.flat){ let fk=1; for(const f of FORDS) fk*=1-sstep(f[0]-24,f[0]-8,s)*sstep(f[1]+24,f[1]+8,s); h+=fk*(1-sstep(34,48,ad))*((vnoise(x*.028+5,z*.028-3)-.5)*3.2+(vnoise(x*.07,z*.07+9)-.5)*1.1); } /* pianura nel bosco: collinette morbide, niente montagne */
+  if(TR.flat){ let fk=1; for(const f of FORDS) fk*=1-sstep(f[0]-24,f[0]-8,s)*sstep(f[1]+24,f[1]+8,s); if(TR.ristoro){ const rs=TR.ristoro*1.3; fk*=1-sstep(26,12,Math.abs(s-rs))*sstep(-8,-2,d)*sstep(24,16,d); } h+=fk*(1-sstep(34,48,ad))*((vnoise(x*.028+5,z*.028-3)-.5)*3.2+(vnoise(x*.07,z*.07+9)-.5)*1.1); } /* pianura nel bosco: collinette morbide, niente montagne */
   { let lw=sstep(10,24,s)*sstep(LEN+20,LEN-10,s); for(const f of FORDS) lw*=1-sstep(f[0]-16,f[0]-4,s)*sstep(f[1]+16,f[1]+4,s); h+=lw*((vnoise(x*.11+3,z*.11)-.5)*.75+(vnoise(x*.23-7,z*.23+5)-.5)*.35); if(ad>HALF+.8) h+=lw*sstep(HALF+.8,HALF+3,ad)*Math.max(0,vnoise(x*.35+9,z*.35-4)-.45)*1.6; }
   if(ad<HALF+.5) h-=.11*Math.exp(-Math.pow((ad-.85)/.3,2));
   const Z=zoneAt(s), zt=Z.t;
@@ -1465,6 +1465,33 @@ function buildWorld(id){
       n++; }
     im.count=n; im.castShadow=true; im.receiveShadow=true; world.add(im);
     if(TR.theme!=='castagni'&&!TR.flat) swapToAsset(im,(STY[TR.id]||{}).tree==='larice'?'larice':'pino',1.9,neve?[1.25,1.3,1.35]:null); else swapToAsset(im,'latifoglia',1.9,[.9,1,.85]); } /* bosco di pianura: latifoglie (robinie, querce, pioppi), non pini */
+  /* Ristoro Trial Team: tettoia di lamiera, container bianco col murale, tavoli e sedie */
+  if(TR.ristoro){ const rs=TR.ristoro*1.3, th=-Math.atan2(CX(rs+1)-CX(rs-1),2), G=new THREE.Group(); G.position.set(CX(rs),hsAt(rs)+.02,-rs); G.rotation.y=th; world.add(G); TR._rist=rs;
+    const M=(c,o={})=>new THREE.MeshStandardMaterial({color:c,roughness:.8,...o}), B=(w,h,d,m,x,y,z)=>{ const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m); b.position.set(x,y,z); b.castShadow=true; b.receiveShadow=true; G.add(b); return b; };
+    // murale TRIAL TEAM 4X4
+    const cv=document.createElement('canvas'); cv.width=1024; cv.height=440; const g=cv.getContext('2d'); g.fillStyle='#e9e7df'; g.fillRect(0,0,1024,440); g.strokeStyle='rgba(0,0,0,.08)'; for(let x=0;x<1024;x+=16){ g.beginPath(); g.moveTo(x,0); g.lineTo(x,440); g.stroke(); }
+    g.fillStyle='#16181c'; g.font='bold 92px Impact, Arial Black, sans-serif'; g.fillText('TRIAL TEAM',300,120); g.font='bold 120px Impact, Arial Black, sans-serif'; g.fillText('4 X 4',560,300);
+    g.fillStyle='#16181c'; g.fillRect(150,170,170,130); g.strokeStyle='#16181c'; g.lineWidth=10; g.strokeRect(160,110,150,70); g.fillStyle='#ffd400'; g.beginPath(); g.moveTo(185,215); g.lineTo(225,232); g.lineTo(195,240); g.fill(); g.beginPath(); g.moveTo(285,215); g.lineTo(245,232); g.lineTo(275,240); g.fill();
+    g.fillStyle='#e9e7df'; for(let i=0;i<6;i++) g.fillRect(200+i*14,255,8,26); g.fillStyle='#6b4a3a'; g.strokeStyle='#16181c'; g.lineWidth=3; for(const cx of [95,375]) for(let r=0;r<7;r++) for(let c2=0;c2<3;c2++){ g.beginPath(); g.ellipse(cx-40+c2*40+(r%2)*10,190+r*32,18,11,.3,0,7); g.fill(); g.stroke(); }
+    const mt=new THREE.CanvasTexture(cv); mt.anisotropy=4;
+    const wallM=M(0xe8e6de), cont=B(2.4,2.6,7,wallM,11.2,1.3,0); 
+    const mur=new THREE.Mesh(new THREE.PlaneGeometry(6.6,2.4),new THREE.MeshStandardMaterial({map:mt,roughness:.85})); mur.position.set(9.98,1.3,0); mur.rotation.y=-Math.PI/2; G.add(mur);
+    B(2.6,.12,7.2,M(0x2a6a7a),11.2,2.66,0);
+    // tettoia
+    const poleM=M(0x6d4a30,{metalness:.4,roughness:.6}); for(const [px,pz] of [[4.2,-3.6],[4.2,3.6],[9.4,-3.6],[9.4,3.6]]) B(.1,2.6,.1,poleM,px,1.3,pz);
+    const rf=B(5.8,.06,8,M(0x8a9196,{metalness:.5,roughness:.45}),6.8,2.7,0); rf.rotation.z=.06; B(5.9,.08,.12,M(0x2d6fb0),6.8,2.62,-4);
+    // teli arrotolati sui pali
+    for(const [px,pz] of [[4.2,-3.4],[4.2,1.5]]){ const t=new THREE.Mesh(new THREE.CylinderGeometry(.18,.22,2.2,8),M(0xb9b8a6)); t.position.set(px+.15,1.4,pz); G.add(t); }
+    // tavoli rotondi, sedie e cassetta gialla
+    const tabM=M(0xd9d6cc); for(const [tx,tz] of [[6.2,-1.6],[7.4,1.6]]){ const t=new THREE.Mesh(new THREE.CylinderGeometry(.75,.75,.05,20),tabM); t.position.set(tx,.78,tz); t.castShadow=true; G.add(t); B(.08,.76,.08,poleM,tx,.38,tz); }
+    const chM=M(0x5d9a4a); for(const [cx,cz,r] of [[5.3,-1.1,.6],[7,-2.5,2],[8.3,1.1,-1],[6.6,2.6,3]]){ const c=new THREE.Group(); c.position.set(cx,0,cz); c.rotation.y=r; G.add(c); const sb=(w,h,d,x,y,z)=>{ const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),chM); b.position.set(x,y,z); b.castShadow=true; c.add(b); }; sb(.42,.04,.42,0,.45,0); sb(.42,.5,.04,0,.72,-.2); for(const [lx,lz] of [[-.18,-.18],[.18,-.18],[-.18,.18],[.18,.18]]) sb(.04,.45,.04,lx,.22,lz); }
+    B(.6,.32,.42,M(0xf2c40f),7.6,.95,1.4); B(.5,.3,.35,M(0x1d1d1f),6,.95,-1.8);
+    // lampioni del campo sportivo dietro
+    for(const pz of [-14,12]){ B(.18,11,.18,M(0x9aa0a4,{metalness:.6}),15,5.5,pz); B(1.4,.5,.3,M(0xdddddd,{emissive:0x333333}),15,11,pz); }
+    // cartello
+    const sc=document.createElement('canvas'); sc.width=256; sc.height=96; const s2=sc.getContext('2d'); s2.fillStyle='#1a1a1a'; s2.fillRect(0,0,256,96); s2.fillStyle='#ffd400'; s2.font='bold 34px Arial Black, sans-serif'; s2.fillText('☕ RISTORO',14,44); s2.fillStyle='#fff'; s2.font='bold 22px Arial'; s2.fillText('fermati qui',60,80);
+    const sg=new THREE.Mesh(new THREE.PlaneGeometry(1.6,.6),new THREE.MeshStandardMaterial({map:new THREE.CanvasTexture(sc)})); sg.position.set(2.6,1.6,-9); sg.rotation.y=.3; G.add(sg); B(.06,1.4,.06,poleM,2.6,.7,-9);
+  }
   /* campi da calcio di Villastellone accanto al bosco della pista */
   if(TR.id==='trial'){ const c=document.createElement('canvas'); c.width=256; c.height=400; const g=c.getContext('2d');
     for(let i=0;i<10;i++){ g.fillStyle=i%2?'#3f7a33':'#478a3a'; g.fillRect(0,i*40,256,40); } g.strokeStyle='rgba(255,255,255,.9)'; g.lineWidth=3; g.strokeRect(8,8,240,384); g.beginPath(); g.moveTo(8,200); g.lineTo(248,200); g.stroke(); g.beginPath(); g.arc(128,200,34,0,7); g.stroke(); g.strokeRect(68,8,120,60); g.strokeRect(68,332,120,60); g.strokeRect(100,8,56,22); g.strokeRect(100,370,56,22);
@@ -1472,9 +1499,9 @@ function buildWorld(id){
     for(const [fs,fd] of [[.22,-78],[.5,-80],[.74,-76]]){ const sC=LEN*fs, yaw=Math.atan2(CX(sC+1)-CX(sC-1),2); const x=CX(sC)+fd, z=-sC; const m=new THREE.Mesh(new THREE.PlaneGeometry(64,100),pm); m.rotation.set(-Math.PI/2,0,-yaw); m.position.set(x,baseH(x,z)+.08,z); m.receiveShadow=true; world.add(m);
       const gp=new THREE.MeshStandardMaterial({color:0xf2f2f2,roughness:.5}); for(const e of [-1,1]){ const go=new THREE.Group(); for(const [px,py,sx,sy] of [[-3.6,1.2,.12,2.44],[3.6,1.2,.12,2.44],[0,2.44,7.4,.12]]){ const b=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,.12),gp); b.position.set(px,py,0); go.add(b); } go.position.set(x+Math.sin(yaw)*0,baseH(x,z),z); go.translateZ(0); go.rotation.y=-yaw; go.position.add(new V(-Math.sin(-yaw)*0,0,0)); const off=new V(0,0,e*49).applyAxisAngle(new V(0,1,0),-yaw); go.position.add(off); world.add(go); } } }
   /* quercia robusta subito dopo la Pozza dell'Ippopotamo: è l'albero buono per il verricello */
-  for(const Z of ZONES) if(Z.ippo){ for(const sd of [1,-1]){ const sA=Z.b+4, x=CX(sA)+sd*4.2, z=-sA, y=baseH(x,z); const g=new THREE.Group();
-      const tr=new THREE.Mesh(new THREE.CylinderGeometry(.26,.38,5.5,9),new THREE.MeshStandardMaterial({map:tex('t_corteccia'),roughness:.95})); tr.position.y=2.6; tr.castShadow=true; g.add(tr);
-      const cm=new THREE.MeshStandardMaterial({color:0x3f5a2a,roughness:.9}); for(let k=0;k<5;k++){ const b=new THREE.Mesh(new THREE.IcosahedronGeometry(1.6+Math.random()*.8,1),cm); b.position.set((Math.random()-.5)*2.2,5.6+Math.random()*1.4,(Math.random()-.5)*2.2); b.castShadow=true; g.add(b); }
+  for(const Z of ZONES) if(Z.ippo){ for(const sd of [1,-1]){ const sA=Z.b+5, x=CX(sA)+sd*5.6, z=-sA, y=baseH(x,z); const g=new THREE.Group();
+      const tr=new THREE.Mesh(new THREE.CylinderGeometry(.26,.4,7.5,9),new THREE.MeshStandardMaterial({map:tex('t_corteccia'),roughness:.95})); tr.position.y=3.6; tr.castShadow=true; g.add(tr);
+      const cm=new THREE.MeshStandardMaterial({color:0x3f5a2a,roughness:.9}); for(let k=0;k<5;k++){ const b=new THREE.Mesh(new THREE.IcosahedronGeometry(1.6+Math.random()*.8,1),cm); b.position.set((Math.random()-.5)*2.6,7.6+Math.random()*1.6,(Math.random()-.5)*2.6); b.castShadow=true; g.add(b); }
       g.position.set(x,y-.1,z); world.add(g); TREES.push({x,z,r:.34}); } }
   TREEB=new Map(); for(const t of TREES){ const k=Math.floor(-t.z/4); if(!TREEB.has(k)) TREEB.set(k,[]); TREEB.get(k).push(t); }
   // pioppi ai bordi del campo militare
@@ -1980,7 +2007,7 @@ function rapWheels(dt,inp,thr,brake,low,Fmax,vmax,semiK,gomK){ const R=RAP.R, c=
       else { j.configureMotorVelocity(0,1e6); j.setMotorMaxForce(low?ENG.eb*RW/4:70); }
       (st.dv=st.dv||[0,0,0,0])[i]=Tax/2*f/RW; } });
   // resistenza al rotolamento e fango che tiene
-  const sp=st.vel.dot(fwv); for(let i=0;i<4;i++){ if(!st.contact[i]) continue; const su=st.wsurf[i]; const rr=(CRR[su]||.02)*(isSoft(su)?Math.pow(MASS/2100,.35):1)+(isSoft(su)?st.sink*(thr<0?.12:.2):0)+(IPPO&&su==='fangoProf'?st.sink*(st.winch&&st.winch.pull?.1:1.1):0); /* Pozza dell'Ippopotamo: il fango tiene come colla, si esce col verricello o con gli amici */ c.rr=(c.rr||0)+rr*MASS*9.81/4; }
+  const sp=st.vel.dot(fwv); for(let i=0;i<4;i++){ if(!st.contact[i]) continue; const su=st.wsurf[i]; const rr=(CRR[su]||.02)*(isSoft(su)?Math.pow(MASS/2100,.35):1)+(isSoft(su)?st.sink*(thr<0?.12:.2):0)+(IPPO&&su==='fangoProf'?st.sink*(st.winch&&st.winch.pull?.1:2.2):0); /* Pozza dell'Ippopotamo: il fango tiene come colla, si esce col verricello o con gli amici */ c.rr=(c.rr||0)+rr*MASS*9.81/4; }
   return contacts; }
 function rapPost(dt,F,T){ const c=RAP.car, ch=c.ch;
   F.y+=9.81*MASS; // la gravità la mette Rapier
@@ -2299,6 +2326,7 @@ function updRescue(dt){
   if(t>6.2){ st.rescue=null; pur.visible=false; strop.visible=false; st.sink=0; st.stuckT=0; st.vel.set(0,0,0); toast('Fuori!','una cassa di birra a Purcello'); }
 }
 $('#helpB').addEventListener('click',rescue);
+$('#ristB').addEventListener('click',()=>{ if(st.ristDone||!st.running) return; st.ristDone=1; $('#ristB').hidden=true; const D=st.dmg, before=Object.values(D).reduce((a,b)=>a+b,0); for(const k of ['gomme','coppa','semiassi','carrozzeria']) D[k]=Math.max(0,(D[k]||0)*.55-6); st.dmg0={...D}; st.time+=25; const saved=Math.round(before-Object.values(D).reduce((a,b)=>a+b,0)); auThud(.3); vib(30); toast('☕ Caffè corretto!','gli amici del Trial Team ti sistemano il mezzo (danni −'+saved+') · pausa +25 s'); });
 // verricello: cerca un albero davanti al muso, aggancia la fascia, tenendo premuto recupera il cavo
 function attachWinch(){
   if(!own('winch')||st.rescue||st.winch) return !!st.winch;
@@ -3348,6 +3376,7 @@ function frame(now){ UORG.value.copy(cam.position);
     // bloccato o ribaltato
     const flipped=up.y<.35; if((Math.abs(sp)<.4&&inp.gas)||flipped) st.stuckT+=dt; else st.stuckT=Math.max(0,st.stuckT-dt);
     if(st.s>(st.progS||0)+1.5){ st.progS=st.s; st.progT=0; } else st.progT=(st.progT||0)+dt; if(st.progT>7&&!st.done) st.stuckT=Math.max(st.stuckT,2.6);
+    if(TR._rist){ const near=Math.abs(st.s-TR._rist)<9&&Math.abs(sp)<.6&&!st.ristDone&&!st.rescue; $('#ristB').hidden=!near; if(!st.ristSaid&&st.s>TR._rist-70&&st.s<TR._rist-20){ st.ristSaid=1; toast('☕ Ristoro Trial Team tra poco','fermati sotto la tettoia: caffè corretto e il mezzo riparte sistemato'); } } else $('#ristB').hidden=true;
     $('#helpB').hidden=!!st.rescue||!!st.flipSeq||!!(st.winch&&st.winch.pull)||!(st.stuckT>2.5||flipped||st.sink>.85);
     const wv0=0; const wv=own('winch')&&!st.done&&!st.rescue&&(Math.abs(sp)<1.5||st.winch); $('#winB').hidden=!wv; if(wv){ $('#winB').textContent=st.winch?(st.winch.pull?'Tiro…':'Tieni: tira il cavo'):'Verricello'; $('#winB').classList.toggle('on',!!(st.winch&&st.winch.pull)); }
     updFlipSeq(dt);
@@ -3607,7 +3636,7 @@ function ghostUpd(dt){ if(st.done) return; st.ghT+=dt; if(st.ghT>=.25){ st.ghT-=
   const gs=-ghostCar.position.z; st.ghGap=gs-st.s; }
 function startRun(){ st.daily=dailyGo; dailyGo=null; st.fog0=null; rtt.userData.lidP.rotation.x=0; rtt.userData.tela.scale.y=.001; cam.clearViewOffset(); shS=-1; if(cs) clearCamp(); setTimeout(()=>{ if(st.running&&!campMode&&save.musGuida!==false&&AC) { if(TRACK_MP3[save.track]) mp3Start(TRACK_MP3[save.track],.32); else musicStart(TRACK_SONG[save.track]||'rock',.2); } },600); WX=save.meteo; if(WX==='random'){ const ks=Object.keys(METEO).filter(k=>k!=='random'), w=ks.map(k=>k==='sereno'?3:k==='temporale'?1:1.6); let r=Math.random()*w.reduce((a,b)=>a+b,0), q=0; while(r>w[q]){ r-=w[q]; q++; } WX=ks[q]; st.wxRnd=true; setTimeout(()=>toast('🎲 Meteo a sorpresa',METEO[WX].ic+' '+METEO[WX].n+' · '+METEO[WX].txt),900); } else st.wxRnd=false; if(builtTrack!==save.track) buildWorld(save.track); else { scene.fog.near=TR.theme==='neve'?25:90; scene.fog.far=TR.theme==='neve'?150:TR.theme==='alpino'?760:640; } applyUpgrades(); pressure=save.pressure;
   $('#hud').hidden=false; $('#hud2').hidden=false; $('#ctl').hidden=false; $('#tb').hidden=false; $('#lowB').hidden=false;
-  clearSplats(); placeFriendCars(); for(const o of OBST){ o.said=false; o.cut=0; } st.camCut=null; st.snowSaid=false; st.dmgW={}; st.dmg0={...st.dmg}; st.ippoSaid=0; st.lock=false; if(typeof updLockB==='function') updLockB(); st.flipSeq=null; pur.visible=false; strop.visible=false; TR._pudO=null; st.pudSaid=0; Object.assign(st,{chk:null,uprig:null,drone:null,droneDone:false,panoSaid:false,awd:true,progS:0,progT:0,running:true,done:false,rescue:null,time:0,dirt:save.dirt||0,water:0,sink:0,rescues:0,paused:false,gear:'alta',dmg:{...save.dmg}}); reset(4); campMode=false; ghostStart(); clearRuts(); skyNow=-1; setSky(TR.night?1:0); lightsUpd(); $('#hq').hidden=false; setTimeout(()=>{ if(!save.tutDone) tutStart(); else showHelp('guida'); },400); }
+  clearSplats(); placeFriendCars(); for(const o of OBST){ o.said=false; o.cut=0; } st.camCut=null; st.snowSaid=false; st.dmgW={}; st.dmg0={...st.dmg}; st.ippoSaid=0; st.ristDone=0; st.ristSaid=0; st.lock=false; if(typeof updLockB==='function') updLockB(); st.flipSeq=null; pur.visible=false; strop.visible=false; TR._pudO=null; st.pudSaid=0; Object.assign(st,{chk:null,uprig:null,drone:null,droneDone:false,panoSaid:false,awd:true,progS:0,progT:0,running:true,done:false,rescue:null,time:0,dirt:save.dirt||0,water:0,sink:0,rescues:0,paused:false,gear:'alta',dmg:{...save.dmg}}); reset(4); campMode=false; ghostStart(); clearRuts(); skyNow=-1; setSky(TR.night?1:0); lightsUpd(); $('#hq').hidden=false; setTimeout(()=>{ if(!save.tutDone) tutStart(); else showHelp('guida'); },400); }
 // pausa
 function sensUI(){ document.querySelectorAll('.sens:not(.sm):not(.cr):not(.vb):not(.ac) button').forEach(b=>b.classList.toggle('on',+b.dataset.v===(save.sens||1))); }
 function optUI(){ document.querySelectorAll('.sens.sm button').forEach(b=>b.classList.toggle('on',b.dataset.m===(save.steerMode||'tilt'))); document.querySelectorAll('.sens.cr button').forEach(b=>b.classList.toggle('on',(b.dataset.c==='1')===(save.crawl!==false))); document.querySelectorAll('.sens.vb button').forEach(b=>b.classList.toggle('on',(b.dataset.b==='1')===(save.vib!==false))); document.querySelectorAll('.sens.ac button').forEach(b=>b.classList.toggle('on',(b.dataset.a==='1')===(save.autoCam!==false))); }
