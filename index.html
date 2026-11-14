@@ -788,7 +788,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button><button class="big" id="ovPlay" hidden>🏁 Parti<small id="ovPlayS"></small></button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 118</small>
+      <button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 119</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -799,6 +799,7 @@ body.incamp #toast small{font-family:var(--fc)}
 <script type="module">
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 import { Lensflare, LensflareElement } from 'three/addons/objects/Lensflare.js';
 import { mergeGeometries, mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 const $=s=>document.querySelector(s);
@@ -2614,7 +2615,7 @@ const FOODS=[{id:'salsiccia',n:'Salsiccia',pl:'salsicce',ic:'🌭',speed:.4,zone
   {id:'costine',n:'Costine',pl:'costine',ic:'🍖',speed:.3,zone:.22,txt:'lente ma perdonano'},{id:'trote',n:'Trote di Costa',pl:'trote',ic:'🐟',speed:.36,zone:.2,txt:'le ha portate Costa, ovviamente'},
   {id:'castagne',n:'Castagne',pl:'castagne',ic:'🌰',speed:.33,zone:.24,txt:'caldarroste nella padella bucata: saltano se esageri'},{id:'patatine',n:'Patate fritte',pl:'patate fritte',ic:'🍟',speed:.5,zone:.16,txt:'nella padella con l\'olio bollente: dorate, non nere'}];
 const DRINKS=[{id:'birra',n:'Birra',ic:'🍺',alc:.1,txt:'+6 punti a sorso · si barcolla poco'},{id:'vino',n:'Vino rosso',ic:'🍷',alc:.14,txt:'+7 punti · si barcolla un po\''},{id:'bianco',n:'Vino bianco',ic:'🥂',alc:.13,txt:'+7 punti · fresco, scende che è un piacere'},{id:'spritz',n:'Spritz',ic:'🍹',alc:.11,txt:'+6 punti · aperitivo in vetta'},{id:'prosecco',n:'Prosecco',ic:'🍾',alc:.12,txt:'+7 punti · si stappa per festeggiare la vetta'},{id:'grappa',n:'Grappa',ic:'🥃',alc:.22,txt:'+9 punti · a letto a zig zag'},{id:'acqua',n:'Acqua',ic:'💧',alc:0,txt:'+2 punti · torni dritto'}];
-const FRIENDS=[{n:'Purcello',jacket:0x2f4f7a,hat:0x1c1c1c,car:0x1f4f6a,rate:3.1},{n:'Mirco',jacket:0x4a7a3a,hat:0xe07a2a,car:0x3f6a34,rate:2.7},{n:'Costa',jacket:0xd8b02a,hat:0x2a5aa0,car:null,rate:2.9}];
+const FRIENDS=[{n:'Purcello',jacket:0x2f4f7a,hat:0x1c1c1c,car:0x1f4f6a,rate:3.1},{n:'Linus',jacket:0x1b1c1e,hat:0x1c1c1c,car:0x3f6a34,rate:2.7},{n:'Costa',jacket:0xd8b02a,hat:0x2a5aa0,car:null,rate:2.9}];
 const clk=()=>AC?AC.currentTime:performance.now()/1000;
 // sintetizzatore della festa: batteria vera, basso, chitarre distorte, fisarmonica, ottoni, riverbero
 let MUS=null;
@@ -2731,9 +2732,9 @@ function sheet(title,sub,groups,btn,done){ const S=$('#sheet'); $('#shT').textCo
     B.append(row); }
   $('#shGo').textContent=btn; S.hidden=false; $('#ctl').hidden=true; $('#actB').hidden=true; $('#goB').hidden=true;
   $('#shGo').onclick=()=>{ S.hidden=true; $('#ctl').hidden=false; done(sel); }; }
-function openMenu(){ sheet('Cena con gli amici','Purcello, Mirco e Costa sono già lì coi loro 4x4. Cosa si mangia e cosa si beve? Alla festa ogni sorso dà punti nella gara, ma più bevi più barcolli quando torni a letto.',[{label:'Da mangiare',key:'food',items:FOODS},{label:'Da bere',key:'drink',items:DRINKS}],'A tavola!',s=>{
+function openMenu(){ sheet('Cena con gli amici','Purcello, Linus e Costa sono già lì coi loro 4x4. Cosa si mangia e cosa si beve? Alla festa ogni sorso dà punti nella gara, ma più bevi più barcolli quando torni a letto.',[{label:'Da mangiare',key:'food',items:FOODS},{label:'Da bere',key:'drink',items:DRINKS}],'A tavola!',s=>{
   cs.food=FOODS.find(f=>f.id===s.food); cs.drink=DRINKS.find(d=>d.id===s.drink); cs.drunk=cs.drink.alc*2; friendsDrink=true;
-  const line=cs.food.id==='trote'?['Costa','«Finalmente qualcuno che apprezza il pesce!»']:cs.drink.id==='acqua'?['Purcello','«Acqua?! Ti sei perso la cassa di birra?»']:cs.drink.id==='grappa'?['Mirco','«Grappa? Domani campa giù…»']:['Purcello','«Ottima scelta. Paghi tu la prossima?»'];
+  const line=cs.food.id==='trote'?['Costa','«Finalmente qualcuno che apprezza il pesce!»']:cs.drink.id==='acqua'?['Purcello','«Acqua?! Ti sei perso la cassa di birra?»']:cs.drink.id==='grappa'?['Linus','«Grappa? Poi domani chi guida?»']:['Purcello','«Ottima scelta. Paghi tu la prossima?»'];
   toast(line[0],line[1]); if(cs.food.id==='trote') say('Costa','','c_pesce'); STEPS.find(x=>x.id==='cena').txt=`Cuoci ${cs.food.pl==='pancetta'?'la':'le'} ${cs.food.pl}`; setStep(cs.step+1); if(STEPS[cs.step]&&STEPS[cs.step].id==='cena') setTimeout(()=>{ if(cs&&STEPS[cs.step]&&STEPS[cs.step].id==='cena') $('#actB').click(); },900); }); }
 function openMusic(){ sheet('Festa!','Si sfida chi fa più casino ballando: le mosse cadono in 4 corsie, tocchi la corsia quando la mossa entra nel cerchio in fondo. Prima c’è una prova. BEVI: più sei sbronzo più punti fai ballando, ma tornando a letto barcolli e ogni caduta costa 15 €.',[{label:'Musica',key:'mus',items:MUSIC}],'Alza il volume!',s=>showHelp('festa',()=>startParty(s.mus))); }
 
@@ -2744,7 +2745,7 @@ function startParty(id){ const G=MUSIC.find(m=>m.id===id)||MUSIC[0]; if(G.mp3) p
   $('#party').hidden=false; $('#ctl').hidden=true; $('#obj').hidden=true; if(cs.obj.mk) cs.obj.mk.visible=false;
   const B=$('#ptBoard'); B.innerHTML=''; ['Tu',...FRIENDS.map(f=>f.n)].forEach((n,i)=>{ const r=el('div','prow2'+(i?'':' me')); r.append(el('span','',n)); const b=el('i'); b.append(el('u')); r.append(b); B.append(r); });
   document.querySelectorAll('.tutHand').forEach(x=>x.remove()); $('#ptBevi').hidden=true; cs.party.ch=[]; cs.party.tut={i:0,seq:[0,1,2,3,4],y:0,ok:0}; if((save.jdTut||0)>=1){ cs.party.tut.skip=1; } const L=$('#ptNotes'); L.innerHTML=''; const te=el('i','','🙌'); te.dataset.k=0; L.append(te); cs.party.tut.e=te; const hd=el('div','tutHand','👆'); $('#jdTrack').append(hd); cs.party.tut.h=hd; tutTxt();
-  const Q=[['Purcello','Chi perde paga la prossima cassa!','p_cassa'],['Mirco','Stasera ballo, domani sono in mutua!','m_ballo'],['Costa','Questa la ballavano anche le trote!','c_trote']][Math.random()*3|0]; toast(G.ic+' '+G.n,`«${Q[1]}» — ${Q[0]}`); setTimeout(()=>say(Q[0],'',Q[2]),600); }
+  const Q=[['Purcello','Chi perde paga la prossima cassa!','p_cassa'],['Linus','Mi sono bruciato col marshmallow. Classico','l_c1'],['Costa','Questa la ballavano anche le trote!','c_trote']][Math.random()*3|0]; toast(G.ic+' '+G.n,`«${Q[1]}» — ${Q[0]}`); setTimeout(()=>say(Q[0],'',Q[2]),600); }
 const LNAME=['ROSSA 🙌','BLU 🌀','GIALLA 👏','VERDE 🦵','dove vuoi 🍺'];
 function tutTxt(){ const T=cs.party.tut, H=$('#ptHelp'); H.classList.add('big'); H.style.opacity=1; const k=T.seq[T.i]; H.innerHTML=k===4?(T.y<1?`PROVA 5/5 · la <b>BIRRA</b> 🍺 scende larga su tutte le corsie: si beve così, niente tasto`:`ADESSO! Tocca <b>dove vuoi</b> per bere 🍺`):T.y<1?`PROVA ${T.i+1}/5 · guarda la mossa che scende nella corsia <b>${LNAME[k]}</b>…`:`ADESSO! È nel cerchio: <b>tocca la corsia ${LNAME[k]}</b>`; }
 function chartGo(){ const P=cs.party; if(MUS&&MUS.bt&&MUS.dur-(clk()-MUS.st)%MUS.dur<P.dur+6){ partyPlay(MUS,1); } const beat=MUS.beat; const skipped=P.tut&&P.tut.skip; if(P.tut){ if(P.tut.h) P.tut.h.remove(); if(P.tut.e) P.tut.e.remove(); } P.tut=null; if(!skipped){ save.jdTut=(save.jdTut||0)+1; persist(); } const H=$('#ptHelp'); H.innerHTML=skipped?'Pronti? Le mosse arrivano a tempo: tocca la corsia quando sono nel cerchio':'Perfetto, hai capito! Ora le mosse arrivano <b>a tempo di musica</b>: fai uguale'; setTimeout(()=>{ H.style.opacity=0; H.classList.remove('big'); },3200);
@@ -2847,8 +2848,31 @@ function addFriends(at,C,chairs){ cs.fr=[];
 
   FRIENDS.forEach((f,i)=>{ const m=makeMan({who:f.n,jacket:f.jacket,hat:f.hat,noScene:true}); const p=chairs[i]; m.position.copy(p); m.rotation.y=Math.atan2(-(C.x-p.x),-(C.z-p.z)); m.visible=true; campGroup.add(m);
     const bot=new THREE.Mesh(new THREE.CylinderGeometry(.035,.04,.22,8),new THREE.MeshStandardMaterial({color:i===1?0x5a1a2a:0x2f6a2a,roughness:.3,transparent:true,opacity:.9})); bot.position.set(0,-.68,-.03); m.userData.AR.add(bot);
-    cs.fr.push({m,ph:Math.random()*6,p:p.clone()}); }); }
-function updFriends(dt){ if(!cs.fr) return; const P=cs.party, now=clk();
+    const F={m,ph:Math.random()*6,p:p.clone(),bot}; cs.fr.push(F);
+    loadAmico(f.n.toLowerCase()).then(a=>{ if(!a||!F.m.parent) return; a.position.copy(F.m.position); a.rotation.copy(F.m.rotation); campGroup.add(a); campGroup.remove(F.m); F.m=a; const h=a.userData.hand; if(h){ bot.position.set(0,.09,.02); bot.rotation.set(0,0,0); h.add(bot); } }); }); }
+// amici 3D veri (dalle foto: Higgsfield -> Tripo 3D -> scheletro in Blender), stessa interfaccia degli omini
+const AMICI={}; function loadAmico(n){ if(!AMICI[n]) AMICI[n]=new GLTFLoader().loadAsync(ASSETB+'amico_'+n+'.glb').catch(()=>null); return AMICI[n].then(g=>{ if(!g) return null; const sc=SkeletonUtils.clone(g.scene); return makeAmico3D({scene:sc}); }); }
+function makeAmico3D(gltf){
+  const root=new THREE.Group(); const sc=gltf.scene; root.add(sc);
+  let sk=null; sc.traverse(o=>{ if(o.isSkinnedMesh){ sk=o; o.castShadow=true; o.receiveShadow=true; o.frustumCulled=false; o.material=o.material.clone(); if(o.material.map) o.material.map.colorSpace=THREE.SRGBColorSpace; o.material.roughness=.85; o.material.metalness=0; o.material.envMapIntensity=.6; } });
+  if(!sk) return null; const B={}; sk.skeleton.bones.forEach(b=>B[b.name.replace(/[^a-zA-Z]/g,'')]=b);
+  root.updateMatrixWorld(true); const inv=new THREE.Matrix4().copy(root.matrixWorld).invert();
+  const rw=b=>{ const m=new THREE.Matrix4().multiplyMatrices(inv,b.matrixWorld); const q=new THREE.Quaternion(); m.decompose(new V(),q,new V()); return q; };
+  const R={}; for(const k in B){ const b=B[k]; R[k]={w:rw(b),pw:rw(b.parent),p:b.position.clone()}; }
+  const D=new THREE.Quaternion(), E=new THREE.Euler();
+  const setRot=(k,x,y,z)=>{ const b=B[k]; if(!b) return; const r=R[k]; E.set(x,y,z); D.setFromEuler(E); b.quaternion.copy(r.pw).invert().multiply(D).multiply(r.w); };
+  const P=()=>{ const o=new THREE.Object3D(); root.add(o); return o; };
+  const hips=P(), L=P(), Rr=P(), AL=P(), AR=P(), head=P(); hips.position.y=.95;
+  const sync=()=>{ const dy=hips.position.y-.95; if(B.hips) B.hips.position.copy(R.hips.p).add(new V(0,dy,0).applyQuaternion(R.hips.pw.clone().invert()));
+    setRot('thighL',L.rotation.x,0,L.rotation.z); setRot('thighR',Rr.rotation.x,0,Rr.rotation.z);
+    setRot('shinL',-Math.min(Math.max(L.rotation.x,0),1.6),0,0); setRot('shinR',-Math.min(Math.max(Rr.rotation.x,0),1.6),0,0);
+    const arm=(a,k)=>{ const x=Math.max(0,a.rotation.x), t=THREE.MathUtils.smoothstep(x,1,2.4); setRot('upperarm'+k,x*(.42+.58*t),0,a.rotation.z); setRot('forearm'+k,-(1-t)*Math.min(1.5,x*1.1)-.15,0,0); };
+    arm(AL,'L'); arm(AR,'R');
+    setRot('head',head.rotation.x,head.rotation.y,0); };
+  root.userData={hips,L,R:Rr,AL,AR,head,sync,hand:B.handR,amico3d:true};
+  return root; }
+function updFriends(dt){ if(!cs.fr) return; const P=cs.party, now=clk(); updFriends0(dt,P,now); for(const f of cs.fr) if(f.m.userData.sync) f.m.userData.sync(); }
+function updFriends0(dt,P,now){
   for(const [i,f] of cs.fr.entries()){ const U=f.m.userData; f.ph+=dt;
     if(cs.sleeping){ f.m.visible=false; continue; }
     if(P||(MUS&&cs.step>=STEPS.findIndex(x=>x.id==='festa'))){ const bp=MUS?bN(now)%1:0, b=Math.sin(bp*Math.PI*2+i);
@@ -3713,7 +3737,7 @@ const HELP={
  menu:{ic:'🧊',t:'La cena',l:['Vai al <b>frigo blu</b> (segno giallo) e aprilo.','Scegli cosa mangiare e cosa bere.','Il bere conta alla festa: più alcol = <b>più punti</b> ballando, ma dopo <b>barcolli</b> tornando a letto e ogni caduta costa <b>15 €</b>.']},
  cena:{ic:'🍖',t:'Cottura',l:['Nel quadrante la lancetta va da <b>cruda</b> a <b>bruciata</b>.','Quando entra nel <b>verde</b> il tasto <b>TOGLI</b> diventa verde e pulsa: toccalo, è cotta al punto giusto.','Se aspetti troppo arriva in fondo e si brucia.']},
  drone:{ic:'🚁',t:'Foto col drone',l:['Il fuoristrada resta fermo col freno a mano. Hai <b>60 secondi</b> di batteria e <b>3 foto</b>.','Il drone vola attorno al mezzo: <b>sterzo</b> per girargli intorno, <b>GAS</b> per avvicinarti, <b>FRENO</b> per allontanarti, <b>▲ ▼</b> per salire e scendere.','Tocca uno dei <b>⊕</b> sugli incroci delle linee: il fuoristrada si sposta lì nell\'inquadratura. In alto vedi il <b>voto in diretta</b> con il consiglio: quando è verde premi <b>📸 SCATTA</b>.','Più bella: di <b>tre quarti</b>, con la <b>valle dietro</b>, né troppo piccolo né troppo grande. Se arriva una raffica aspetta che il drone si fermi.','Ogni foto ha un voto su 100 e ti dice cosa migliorare. La migliore vale soldi.']},
- festa:{ic:'🎉',t:'La festa',l:['Gara contro Purcello, Mirco e Costa a chi fa più casino ballando.','Ci sono <b>4 corsie colorate</b>. Le mosse <b>cadono dall\'alto</b>: quando una mossa è <b>dentro il cerchio in fondo alla sua corsia</b>, tocca <b>quella corsia</b> (dove vuoi, anche in alto). Prima si fa una prova senza musica.','Più sei preciso più punti: <b>Perfetto</b>, Super, Ok. La ⭐ <b>mossa d\'oro</b> vale doppio. Tante mosse giuste di fila = combo.','La <b>BIRRA</b> 🍺 scende larga su tutte le corsie: tocca <b>dove vuoi</b> quando è nel cerchio e bevi. Punti subito e, più sei sbronzo, <b>più punti</b> ti dà ogni mossa (fino a ×1,7).','Però dopo si va a letto: più sei sbronzo più <b>barcolli</b>, e ogni volta che <b>cadi perdi 15 €</b> dal premio del campo.']},
+ festa:{ic:'🎉',t:'La festa',l:['Gara contro Purcello, Linus e Costa a chi fa più casino ballando.','Ci sono <b>4 corsie colorate</b>. Le mosse <b>cadono dall\'alto</b>: quando una mossa è <b>dentro il cerchio in fondo alla sua corsia</b>, tocca <b>quella corsia</b> (dove vuoi, anche in alto). Prima si fa una prova senza musica.','Più sei preciso più punti: <b>Perfetto</b>, Super, Ok. La ⭐ <b>mossa d\'oro</b> vale doppio. Tante mosse giuste di fila = combo.','La <b>BIRRA</b> 🍺 scende larga su tutte le corsie: tocca <b>dove vuoi</b> quando è nel cerchio e bevi. Punti subito e, più sei sbronzo, <b>più punti</b> ti dà ogni mossa (fino a ×1,7).','Però dopo si va a letto: più sei sbronzo più <b>barcolli</b>, e ogni volta che <b>cadi perdi 15 €</b> dal premio del campo.']},
  nanna:{ic:'😴',t:'A letto',l:['L\'omino va da solo verso il letto, ma <b>barcolla</b>.','Guarda la lancetta in basso: <b>inclina il telefono</b> (o premi le frecce) <b>dalla parte opposta</b> a dove scappa e tienila nel verde.','Se esce dalla barra cadi: <b>ogni caduta −15 €</b> dal premio. Alla terza ti porta a letto Purcello.']}
 };
 let helpOpen=false, helpCb=null;
