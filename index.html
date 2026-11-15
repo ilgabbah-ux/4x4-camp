@@ -787,7 +787,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button><button class="big" id="ovPlay" hidden>🏁 Parti<small id="ovPlayS"></small></button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 122</small>
+      <button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 123</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -1205,7 +1205,7 @@ const STY={
  jafferau:{far:260,mid:170,near:80,snow:.45,rock:0x7a756d,slope:0x6b6a48,haze:0xcfd9e4,tree:'larice',ghiaione:1},
  sommelier:{far:300,mid:200,near:100,snow:.32,rock:0x6e6c68,haze:0xd5e0ea,tree:'larice',ghiaione:1,ghiacciaio:1}};
 function sceneryFor(RT){ const ST=STY[TR.id]||{}, W=world, M=new THREE.Matrix4(), Q=new THREE.Quaternion(), S=new THREE.Vector3(), P=new THREE.Vector3(), col=new THREE.Color();
-  const free=(s,d)=>!(s<36&&Math.abs(d)<17)&&!(inFord(s,6)&&Math.abs(d)<22)&&!(s>LEN-14&&s<LEN+42&&Math.abs(d)<22)&&!(TR.panoS&&d>0&&Math.abs(s-TR.panoS)<120&&d<(TR.theme==='militare'?95:45))&&zoneAt(s).t!=='galleria';
+  const free=(s,d)=>!(s<36&&Math.abs(d)<17)&&!(TR.panoS&&Math.abs(s-TR.panoS)<38&&Math.abs(d)<26)&&!(inFord(s,6)&&Math.abs(d)<22)&&!(s>LEN-14&&s<LEN+42&&Math.abs(d)<22)&&!(TR.panoS&&d>0&&Math.abs(s-TR.panoS)<120&&d<(TR.theme==='militare'?95:45))&&zoneAt(s).t!=='galleria';
   // vigne sui pendii (Rivoli-Pinerolo): filari di pali e chioma verde, a gruppi
   if(ST.vigne){ const N=900, im=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.9}),N), pm=new THREE.InstancedMesh(new THREE.CylinderGeometry(.04,.05,1.6,5),new THREE.MeshStandardMaterial({color:0x6b5a44,roughness:1}),N); let n=0, k=0;
     for(let v=0;v<14&&n<N;v++){ const s0=20+RT()*(LEN-40), side=RT()<.5?-1:1, d0=side*(16+RT()*22); if(!free(s0,d0)) continue; for(let row=0;row<8&&n<N;row++){ const d=d0+side*row*2.4; for(let s=s0;s<s0+22&&n<N;s+=4){ const x=CX(s)+d, z=-s, y=baseH(x,z), ang=Math.atan2(CX(s+1)-CX(s-1),2);
@@ -1483,7 +1483,7 @@ function buildWorld(id){
     const M=new THREE.Matrix4(), Q=new THREE.Quaternion(), S=new THREE.Vector3(), P=new THREE.Vector3(), col=new THREE.Color(); let n=0;
     for(let k=0;k<N*3&&n<N;k++){ const s=-30+RT()*(LEN+100), side=RT()<.5?-1:1, d=side*(HALF+2.2+Math.pow(RT(),1.6)*60);
       if(inFord(s,6)&&Math.abs(d)<22) continue; if(s>LEN-12&&s<LEN+40&&Math.abs(d)<19) continue; if(s<36&&Math.abs(d)<17) continue;
-      if(TR.treeline&&s>LEN*TR.treeline+RT()*40) continue; if(TR.flat&&(d<-30||d>36)) continue; /* in pianura il bosco è una striscia: fuori ci sono campi */ if(zoneAt(s).t==='galleria'&&Math.abs(d)<12) continue; if(!TR.flat&&d>0&&Math.abs(s-TR.panoS)<120&&d<(TR.theme==='militare'?95:45)) continue;
+      if(TR.treeline&&s>LEN*TR.treeline+RT()*40) continue; if(TR.flat&&(d<-30||d>36)) continue; /* in pianura il bosco è una striscia: fuori ci sono campi */ if(zoneAt(s).t==='galleria'&&Math.abs(d)<12) continue; if(!TR.flat&&d>0&&Math.abs(s-TR.panoS)<120&&d<(TR.theme==='militare'?95:45)) continue; if(TR.panoS&&Math.abs(s-TR.panoS)<38&&Math.abs(d)<26) continue; /* radura al punto panoramico: il drone gira senza alberi davanti */
       const x=CX(s)+d, z=-s, y=baseH(x,z), h=(TR.theme==='castagni'?7:6)+RT()*10, r=TR.theme==='castagni'?h*(.45+RT()*.15):1.2+RT()*1.5+h*.04;
       M.compose(P.set(x,y-.15,z),Q.setFromEuler(new THREE.Euler(0,RT()*6,0)),S.set(r,h,r)); im.setMatrixAt(n,M);
       const TT=(STY[TR.id]||{}).tree; if(neve) col.setRGB(.92+RT()*.08,.94+RT()*.06,.96+RT()*.04); else if(TT==='larice') { if(RT()<.45) col.setHSL(.09+RT()*.05,.55+RT()*.2,.42+RT()*.12); else col.setHSL(.22+RT()*.08,.3+RT()*.2,.3+RT()*.12); } else if(TR.theme==='alpino') col.setHSL(.2+RT()*.1,.3+RT()*.2,.32+RT()*.14); else if(TR.id==='bassa') col.setHSL(.29+RT()*.06,.3+RT()*.2,.24+RT()*.12); else col.setHSL(.24+RT()*.1,.22+RT()*.22,.3+RT()*.16); im.setColorAt(n,col);
@@ -3526,27 +3526,29 @@ function showroom(dt){ if(builtTrack!==save.track){ buildWorld(save.track); shS=
   ren.render(scene,cam); }
 { const el=$('#show3d'); el.addEventListener('pointerdown',e=>{ shDrag={x:e.clientX,a:shA}; try{el.setPointerCapture(e.pointerId);}catch(_){} }); el.addEventListener('pointermove',e=>{ if(shDrag) shA=shDrag.a-(e.clientX-shDrag.x)/120; }); for(const t of ['pointerup','pointercancel']) el.addEventListener(t,()=>{ shDrag=null; }); }
 // ---- drone fotografico al punto panoramico ----
-function startDrone(){ { const h=$('#drone .dhint'); h.style.display=(save.noHelp||(save.dHint||0)>=2)?'none':''; save.dHint=(save.dHint||0)+1; clearTimeout(h._t); h._t=setTimeout(()=>h.style.display='none',8000); } world.traverse(o=>{ if(o.isInstancedMesh&&o.material&&o.material!==grassMat&&o.count>20) for(const m of [].concat(o.material)) fadePatch(m); }); setTimeout(()=>showHelp('drone',null,false),50); st.dFog=[scene.fog.near,scene.fog.far]; scene.fog.near=WX==='nebbia'?35:Math.max(scene.fog.near,140); scene.fog.far=WX==='nebbia'?260:Math.max(scene.fog.far,900); if(cam.far<1500){ cam.far=1500; cam.updateProjectionMatrix(); } const fh0=new V(fw.x,0,fw.z).normalize();
-  st.drone={t:0,bat:DRONE_T,peak:0,peakT:0,shots:[],orb0:Math.atan2(-fh0.x,-fh0.z)+Math.PI*.1*(Math.random()<.5?-1:1),dir:Math.random()<.5?-1:1,orb:0,dist:5,h:1,drift:new V(),wind:new V(),gT:0,aim:new THREE.Vector2(),aimT:new THREE.Vector2(),pos:new V(),prev:null,spd:0,liveT:0,lastShot:-9};
+function startDrone(){ { const h=$('#drone .dhint'); h.style.display=(save.noHelp||(save.dHint||0)>=2)?'none':''; save.dHint=(save.dHint||0)+1; clearTimeout(h._t); h._t=setTimeout(()=>h.style.display='none',8000); } const occ=[]; world.traverse(o=>{ if(o.isInstancedMesh&&o.material&&o.material!==grassMat&&o.count>20){ occ.push(o); for(const m of [].concat(o.material)) fadePatch(m); } }); setTimeout(()=>showHelp('drone',null,false),50); st.dFog=[scene.fog.near,scene.fog.far]; scene.fog.near=WX==='nebbia'?35:Math.max(scene.fog.near,140); scene.fog.far=WX==='nebbia'?260:Math.max(scene.fog.far,900); if(cam.far<1500){ cam.far=1500; cam.updateProjectionMatrix(); } const fh0=new V(fw.x,0,fw.z).normalize();
+  let vd=null, vb=-1e9; for(let i=0;i<24;i++){ const a=i/24*Math.PI*2, dx=Math.sin(a), dz=Math.cos(a); let v=0; for(const d of [50,90,140]) v+=st.pos.y-height(st.pos.x+dx*d,st.pos.z+dz*d); if(v>vb){ vb=v; vd=a; } } /* da che parte c'è la valle: il drone le volta le spalle e gira attorno al mezzo passando dal lato giusto */
+  const dir0=Math.random()<.5?-1:1;
+  st.drone={occ,clut:0,clutT:0,t:0,bat:DRONE_T,peak:0,peakT:0,shots:[],orb0:vd+Math.PI-dir0*Math.PI*.6,dir:dir0,orb:0,dist:5,h:1,drift:new V(),wind:new V(),gT:0,aim:new THREE.Vector2(),aimT:new THREE.Vector2(),pos:new V(),prev:null,spd:0,liveT:0,lastShot:-9};
   $('#drone').hidden=false; for(const id of ['#hud','#hud2','#tb','#hq']) $(id).hidden=true; document.body.classList.add('droneOn'); $('#dPics').innerHTML=''; toast('🚁 Drone in volo','tocca lo schermo quando arriva il panorama più bello · 3 scatti'); auBurst(5200,.8,.08,'bandpass',4); }
 function endDrone(){ const D=st.drone; if(!D) return; st.drone=null; UFADE.value=0; if(st.dFog){ scene.fog.near=st.dFog[0]; scene.fog.far=st.dFog[1]; st.dFog=null; } st.droneDone=true; $('#drone').hidden=true; for(const id of ['#hud','#hud2','#tb','#hq']) $(id).hidden=false; document.body.classList.remove('droneOn');
   const best=D.shots.reduce((a,b)=>b.sc>a?b.sc:a,0); if(best>0){ const eu=Math.round(best*1.8); save.money+=eu; persist(); st.droneEur=eu; const bs=D.shots.reduce((a,b)=>!a||b.sc>a.sc?b:a,null); st.bestPhoto=bs&&bs.card; showShare(bs&&bs.card,best,eu,D.peak); if(best>=80){ gabbah('g_si',0); giveStar(TR.id,'foto'); } } else toast('Nessuna foto','il drone è tornato a casa'); first=true; }
 // il drone vola da solo attorno al fuoristrada: il giocatore tocca lo schermo quando arriva il panorama migliore
 function updDrone(dt){ const D=st.drone; D.t+=dt; D.bat-=dt; UFADE.value=Math.max(0,D.pos.distanceTo(st.pos)-3.5);
   { const u=clamp(D.t/DRONE_T,0,1), e=u*u*(3-2*u); /* volo automatico: parte dietro al mezzo, sale girandogli attorno e si allarga fino a mostrare tutta la valle */
-    const rv=sstep(.86,1,u), up=sstep(0,.22,u); D.orb=D.orb0+D.dir*(u*Math.PI*1.75+Math.sin(u*Math.PI*2)*.2); D.dist=4.5+3.5*up+1.5*e+1.6*Math.sin(u*Math.PI*3.3)+rv*18; D.h=lerp(.9,D.dist*(.64+.2*Math.sin(u*Math.PI*2.7)),up)+rv*10; }
+    const rv=sstep(.88,1,u)*.6, up=sstep(0,.18,u); D.orb=D.orb0+D.dir*e*Math.PI*1.2; D.dist=4.5+3.5*up+1.5*e+1.6*Math.sin(u*Math.PI*3.3)+rv*18; D.h=lerp(.9,D.dist*(.64+.2*Math.sin(u*Math.PI*2.7)),up)+rv*10; }
   D.gT-=dt; if(D.gT<0){ D.gT=1.5+Math.random()*2.5; const k=TR.theme==='alpino'?1.3:1; D.wind.set((Math.random()-.5)*.5*k,(Math.random()-.5)*.12,(Math.random()-.5)*.5*k); }
   { const cf=new V(); cam.getWorldDirection(cf); const sx=new V(cf.z,0,-cf.x).normalize(), hs=Math.sign(new V(fw.x,0,fw.z).dot(sx))||1; D.aimT.set(hs/3,-1/3); } /* il mezzo va da solo sul terzo giusto: guarda dentro la foto */
   D.drift.addScaledVector(D.wind,dt*.9); D.drift.multiplyScalar(Math.exp(-dt*1.1));
-  const C=st.pos.clone(), want=C.clone().add(new V(Math.sin(D.orb)*D.dist,0,Math.cos(D.orb)*D.dist)).add(D.drift); want.y=Math.max(C.y+D.h,height(want.x,want.z)+1.2)+D.drift.y;
+  const C=st.pos.clone(), want=C.clone().add(new V(Math.sin(D.orb)*D.dist,0,Math.cos(D.orb)*D.dist)).add(D.drift); { const g=height(want.x,want.z); want.y=Math.max(C.y+D.h,g+1.2,g>C.y+.5?g+7:-1e9)+D.drift.y; } /* dal lato della montagna resta sopra gli alberi */
   if(!D.prev){ D.pos.copy(want); D.prev=want.clone(); } D.pos.lerp(want,1-Math.pow(.0005,dt)); D.spd=lerp(D.spd,D.pos.distanceTo(D.prev)/Math.max(dt,1e-3),.25); D.prev.copy(D.pos);
   D.aim.lerp(D.aimT,1-Math.pow(.02,dt));
   cam.position.copy(D.pos); cam.position.x+=Math.sin(D.t*7)*.015*D.wind.length(); cam.up.set(0,1,0); cam.lookAt(C.clone().add(new V(0,.5,0)));
   const tv=Math.tan(cam.fov*Math.PI/360), th=tv*cam.aspect; cam.rotateOnWorldAxis(new V(0,1,0),Math.atan(D.aim.x*th)); cam.rotateX(-Math.atan(D.aim.y*tv)); /* prima giro sull'asse verticale del mondo: l'orizzonte resta dritto */ cam.updateMatrixWorld();
   $('#dBat').textContent='🔋 '+Math.max(0,Math.ceil(D.bat))+' s'; $('#dAlt').textContent='↑ '+Math.round(D.pos.y-height(D.pos.x,D.pos.z))+' m'; const w=D.wind.length(); $('#dWind').textContent='💨 '+(w<.45?'calmo':'brezza'); $('#dShots').textContent=`📷 ${D.shots.length}/3`;
-  D.liveT-=dt; if(D.liveT<0){ D.liveT=.1; const r=droneScore(); if(r.sc>D.peak){ D.peak=r.sc; D.peakT=D.t; } const el=$('#dLive'), hot=r.sc>=78; el.textContent=hot?'✨ PANORAMA! SCATTA ORA':r.sc>=60?'quasi… ci siamo':'aspetta il momento giusto'; el.classList.toggle('hot',hot); el.style.background=hot?'rgba(40,150,60,.9)':r.sc>=60?'rgba(190,140,20,.85)':'rgba(20,20,20,.6)'; $('#dBar i').style.width=r.sc+'%'; $('#dBar').classList.toggle('hot',hot); }
+  D.liveT-=dt; if(D.liveT<0){ D.liveT=.1; const r=droneScore(); if(r.sc>D.peak){ D.peak=r.sc; D.peakT=D.t; } const el=$('#dLive'), hot=r.sc>=82; el.textContent=hot?'✨ PANORAMA! SCATTA ORA':r.sc>=60?'quasi… ci siamo':'aspetta il momento giusto'; el.classList.toggle('hot',hot); el.style.background=hot?'rgba(40,150,60,.9)':r.sc>=60?'rgba(190,140,20,.85)':'rgba(20,20,20,.6)'; $('#dBar i').style.width=r.sc+'%'; $('#dBar').classList.toggle('hot',hot); }
   if(D.bat<=0||D.shots.length>=3&&D.t>D.lastShot+1.2) endDrone(); }
-const DRONE_T=22;
+const DRONE_T=13;
 function droneScore(){ const D=st.drone; cam.updateMatrixWorld(true); const pc=st.pos.clone().project(cam); let sc=0; const why=[];
   const inF=Math.abs(pc.x)<.95&&Math.abs(pc.y)<.95&&pc.z<1;
   if(!inF) why.push('il fuoristrada non si vede');
@@ -3556,7 +3558,9 @@ function droneScore(){ const D=st.drone; cam.updateMatrixWorld(true); const pc=s
     const alt=Math.min(1,(D.pos.y-height(D.pos.x,D.pos.z))/10), steady=1;
     const side=Math.abs(new V(fw.x,0,fw.z).normalize().dot(new V(fwd.x,0,fwd.z).normalize())); const ang=clamp(1-Math.abs(side-.6)/.35,0,1); // 3/4 anteriore o posteriore: il taglio più bello
     let vale=0; { const hd=fwd.clone().setY(0).normalize(); for(const d of [60,100,150]){ const q=st.pos.clone().addScaledVector(hd,d); vale+=clamp((st.pos.y-height(q.x,q.z)-4)/20,0,1); } vale/=3; if(TR.flat) vale=1; } /* dietro al mezzo si vede la valle, non il muro della montagna (in pianura non serve) */
-    sc=Math.round(100*(.25*sizeS+.2*open+.25*clamp(ang,0,1)+.2*vale+.1*steady)); if(st.drone) st.drone.parts={thirds,sizeS,size,open,steady,ang,vale};
+    if((D.clutT-=1)<=0){ D.clutT=3; const rc=new THREE.Raycaster(); rc.near=UFADE.value+.2; rc.far=rc.near+5; /* più vicino di UFADE gli alberi sono già nascosti: contano solo quelli subito dopo, che si vedono enormi */ let hit=0; for(const [x,y] of [[-.66,.5],[0,.5],[.66,.5],[-.66,0],[.66,0],[-.66,-.5],[.66,-.5],[pc.x,pc.y]]){ rc.setFromCamera(new THREE.Vector2(x,y),cam); if(rc.intersectObjects(D.occ,false).length) hit++; } D.clut=hit; } /* rami e alberi davanti all'obiettivo rovinano la foto */
+    const clear=clamp(1-D.clut/3,0,1); if(D.clut) why.push('alberi davanti all\'obiettivo');
+    sc=Math.round(100*(.25*sizeS+.2*open+.25*clamp(ang,0,1)+.2*vale+.1*steady)*(.45+.55*clear)); if(st.drone) st.drone.parts={thirds,sizeS,size,open,steady,ang,vale};
     if(sizeS<.6) why.push(size<.18?'mezzo troppo piccolo':'troppo vicino'); if(open<.5) why.push(pd>=38?'troppo dall\'alto':'troppo basso'); if(vale<.45) why.push('dietro c\'era la montagna, non la valle'); if(ang<.6) why.push('più bello di tre quarti'); }
   return {sc,why}; }
 function showShare(c,best,eu,peak){ let E=$('#shareP'); if(!E){ E=document.createElement('div'); E.id='shareP'; document.body.append(E); }
