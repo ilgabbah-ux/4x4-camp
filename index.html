@@ -640,6 +640,10 @@ body.incamp #toast small{font-family:var(--fc)}
 /* menu iniziale v113: logo sotto il mezzo, pulsanti tutti uguali, polvere solo sull'immagine */
 #ovSet{font:700 14px/1 var(--fc);color:#cfc9bd;background:none;border:0;padding:6px 10px;width:auto!important;margin:0 auto!important;min-height:0;opacity:.85}
 #ovSet.on{color:#f2b43b}
+.pickSheet{position:fixed;inset:0;z-index:60;background:rgba(8,8,10,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:18px;color:#fff;font-family:var(--fc);text-align:center}.pickSheet[hidden]{display:none}.pickSheet b{font-size:21px;color:#f2c230}.pickSheet p{max-width:520px;font-size:15px;line-height:1.35;opacity:.9;margin:0}.pickSheet button{font:800 15px/1.1 var(--fc);border:0;border-radius:12px;padding:11px 18px;background:#e2462f;color:#fff;min-width:240px}.pickSheet button.ghost{background:none!important;border:1px solid #666!important;color:#ccc!important;width:auto!important;transform:none!important;box-shadow:none!important}
+#wTut{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);transform:translateX(-50%);z-index:30;width:min(62vw,520px);background:rgba(12,14,16,.9);border:2px solid #f2c230;border-radius:14px;padding:8px 12px;color:#fff;font:600 14px/1.3 var(--fc);display:flex;gap:10px;align-items:center}#wTut[hidden]{display:none}#wTut p{margin:0;flex:1}#wTut b{color:#f2c230}#wTut button{font:700 12px var(--fc);background:none;border:1px solid #777;color:#ccc;border-radius:9px;padding:6px 9px;white-space:nowrap;width:auto!important;min-height:0}#wTut.pop{animation:wPop .35s}@keyframes wPop{from{transform:translateX(-50%) scale(1.08)}to{transform:translateX(-50%) scale(1)}}
+.wHint{animation:wHint .8s infinite alternate;box-shadow:0 0 0 3px #f2c230!important}@keyframes wHint{to{box-shadow:0 0 0 7px rgba(242,194,48,.25)!important;transform:scale(1.06)}}
+.item button.prv{background:#1f4f7a!important;margin-left:6px}
 #ovAlb{font:700 14px/1 var(--fc);color:#f2c230;background:none;border:0;padding:6px 10px;width:auto!important;margin:0 auto!important;min-height:0}
 #albP,#dPick{position:fixed;inset:0;z-index:60;background:rgba(8,8,10,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px;color:#fff;font-family:var(--fc)}#albP[hidden],#dPick[hidden]{display:none}
 #albP>b,#dPick>b{font-size:20px;color:#f2c230}.albL{display:flex;gap:12px;overflow-x:auto;max-width:100%;padding:4px}.albI{flex:0 0 auto;width:min(70vw,300px);display:flex;flex-direction:column;gap:6px;background:#1a1b1f;border-radius:12px;padding:8px}.albI img{width:100%;border-radius:8px}.albI span{font-weight:700;font-size:14px}
@@ -792,7 +796,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button><button class="big" id="ovPlay" hidden>🏁 Parti<small id="ovPlayS"></small></button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <button id="ovAlb" type="button" hidden>📸 Album foto</button><button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button><button id="dTest" style="background:#1f4f7a">🚁 Prova drone (test)</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 128</small>
+      <button id="ovAlb" type="button" hidden>📸 Album foto</button><button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv"><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button><button id="dTest" style="background:#1f4f7a">🚁 Prova drone (test)</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 129</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -1418,7 +1422,7 @@ function buildWorld(id){
     for(const b of ROCKS) RG.push(rockGeo2(b));
     for(let k=0;k<110;k++){ const s=-20+RR()*(LEN+60), d=(RR()<.5?-1:1)*(5+RR()*26); if(inFord(s,8)&&Math.abs(d)<22) continue; if(s>LEN-12&&s<LEN+40&&Math.abs(d)<19) continue; const x=CX(s)+d, z=-s, r=.4+RR()*1.6;
       put(rockGeo(r),x,baseH(x,z)-r*.25,z,RR(),RR()*6,RR()); DEC.push([RG.pop(),x,Math.min(baseH(x-r,z),baseH(x+r,z),baseH(x,z-r),baseH(x,z+r))-r*.35,z,r*2.1,RR()*6.3,.75+RR()*.4]); }
-    { const m=new THREE.Mesh(mergeGeometries(RG),mat); m.castShadow=true; m.receiveShadow=true; world.add(m); }
+    if(RG.length){ const m=new THREE.Mesh(mergeGeometries(RG),mat); m.castShadow=true; m.receiveShadow=true; world.add(m); } /* il Campo Trial non ha massi sulla pista: senza questo controllo il percorso non partiva */
     if(DEC.length&&save.q==='bassa'){ const fb=new THREE.Mesh(mergeGeometries(DEC.map(d=>d[0])),mat); fb.castShadow=fb.receiveShadow=true; world.add(fb); } else if(DEC.length){ const fb=new THREE.Mesh(mergeGeometries(DEC.map(d=>d[0])),mat); fb.castShadow=fb.receiveShadow=true; world.add(fb); let ok=0; const L=[[],[],[]]; DEC.forEach((d,i)=>L[i%3].push(d.slice(1))); Promise.all(AIROCKS.map((a,i)=>aiInst(world,a[0],neve?Math.min(1,a[1]+.25):a[1],L[i]))).then(r=>{ if(r.every(Boolean)&&fb.parent) world.remove(fb); }); }
     { // ceppi tagliati e tronchi caduti nel bosco ai lati della pista (modelli AI)
       const CP=[], TC=[]; for(let k=0;k<(neve?14:34);k++){ const s=8+RR()*(LEN-16), d=(RR()<.5?-1:1)*(HALF+3.2+RR()*16); if(inFord(s,10)) continue; if(s>LEN-14) continue; const x=CX(s)+d, z=-s; if(RR()<.55) CP.push([x,baseH(x,z)-.06,z,.55+RR()*.35,RR()*6.3,.8+RR()*.35]); else TC.push([x,baseH(x,z)-.12,z,2.2+RR()*1.6,RR()*6.3,1]); }
@@ -2387,7 +2391,7 @@ function attachWinch(){
   if(!own('winch')||st.rescue||st.winch) return !!st.winch;
   const hook=HOOK.clone().applyQuaternion(st.q).add(st.pos); let best=null, bd=1e9;
   const k=Math.floor(-st.pos.z/4);
-  const C=[]; for(let kk=k-2;kk<=k+9;kk++){ const L=TREEB.get(kk); if(!L) continue; for(const t of L){ if(t.car) continue; const dx=t.x-hook.x, dz=t.z-hook.z, d=Math.hypot(dx,dz); if(d<4||d>32) continue; const dot=(dx*fw.x+dz*fw.z)/d; if(dot<.5) continue; C.push({t,d,sc:d*(1.6-dot)}); } }
+  const C=[]; for(let kk=k-2;kk<=k+9;kk++){ const L=TREEB.get(kk); if(!L) continue; for(const t of L){ if(t.car) continue; const dx=t.x-hook.x, dz=t.z-hook.z, d=Math.hypot(dx,dz); if(d<4||d>32) continue; const dot=(dx*fw.x+dz*fw.z)/d; if(dot<.5) continue; C.push({t,d,sc:d*(1.6-dot)+(st.practice&&-t.z<st.practice.Z.b+2?100:0)}); } } /* nella prova: prima gli alberi oltre la pozza (la quercia) */
   C.sort((a,b)=>a.sc-b.sc); st.winchC=C; st.winchI=0; best=C[0]||null;
   if(!best){ toast('Nessun albero a portata','servono alberi entro 30 m davanti al muso'); return false; }
   const t=best.t, a=new V(t.x,height(t.x,t.z)+.7,t.z);
@@ -2396,6 +2400,21 @@ function attachWinch(){
   toast('Fascia sull\'albero','tieni premuto Verricello per tirare'); auBurst(900,.25,.2,'bandpass',2); return true;
 }
 function nextTree(){ const W=st.winch, C=st.winchC; if(!W||!C||C.length<2||W.pull) return; st.winchI=(st.winchI+1)%C.length; const b=C[st.winchI], t=b.t, a=new V(t.x,height(t.x,t.z)+.7,t.z), hk=HOOK.clone().applyQuaternion(st.q).add(st.pos), dn=hk.distanceTo(a); Object.assign(W,{anchor:a,len:dn,d:dn,tree:t,load:0}); strap.position.copy(a); strap.scale.setScalar((t.r+.06)/.32); toast(`🌲 Albero ${st.winchI+1} di ${C.length}`,`a ${Math.round(b.d)} m · tieni premuto Verricello per tirare`); auBurst(900,.2,.15,'bandpass',2); }
+/* ---- prova guidata del verricello: dopo l'acquisto ti mettiamo nella Pozza dell'Ippopotamo e ti spieghiamo come uscirne (si può saltare) ---- */
+let practiceGo=false;
+function winchOffer(){ let E=$('#wPick'); if(!E){ E=document.createElement('div'); E.id='wPick'; E.className='pickSheet'; E.innerHTML='<b>🪝 Verricello montato!</b><p>Vuoi fare una prova di 1 minuto? Ti mettiamo piantato nella Pozza dell\'Ippopotamo e ti spieghiamo passo passo come tirarti fuori. Non costa niente e non rovina il mezzo.</p><button data-m="1">🎓 Facciamo la prova</button><button data-m="" class="ghost">Salta, so già come si usa</button>'; document.body.append(E); E.querySelectorAll('button').forEach(b=>b.onclick=()=>{ E.hidden=true; if(b.dataset.m) winchTrial(); else { save.winchTut=1; persist(); toast('🪝 Verricello pronto','quando sei piantato fermati e tocca Verricello'); } }); } E.hidden=false; }
+const WSTEP=['<b>1/4</b> Sei piantato nella Pozza dell\'Ippopotamo. Fermo, tocca <b>Verricello</b>: la fascia va sull\'albero davanti.','<b>2/4</b> Fascia sulla quercia (con <b>🌲 Altro albero</b> ne scegli un\'altra). Ora <b>tieni premuto Verricello</b> per tirare il cavo.','<b>3/4</b> Tira! Intanto dai un <b>filo di GAS</b> in ridotte. Se il cavo diventa <b>rosso</b> è in tensione: molla un attimo e riprendi.','<b>4/4</b> Fuori dal fango! Tocca <b>✖ Sgancia verricello</b> per recuperare il cavo.'];
+function winchTrial(){ if(!own('winch')) return; save.winchTut=1; persist(); const prevT=save.track, dmg0={...save.dmg}; save.track='trial'; save.dmg={gomme:0,coppa:0,semiassi:0,carrozzeria:0}; practiceGo=true; $('#gar').hidden=true; $('#over').hidden=true; $('#garGo').click();
+  let t0=0; const iv=setInterval(()=>{ if(!st.running||campMode) return; if(!t0){ t0=performance.now(); return; } if(performance.now()-t0<900) return; clearInterval(iv);
+    const Z=TR.zones.find(z=>z.ippo); if(!Z){ endWinchTrial(); return; } reset(Z.a+5); st.practice={prevT,dmg0,Z,step:0,pulled:0,s0:Z.a+5}; st.sink=.95; st.gear='ridotte'; st.awd=true;
+    let E=$('#wTut'); if(!E){ E=document.createElement('div'); E.id='wTut'; E.innerHTML='<p></p><button>Salta prova</button>'; document.body.append(E); E.querySelector('button').onclick=()=>endWinchTrial(); } E.hidden=false; wStep(0);
+    st.practice.iv=setInterval(winchTrialTick,250); },250); }
+function wStep(i){ const P=st.practice; if(!P) return; P.step=i; $('#winB').classList.toggle('wHint',i<3); $('#unhB').classList.toggle('wHint',i===3); const E=$('#wTut'); E.querySelector('p').innerHTML=WSTEP[i]; E.classList.remove('pop'); void E.offsetWidth; E.classList.add('pop'); auTone(880,.06,.06); vib(25); }
+function winchTrialTick(){ const P=st.practice; if(!P||!st.running) return; const W=st.winch;
+  const ok=()=>{ toast('🎓 Verricello: promosso!','ora sai tirarti fuori da solo'); gabbah('g_si',0); P.step=4; $('#wTut p').innerHTML='<b>Fatto!</b> Quando resti piantato: fermo, <b>Verricello</b>, tieni premuto e un filo di gas.'; setTimeout(()=>endWinchTrial(),2600); };
+  if(P.step===0&&W) wStep(1); else if(P.step===1&&W&&W.pull){ wStep(2); } else if(P.step===2&&W&&st.s>P.Z.b+1.5) wStep(3); else if(P.step===3&&!W) ok();
+  else if(P.step===2&&!W){ if(st.s-P.s0>8){ st.sink=Math.min(st.sink,.2); ok(); } else wStep(0); } }
+function endWinchTrial(msg){ const P=st.practice; if(!P) return; clearInterval(P.iv); st.practice=null; st.running=false; dropWinch(); const E=$('#wTut'); if(E) E.hidden=true; $('#winB').classList.remove('wHint'); $('#unhB').classList.remove('wHint'); save.track=P.prevT; save.dmg={...P.dmg0}; persist(); toGarage(); if(msg) toast('🪝 Prova verricello',msg); }
 function dropWinch(msg){ $('#treeB').hidden=true; $('#unhB').hidden=true; if(!st.winch) return; st.winch=null; cable.visible=false; strap.visible=false; if(msg) toast(msg[0],msg[1]); }
 { const b=$('#winB'); let downT=0;
   b.addEventListener('pointerdown',e=>{ e.preventDefault(); auInit(); downT=performance.now(); if(st.winch) st.winch.pull=true; else if(attachWinch()) {} try{ b.setPointerCapture(e.pointerId); }catch(_){} });
@@ -3733,7 +3752,7 @@ function giveStar(id,k,eu=60){ const S=starOf(id); if(S[k]) return 0; S[k]=1; sa
 function starsTxt(id){ const S=(save.stars||{})[id]||{}; return STARS.map(x=>S[x[0]]?'★':'☆').join(''); }
 function arrive(){ st.done=true; { const id0=TR.id; giveStar(id0,'vetta'); if(st.rescues===0) giveStar(id0,'pulito'); if(st.time<=parT(TR)) giveStar(id0,'tempo'); if(st.time<=parT(TR)*.82){ giveStar(id0,'oro',150); } /* tempo d'oro: 18% sotto l'obiettivo, vale 150 € */ { const D0=st.dmg0||{}; if(['gomme','coppa','semiassi','carrozzeria'].every(k=>(st.dmg[k]||0)-(D0[k]||0)<10)) giveStar(id0,'intatto'); } if(st.daily){ save.daily=save.daily||{}; const dk=st.daily; if(!save.daily[dk]){ const bo=Math.round((TR.reward||300)*.5); save.money=(save.money||0)+bo; setTimeout(()=>toast('🗓️ Premio della sfida','+'+eur(bo)+' per la prima volta di oggi'),5200); } if(!save.daily[dk]||st.time<save.daily[dk]){ save.daily[dk]=st.time; persist(); } setTimeout(()=>toast('🗓️ Sfida del giorno',`tempo ${fmtT1(st.time)} · record di oggi ${fmtT1(save.daily[dk])}`),2600); submitScore('daily'+dk,st.time,st.rescues); } } dropWinch(); const id=TR.id, t=st.time; const nb=!save.best[id]||t<save.best[id]; if(nb&&st.ghRec&&st.ghRec.length>8){ try{ localStorage.setItem('ghost_'+id,JSON.stringify({t,veh:VEH.model||'',f:st.ghRec})); }catch(e){} } save.done[id]=true; if(nb) save.best[id]=t; persist();
   toast(nb?'Vetta! Record':'Vetta!',`in ${fmtT1(t)} · si monta il campo`); gabbah('g_si',0); setTimeout(()=>say('Purcello','','p_vetta'),1900); submitScore(id,t,st.rescues); setTimeout(()=>{ if(st.done&&st.running){ startCamp(); if(save.onlyDrive){ cs.skipped=true; setTimeout(()=>{ if(cs) endCamp(); },50); } } },2200); }
-function failRun(f){ st.running=false; clearResume(); gabbah('g_dopo',0); dropWinch(); const tow=save.money<300?60:150, resc=st.rescues*40, frac=Math.max(0,Math.min(1,st.s/LEN)), pagaG=Math.round((TRACKS[save.track]?.reward||300)*.3*frac/5)*5; save.money=Math.max(0,save.money-tow-resc+pagaG); save.dmg={...st.dmg}; persist();
+function failRun(f){ if(st.practice){ endWinchTrial('Riprova quando vuoi dal garage'); return; } st.running=false; clearResume(); gabbah('g_dopo',0); dropWinch(); const tow=save.money<300?60:150, resc=st.rescues*40, frac=Math.max(0,Math.min(1,st.s/LEN)), pagaG=Math.round((TRACKS[save.track]?.reward||300)*.3*frac/5)*5; save.money=Math.max(0,save.money-tow-resc+pagaG); save.dmg={...st.dmg}; persist();
   lastCp=st.chk?{...st.chk,track:TR.id}:null;
   showMsg('Mezzo fermo',f[0],f[1]+' Il carro attrezzi ti riporta a valle: in officina si ripara.'+(lastCp?' Oppure riparti dal punto di controllo con una riparazione alla buona.':''),[...(pagaG?[[`Strada fatta (${Math.round(frac*100)}%)`,'+'+eur(pagaG),'']]:[]),['Carro attrezzi','−'+eur(tow),'neg'],...(resc?[[`Birre a Purcello (${st.rescues})`,'−'+eur(resc),'neg']]:[]),['In cassa',eur(save.money),'']],'Torna al garage','FERMO'); }
 // fantasma del tuo record: un fuoristrada trasparente rifà il tuo giro migliore, così ci gareggi contro
@@ -3766,7 +3785,7 @@ $('#pauB').addEventListener('click',pause);
 $('#pRes').addEventListener('click',()=>{ clearTouches(); auInit(); $('#pause').hidden=true; st.paused=false; last=performance.now(); calibrate(); });
 { const B=$('#pFis'); const lab=()=>{ const f=fisTxt(); B.textContent=f[0]+(save.fis==='v'?' · tocca per la nuova':' · tocca per la classica'); }; setInterval(()=>{ if(!$('#pause').hidden) lab(); const fb=$('#fisB'); if(fb){ const f=fisTxt(); fb.textContent=f[0]; fb.className='pl chip '+f[1]; fb.hidden=f[1]==='ok'||f[1]===''; } /* la scritta della fisica compare solo se qualcosa non va */ },700); lab(); B.addEventListener('click',()=>{ save.fis=save.fis==='v'?'r':'v'; persist(); lab(); if(save.fis!=='v') rapLoad().then(()=>{ if(RAP&&RAP.ok&&!RAP.world) rapBuildWorld(); }); toast(save.fis==='v'?'Fisica classica':'Fisica nuova',save.fis==='v'?'quella di prima':'ruote e ponti veri, ostacoli solidi (Rapier)'); }); }
 $('#pRst').addEventListener('click',()=>{ $('#pause').hidden=true; startRun(); calibrate(); });
-$('#pGar').addEventListener('click',()=>{ clearResume(); $('#pause').hidden=true; st.running=false; st.paused=false; save.dmg={...st.dmg}; save.money=Math.max(0,save.money-st.rescues*40); persist(); dropWinch(); toGarage(); });
+$('#pGar').addEventListener('click',()=>{ if(st.practice){ $('#pause').hidden=true; st.paused=false; endWinchTrial(); return; } clearResume(); $('#pause').hidden=true; st.running=false; st.paused=false; save.dmg={...st.dmg}; save.money=Math.max(0,save.money-st.rescues*40); persist(); dropWinch(); toGarage(); });
 $('#invS2').addEventListener('change',e=>{ tilt.inv=e.target.checked; $('#invS').checked=tilt.inv; try{ localStorage.setItem('camp3d-inv',tilt.inv?'1':'0'); }catch(_){} });
 document.addEventListener('visibilitychange',()=>{ if(document.hidden){ pause(); snapshot(); try{ if(AC&&AC.state==='running') AC.suspend(); }catch(_){} } else if(!st.paused){ try{ if(AC&&AC.state==='suspended') AC.resume(); }catch(_){} } }); addEventListener('pagehide',snapshot);
 
@@ -3921,9 +3940,9 @@ function renderGarage(){
       if(u.g!==grp){ grp=u.g; L.append(el('p','sec',grp)); }
       const it=el('div','item'); it.append(el('h3','',u.name));
       const b=el('button','buy'); const o=own(k), lockd=u.req&&!own(u.req);
-      if(o){ b.textContent='Smonta · +'+eur(u.price); b.classList.add('own','sell'); b.addEventListener('click',()=>{ unmount(k); auThud(.3); renderGarage(); }); }
+      if(o){ b.textContent='Smonta · +'+eur(u.price); b.classList.add('own','sell'); b.addEventListener('click',()=>{ unmount(k); auThud(.3); renderGarage(); }); if(k==='winch'){ const pv=el('button','buy prv','🎓 Prova'); pv.addEventListener('click',()=>winchTrial()); it.append(pv); } }
       else if(lockd){ b.textContent='Serve prima'; b.disabled=true; }
-      else { b.textContent=eur(u.price); if(save.money<u.price) b.disabled=true; b.addEventListener('click',()=>{ if(save.money<u.price) return; save.money-=u.price; save.own[k]=true; persist(); auBurst(2400,.15,.2,'bandpass',4); renderGarage(); }); }
+      else { b.textContent=eur(u.price); if(save.money<u.price) b.disabled=true; b.addEventListener('click',()=>{ if(save.money<u.price) return; save.money-=u.price; save.own[k]=true; persist(); auBurst(2400,.15,.2,'bandpass',4); renderGarage(); if(k==='winch'&&!save.winchTut) winchOffer(); }); }
       it.append(b, el('p','',u.desc+(lockd?` Serve: ${UPG[u.req].name}.`:'')), el('span','fx',u.fx)); L.append(it); }
   }
   if(garTab==='officina'){
@@ -3961,7 +3980,7 @@ function renderGarage(){
 }
 document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{ garTab=b.dataset.t; renderGarage(); $('#gar').scrollTop=0; }));
 $('#garGo').addEventListener('click',()=>{ auInit(); askSensors(); tilt.seen=0; const br=broken(); if(br.length){ garTab='officina'; renderGarage(); $('#gar').scrollTop=0; toast('Mezzo rotto: '+br.map(k=>DMGN[k][0].toLowerCase()).join(', '),'riparalo qui in officina (se non hai soldi c\'è la riparazione alla buona)'); return; }
-  const T=TRACKS[save.track]; if(T.locked&&T.locked()){ save.track='colle'; }
+  const T=TRACKS[save.track]; if(T.locked&&T.locked()&&!practiceGo){ save.track='colle'; } practiceGo=false;
   $('#gar').hidden=true; $('#load').textContent=''; startRun(); calibrate(); toast(TRACKS[save.track].name,TRACKS[save.track].night?'notturna: accendi i fari, piano sul ghiaccio':'gas col pulsante verde, sterzo inclinando'); });
 
 /* ---------- Classifica online ---------- */
