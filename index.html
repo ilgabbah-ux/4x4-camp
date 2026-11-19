@@ -840,7 +840,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button><button class="big" id="ovPlay" hidden>🏁 Parti<small id="ovPlayS"></small></button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <button id="ovAlb" type="button" hidden>📸 Album foto</button><button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv" hidden><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 143</small>
+      <button id="ovAlb" type="button" hidden>📸 Album foto</button><button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv" hidden><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 144</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -930,7 +930,7 @@ const TIPS={fango:'gas costante',fangoProf:'non fermarti',roccia:'piano, ridotte
 const LABEL={terra:'Sterrato',fango:'Fango',fangoProf:'Fango profondo',roccia:'Pietraia',acqua:'Guado',erba:'Fuori traccia',neve:'Neve fresca',ghiaccio:'Ghiaccio',ghiaia:'Ghiaione',sabbia:'Sabbia',galleria:'Galleria'};
 const CX=s=>{ let x=AMP[0]*Math.sin(s/38+PH[0])+AMP[1]*Math.sin(s/15+1.3+PH[1])+AMP[2]*Math.sin(s/6.5+PH[2]); if(TR&&TR.hair){ const [a,b,A,P]=TR.hair, L=TR.len; const k=sstep(a*L,a*L+20,s)*sstep(b*L,b*L-20,s); if(k>0){ const q=(s-a*L)/P; x=x*(1-.7*k)+A*k*Math.sin(q*Math.PI*2)*Math.min(1,Math.abs(Math.sin(q*Math.PI*2))*1.4); } } return x; };
 const hsAt=s=>{ const f=clamp(s,0,LEN+79)/.5, i=Math.floor(f); return lerp(HS[i],HS[i+1],f-i); };
-window.__hs=s=>hsAt(s); window.__len=()=>LEN; window.__ui=()=>({HERO,LOGORI,showMsg,buildWorld,gar:()=>[garOn,!!scene.background,scene.children.filter(o=>o.visible).length,scene.children.length]});
+window.__hs=s=>hsAt(s); window.__len=()=>LEN; window.__ui=()=>({HERO,LOGORI,showMsg,buildWorld,man,cam,cs:()=>cs,quickCamp,goSleep,KIT:()=>KIT,gar:()=>[garOn,!!scene.background,scene.children.filter(o=>o.visible).length,scene.children.length]});
 const inFord=(s,m)=>{ for(const f of FORDS) if(s>f[0]-m&&s<f[1]+m) return f; return null; };
 const inPud=(s,m)=>{ for(const f of PUDS) if(s>f[0]-m&&s<f[1]+m) return f; return null; };
 const inWet=(s,m)=>inFord(s,m)||inPud(s,m);
@@ -3376,7 +3376,7 @@ function updCamp(dt){
   if(cs.autoAct!=null){ if(cs.autoAct!==cs.step||cs.mini) cs.autoAct=null; else if(nearTarget()||(!cs.dest&&(()=>{ const S=STEPS[cs.step], p=S&&S.target&&cs.pos[S.target]; return p&&Math.hypot(man.position.x-p.x,man.position.z-p.z)<5; })())){ cs.autoAct=null; cs.dest=null; cs.forceNear=true; $('#actB').click(); cs.forceNear=false; } }
   if(cs.party) updParty(dt);
   updFriends(dt);
-  if(cs.sleeping){ U.L.rotation.x=U.R.rotation.x=0; U.AL.rotation.x=U.AR.rotation.x=.15; U.AL.rotation.z=.3; U.AR.rotation.z=-.3; U.hips.position.y=.95; }
+  if(cs.sleeping){ U.L.rotation.x=U.R.rotation.x=0; U.L.rotation.z=.05; U.R.rotation.z=-.05; U.AL.rotation.x=U.AR.rotation.x=.75; U.AL.rotation.z=.35; U.AR.rotation.z=-.35; U.hips.position.y=.95; } else if(U.L.rotation.z){ U.L.rotation.z=U.R.rotation.z=0; }
   if(KIT.riparo==='maggiolina'){ cs.rttO=lerp(cs.rttO||0,cs.rttT||0,1-Math.pow(.05,dt)); const u=rtt.userData; const th=cs.rttO*.62; u.lidP.rotation.x=th; u.tela.scale.y=Math.max(.001,Math.sin(th)*1.64); }
   // segno giallo
   const mk=cs.obj.mk; mk.userData.ar.position.y=3.4+Math.sin(cs.t*3)*.3; mk.userData.ar.visible=cs.walk?true:!nearTarget(); const pu=1+Math.sin(cs.t*4)*.08; mk.userData.ring.scale.set(pu,pu,pu); mk.userData.ring.material.opacity=.65+Math.sin(cs.t*4)*.3;
