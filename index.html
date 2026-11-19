@@ -730,7 +730,7 @@ body.incamp #toast small{font-family:var(--fc)}
   <div id="ctl" hidden>
     <button class="pedal" id="brk">FRENO<small>tieni = retro</small></button>
     <div class="cen">
-      <button class="cb help" id="ristB" hidden>☕ Caffè corretto<br><small>al ristoro: si sistema il mezzo</small></button><button class="cb help" id="helpB" hidden>Chiama Purcello<br><small>strop · cassa di birra</small></button>
+      <button class="cb help" id="chainB" hidden>⛓️ Monta le catene<br><small>fermo · 20 secondi</small></button><button class="cb help" id="ristB" hidden>☕ Caffè corretto<br><small>al ristoro: si sistema il mezzo</small></button><button class="cb help" id="helpB" hidden>Chiama Purcello<br><small>strop · cassa di birra</small></button>
       <button class="cb win" id="winB" hidden>Verricello</button>
       <button class="cb drone" id="droneB" hidden>🚁 Foto col drone</button>
       <button class="cb" id="presB" hidden>Gomme 1,6 bar</button>
@@ -840,7 +840,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button><button class="big" id="ovPlay" hidden>🏁 Parti<small id="ovPlayS"></small></button>
       <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
       <div id="ovDaily" hidden></div>
-      <button id="ovAlb" type="button" hidden>📸 Album foto</button><button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv" hidden><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 141</small>
+      <button id="ovAlb" type="button" hidden>📸 Album foto</button><button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv" hidden><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 142</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -897,15 +897,15 @@ const TRACKS={
    {a:175,b:195,t:'terra',sl:.08},{a:195,b:230,t:'fango',sl:.1},{a:230,b:270,t:'roccia',sl:.16,rocks:1},{a:270,b:300,t:'terra',sl:.22},{a:300,b:340,t:'roccia',sl:.24,rocks:2,lab:'Pietraia del Mombracco'},{a:340,b:380,t:'terra',sl:.12},{a:380,b:500,t:'terra',sl:0}]},
  neve:{id:'neve',name:'Passo della Neve',sub:'col buio: neve fresca, ghiaccio e pietraia',len:460,theme:'neve',night:true,reward:480,ph:[2.1,.4,1.1],camp:{trees:true,wood:'dead',mark:'cairn'},
   zones:[{a:0,b:30,t:'terra',sl:.03},{a:30,b:75,t:'neve',sl:.06},{a:75,b:92,t:'terra',sl:.08},{a:92,b:130,t:'ghiaccio',sl:-.1},
-   {a:130,b:148,t:'terra',sl:.04},{a:148,b:190,t:'roccia',sl:.18,rocks:1},{a:190,b:232,t:'neve',sl:.16},{a:232,b:250,t:'terra',sl:.04},
-   {a:250,b:290,t:'ghiaccio',sl:.115},{a:290,b:318,t:'terra',sl:-.12},{a:318,b:360,t:'neve',sl:.04},{a:360,b:378,t:'terra',sl:.1},
+   {a:130,b:148,t:'terra',sl:.04},{a:148,b:190,t:'roccia',sl:.18,rocks:1},{a:190,b:206,t:'neve',sl:.16},{a:206,b:224,t:'neve',sl:.16,cumulo:1,lab:'Neve alta'},{a:224,b:232,t:'neve',sl:.16},{a:232,b:250,t:'terra',sl:.04},
+   {a:250,b:290,t:'ghiaccio',sl:.115},{a:290,b:318,t:'terra',sl:-.12},{a:318,b:332,t:'neve',sl:.04},{a:332,b:348,t:'neve',sl:.04,cumulo:1,lab:'Cumulo di neve'},{a:348,b:360,t:'neve',sl:.04},{a:360,b:378,t:'terra',sl:.1},
    {a:378,b:440,t:'roccia',sl:.25,rocks:2},{a:440,b:560,t:'terra',sl:0}]},
  jafferau:{id:'jafferau',name:'Forte Jafferau',sub:'ex strada militare: la Galleria dei Saraceni al buio e i ruderi del forte a 2800 m',len:500,theme:'alpino',treeline:.3,night:false,reward:550,ph:[1.2,2.8,.5],amp:[9,4,1.2],hair:[.6,.8,7,46],camp:{trees:false,wood:'pile',mark:'forte'},
   zones:[{a:0,b:30,t:'ghiaia',sl:.08},{a:30,b:80,t:'ghiaia',sl:.13},{a:80,b:120,t:'roccia',sl:.15,rocks:1},{a:120,b:160,t:'ghiaia',sl:.12},{a:160,b:180,t:'terra',sl:.06},
-   {a:180,b:270,t:'galleria',sl:.05,lab:'Galleria dei Saraceni'},{a:270,b:300,t:'ghiaia',sl:.1},{a:300,b:340,t:'neve',sl:.12,lab:'Nevaio'},{a:340,b:400,t:'roccia',sl:.2,rocks:1},{a:400,b:440,t:'ghiaia',sl:.16},{a:440,b:580,t:'terra',sl:0}]},
+   {a:180,b:270,t:'galleria',sl:.05,lab:'Galleria dei Saraceni'},{a:270,b:300,t:'ghiaia',sl:.1},{a:300,b:314,t:'neve',sl:.12,lab:'Nevaio'},{a:314,b:330,t:'neve',sl:.12,cumulo:1,lab:'Neve alta'},{a:330,b:340,t:'neve',sl:.12,lab:'Nevaio'},{a:340,b:400,t:'roccia',sl:.2,rocks:1},{a:400,b:440,t:'ghiaia',sl:.16},{a:440,b:580,t:'terra',sl:0}]},
  sommelier:{id:'sommelier',name:'Colle del Sommeiller',sub:'la sterrata più alta delle Alpi: torrente, nevai, il ghiacciaio e il colle a 3009 m',len:540,theme:'alpino',treeline:.22,night:false,reward:620,ph:[.8,1.9,2.4],amp:[10,5,1.5],hair:[.47,.62,7,46],camp:{trees:false,wood:'pile',mark:'sommelier'},
   zones:[{a:0,b:40,t:'ghiaia',sl:.06},{a:40,b:60,t:'acqua',sl:0,lab:'Guado del torrente'},{a:60,b:120,t:'ghiaia',sl:.11},{a:120,b:160,t:'roccia',sl:.13,rocks:1},{a:160,b:220,t:'ghiaia',sl:.12},
-   {a:220,b:260,t:'neve',sl:.1,lab:'Nevaio'},{a:260,b:300,t:'ghiaia',sl:.14},{a:300,b:350,t:'roccia',sl:.17,rocks:2},{a:350,b:390,t:'neve',sl:.08,lab:'Nevaio'},
+   {a:220,b:234,t:'neve',sl:.1,lab:'Nevaio'},{a:234,b:250,t:'neve',sl:.1,cumulo:1,lab:'Neve alta'},{a:250,b:260,t:'neve',sl:.1,lab:'Nevaio'},{a:260,b:300,t:'ghiaia',sl:.14},{a:300,b:350,t:'roccia',sl:.17,rocks:2},{a:350,b:390,t:'neve',sl:.08,lab:'Nevaio'},
    {a:390,b:430,t:'ghiaccio',sl:.1,lab:'Ghiacciaio del Sommeiller'},{a:430,b:490,t:'roccia',sl:.2,rocks:1},{a:490,b:620,t:'terra',sl:0}]},
  trial:{id:'trial',name:'Campo Trial Team Villastellone',sub:'la pista del Trial Team 4x4 nel bosco: giro facile, giri medi e il giro hard con la Pozza dell\'Ippopotamo, dove ci si pianta tutti',len:480,theme:'bosco',flat:1,night:false,reward:460,ristoro:288,ph:[.9,2.4,1.6],amp:[12,6,2.2],camp:{trees:true,wood:'pile',mark:'cairn'},
   zones:[{a:0,b:16,t:'terra',sl:0,lab:'Ingresso'},{a:16,b:38,t:'terra',sl:0,lab:'Giro facile'},{a:38,b:48,t:'terra',sl:0,humps:.55,lab:'Rampa'},{a:48,b:60,t:'terra',sl:0},{a:60,b:73,t:'terra',sl:0,humps:.95,lab:'Panettone'},
@@ -924,7 +924,7 @@ const ORDER=['colle','bassa','lombardore','mombracco','neve','jafferau','sommeli
 const PANO={trial:'la pianura e le colline del Roero',colle:'giù in fondo la valle e le borgate',bassa:'lassù si vedono girare le pale del mulino',lombardore:'la pianura del Canavese fino alle Alpi',mombracco:'il Monviso proprio davanti',neve:'le luci del paese laggiù',jafferau:'Bardonecchia sotto di te',sommelier:'il ghiacciaio sopra la testa'};
 const totStars=()=>Object.values(save.stars||{}).reduce((a,S)=>a+Object.keys(S).length,0); ORDER.forEach((id,i)=>{ if(i>0){ TRACKS[id].needSt=5*i; TRACKS[id].locked=()=>!save.done[ORDER[i-1]]&&totStars()<5*i; } }); /* si sblocca arrivando in fondo al precedente oppure con le stelle: chi si incastra non resta fermo */ TRACKS.trial.needSt=10; TRACKS.trial.locked=()=>!save.done.lombardore&&totStars()<10; /* il campo trial si apre dopo Lombardore (o con 10 stelle) */
 const HALF=3.3; const OSIDE=o=>Math.max(2.6,o.t==='log'?Math.min(o.half,HALF+1.2):o.t==='camber'?HALF+1.6:o.t==='vg'?1.8:(o.half||HALF));
-let IPPO=false; let OBST=[], OBB=new Map(); let PUDS=[]; let TR, ZONES, LEN, FORDS=[], HS, ROCKS=[], ROCKB=new Map(), TREES=[], TREEB=new Map(), PH=[0,0,0], AMP=[7,3.5,1.2];
+let IPPO=false, CUMULO=false; let OBST=[], OBB=new Map(); let PUDS=[]; let TR, ZONES, LEN, FORDS=[], HS, ROCKS=[], ROCKB=new Map(), TREES=[], TREEB=new Map(), PH=[0,0,0], AMP=[7,3.5,1.2];
 const zoneAt=s=>{for(const z of ZONES) if(s<z.b) return z; return ZONES[ZONES.length-1];};
 const TIPS={fango:'gas costante',fangoProf:'non fermarti',roccia:'piano, ridotte',acqua:'piano: onda',erba:'torna in pista',neve:'gas dolce',ghiaccio:'niente frenate',ghiaia:'ridotte',sabbia:'gas costante',galleria:'fari accesi'}, HARDS=new Set(['fangoProf','roccia','acqua','ghiaccio']);
 const LABEL={terra:'Sterrato',fango:'Fango',fangoProf:'Fango profondo',roccia:'Pietraia',acqua:'Guado',erba:'Fuori traccia',neve:'Neve fresca',ghiaccio:'Ghiaccio',ghiaia:'Ghiaione',sabbia:'Sabbia',galleria:'Galleria'};
@@ -1032,7 +1032,7 @@ const GRIP={ht:{terra:1,fango:.5,fangoProf:.36,roccia:.85,acqua:.6,erba:.75,neve
 const CRR={terra:.015,fango:.09,fangoProf:.17,roccia:.03,acqua:.06,erba:.05,neve:.09,ghiaccio:.012,ghiaia:.03,sabbia:.1,galleria:.04};
 const TYR={ht:0,at:1,mt:2}; const tyreKey=()=>{ const v=(VEH&&VEH.tyre)||'ht'; const u=own('mt')?'mt':own('at')?'at':'ht'; return TYR[u]>=TYR[v]?u:v; };
 const TYRE_NAME={ht:'stradali H/T',at:'A/T',mt:'M/T tassellate'};
-function muOf(su){ let m=GRIP[tyreKey()][su]; if(WX==='pioggia'||WX==='temporale') m*=({terra:.84,erba:.8,roccia:.86,ghiaia:.88,fango:.92,fangoProf:.95,sabbia:.95})[su]||1; if(own('chains')&&(TR.theme==='neve'||TR.theme==='alpino')&&(su==='neve'||su==='ghiaccio')) m=Math.min(.8,m*(su==='ghiaccio'?3:1.5)); return m; }
+function muOf(su){ let m=GRIP[tyreKey()][su]; if(WX==='pioggia'||WX==='temporale') m*=({terra:.84,erba:.8,roccia:.86,ghiaia:.88,fango:.92,fangoProf:.95,sabbia:.95})[su]||1; if(st.chainsOn&&(su==='neve'||su==='ghiaccio')) m=Math.min(.8,m*(su==='ghiaccio'?3:1.5)); return m; }
 
 /* ---------- Scena ---------- */
 const cv=$('#cv');
@@ -2001,7 +2001,7 @@ function fitAccessories(){ while(accX.children.length) accX.remove(accX.children
   accX.traverse(o=>{ if(o.isMesh) o.castShadow=true; }); }
 function setAwning(k){ accX.userData.awK=k; const A=accX.userData.aw; if(!A) return; A.can.scale.x=Math.max(.001,k); A.can.visible=k>.01; A.legs.visible=k>.97; }
 // punto sicuro dove rimettere il mezzo: piano, niente ostacoli, dossi, trincee o guadi
-function safeOk(s,lv=0){ const z=zoneAt(s); if(!(lv?['terra','erba','ghiaia','sabbia','neve','roccia','fango']:['terra','erba','ghiaia','sabbia','neve']).includes(z.t)||(z.humps&&(!lv||z.humps>.5))||(z.lane&&lv<2)) return false; if(typeof inFord==='function'&&inFord(s,lv?5:8)) return false; for(const o of OBST){ if(s>o.s-(lv?6:10)&&s<o.s+Math.max(3,o.len||3)+(lv?4:8)) return false; } const x=CX(s); return Math.abs(height(x-1,-s)-height(x+1,-s))<(lv?.45:.35)&&Math.abs(height(x,-s-2)-height(x,-s+2))<(lv?.8:.6); }
+function safeOk(s,lv=0){ const z=zoneAt(s); if(!(lv?['terra','erba','ghiaia','sabbia','neve','roccia','fango']:['terra','erba','ghiaia','sabbia','neve']).includes(z.t)||z.cumulo||(z.humps&&(!lv||z.humps>.5))||(z.lane&&lv<2)) return false; if(typeof inFord==='function'&&inFord(s,lv?5:8)) return false; for(const o of OBST){ if(s>o.s-(lv?6:10)&&s<o.s+Math.max(3,o.len||3)+(lv?4:8)) return false; } const x=CX(s); return Math.abs(height(x-1,-s)-height(x+1,-s))<(lv?.45:.35)&&Math.abs(height(x,-s-2)-height(x,-s+2))<(lv?.8:.6); }
 function safeSpot(s,fwd=40,back=15){ s=clamp(s,2,LEN-3); for(const [lv,f,b] of [[0,fwd,back],[1,fwd,back],[0,fwd+30,back+45],[1,fwd+30,back+45],[2,fwd+30,back+45],[1,LEN,LEN]]) for(let d=0;d<=f;d+=1){ if(s+d<LEN-2&&safeOk(s+d,lv)) return s+d; if(d<=b&&s-d>2&&safeOk(s-d,lv)) return s-d; } return s; }
 function reset(s){
   s=clamp(s,2,LEN); const x=CX(s), z=-s, y=height(x,z)+1.3;
@@ -2118,7 +2118,7 @@ function rapWheels(dt,inp,thr,brake,low,Fmax,vmax,semiK,gomK){ const R=RAP.R, c=
       else { j.configureMotorVelocity(0,1e6); j.setMotorMaxForce(low?ENG.eb*RW/4:70); }
       (st.dv=st.dv||[0,0,0,0])[i]=Tax/2*f/RW; } });
   // resistenza al rotolamento e fango che tiene
-  const sp=st.vel.dot(fwv); for(let i=0;i<4;i++){ if(!st.contact[i]) continue; const su=st.wsurf[i]; const rr=(CRR[su]||.02)*(isSoft(su)?Math.pow(MASS/2100,.35):1)+(isSoft(su)?sinkRR(su,thr):0)+(IPPO&&su==='fangoProf'?st.sink*(st.winch&&st.winch.pull?.1:2.2):0); /* Pozza dell'Ippopotamo: il fango tiene come colla, si esce col verricello o con gli amici */ c.rr=(c.rr||0)+rr*MASS*9.81/4; }
+  const sp=st.vel.dot(fwv); for(let i=0;i<4;i++){ if(!st.contact[i]) continue; const su=st.wsurf[i]; const rr=(CRR[su]||.02)*(isSoft(su)?Math.pow(MASS/2100,.35):1)+(isSoft(su)?sinkRR(su,thr):0)+(IPPO&&su==='fangoProf'?st.sink*(st.winch&&st.winch.pull?.1:2.2):0)+(CUMULO&&su==='neve'?st.sink*(st.winch&&st.winch.pull?.1:st.chainsOn?.35:1.9):0); /* Pozza dell'Ippopotamo: il fango tiene come colla, si esce col verricello o con gli amici */ c.rr=(c.rr||0)+rr*MASS*9.81/4; }
   return contacts; }
 function rapPost(dt,F,T){ const c=RAP.car, ch=c.ch;
   F.y+=9.81*MASS; // la gravità la mette Rapier
@@ -2217,6 +2217,7 @@ function physStep(dt,inp){
     // remata: avanti-indietro alternati compattano il fango e il mezzo si libera un po' alla volta
     { const sg=Math.sign(thr); if(sg){ if(st.rkSg&&sg!==st.rkSg&&st.time-st.rkT<3.5&&st.rkHold>.35&&softW&&st.sink>.05&&!IPPO){ st.sink=Math.max(0,st.sink-.13); st.vel.addScaledVector(fw,sg*1.1); st.rocks=(st.rocks||0)+1; if(st.rocks%2===1) toast('Dondola!','avanti e indietro: il fango si compatta e il mezzo esce'); auThud(.35); } if(sg!==st.rkSg){ st.rkHold=0; } st.rkSg=sg; st.rkT=st.time; st.rkHold=(st.rkHold||0)+dt; } }
     IPPO=!!zoneAt(st.s).ippo&&st.wsurf.some(w=>w==='fangoProf'); if(IPPO){ if(st.winch&&st.winch.pull) st.sink=Math.max(.3,st.sink-dt*.25); else if(softW) st.sink=Math.min(1,st.sink+dt*.24); if(!st.ippoSaid){ st.ippoSaid=1; toast('🦛 Pozza dell\'Ippopotamo',own('winch')?'qui ci si pianta tutti: verricello su un albero davanti':'qui ci si pianta tutti: chiama gli amici col tasto aiuto'); } }
+    CUMULO=!!zoneAt(st.s).cumulo&&st.wsurf.some(w=>w==='neve'); if(CUMULO){ const ch=!!st.chainsOn; if(st.winch&&st.winch.pull) st.sink=Math.max(.25,st.sink-dt*.3); else if(softW&&(thr>0||(inp.gas||0)>.05)) st.sink=Math.min(ch?.4:1,st.sink+dt*(ch?.05:.28)); if(!st.cumSaid){ st.cumSaid=1; toast('❄️ Neve alta',ch?'con le catene si passa: gas dolce e costante':own('chains')?'senza catene ci si pianta: fermati e montale':own('winch')?'qui ci si pianta: verricello o chiama Purcello':'qui ci si pianta: chiama Purcello'); } }
     if(softW){ if(thr<0) st.sink=Math.max(0,st.sink-dt*(asp>.15?.35:.12));
       else if(asp>4&&slip<.25) st.sink=Math.max(0,st.sink-dt*.1);
       else if((thr>0||(inp.gas||0)>.05)&&(slip>.12||asp<4)) st.sink=Math.min(1,st.sink+dt*(deep?.3:.17)*snowK*(.25+slip)*(asp>4?.4:1)*(softW/4)*(pressure===0?1.3:pressure===2?.75:1)*(own('g33')?.85:1)*Math.pow(MASS/2100,1.3)*clamp(.45/RW,.7,1.25)); }
@@ -2438,7 +2439,7 @@ function updRescue(dt){
 }
 $('#helpB').addEventListener('click',rescue);
 function doRist(){ if(st.ristDone||!st.running) return; st.ristDone=1; $('#ristB').hidden=true; const D=st.dmg, before=Object.values(D).reduce((a,b)=>a+b,0); for(const k of ['gomme','coppa','semiassi','carrozzeria']) D[k]=Math.max(0,(D[k]||0)*.55-6); st.dmg0={...D}; st.time+=25; const saved=Math.round(before-Object.values(D).reduce((a,b)=>a+b,0)); auThud(.3); vib([30,60,30]); toast('☕ Caffè corretto!',saved>0?'gli amici del Trial Team ti sistemano il mezzo: danni −'+saved+' · pausa +25 s':'mezzo già a posto, ma il caffè ci stava · pausa +25 s',3500); }
-$('#ristB').addEventListener('click',doRist);
+$('#ristB').addEventListener('click',doRist); $('#chainB').addEventListener('click',()=>{ if(!st.running||st.chainsOn||st.chainsT>0) return; st.chainsT=2.2; toast('⛓️ Monti le catene…','resta fermo un attimo'); });
 // verricello: cerca un albero davanti al muso, aggancia la fascia, tenendo premuto recupera il cavo
 function attachWinch(){
   if(!own('winch')||st.rescue||st.winch) return !!st.winch;
@@ -3543,6 +3544,11 @@ function frame(now){ UORG.value.copy(cam.position);
       $('#ristB').hidden=!zone||st.ristDone;
       if(!st.ristSaid&&ds>-80&&ds<-22){ st.ristSaid=1; toast('☕ Ristoro Trial Team qui avanti','fermati sulla piazzola STOP: caffè corretto e il mezzo riparte sistemato',3000); }
       if(!st.ristDone&&!st.ristMiss&&ds>12){ st.ristMiss=1; toast('☕ Hai tirato dritto al ristoro!','niente caffè: i danni restano',2500); } } else $('#ristB').hidden=true;
+    { const snowT=TR.theme==='neve'||TR.theme==='alpino', canCh=own('chains')&&snowT&&!st.chainsOn&&!st.done&&!st.rescue;
+      if(canCh&&!st.cumWarn){ const Zc=TR.zones.find(z=>z.cumulo&&z.a>st.s); if(Zc&&Zc.a-st.s<45){ st.cumWarn=1; toast('❄️ '+(Zc.lab||'Neve alta')+' tra '+Math.round(Zc.a-st.s)+' m','fermati e monta le catene, o ti pianti'); } }
+      if(st.cumWarn&&!TR.zones.some(z=>z.cumulo&&z.a>st.s&&z.a-st.s<45)) st.cumWarn=0;
+      if(st.chainsT>0){ st.chainsT-=dt; const sm=$('#chainB small'); if(sm) sm.textContent='le stai montando… '+Math.min(100,Math.round((1-st.chainsT/2.2)*100))+'%'; if(Math.abs(sp)>1.2){ st.chainsT=0; toast('Fermo!','le catene si montano da fermi'); } else if(st.chainsT<=0){ st.chainsOn=true; st.time+=20; auThud(.4); toast('⛓️ Catene montate','sulla neve e sul ghiaccio ora tieni · +20 s'); } }
+      $('#chainB').hidden=!(canCh&&(Math.abs(sp)<1.2||st.chainsT>0)&&(st.wsurf.some(w=>w==='neve'||w==='ghiaccio')||TR.zones.some(z=>z.cumulo&&z.a-st.s<45&&z.b>st.s))); }
     $('#helpB').hidden=!!st.rescue||!!st.flipSeq||!!(st.winch&&st.winch.pull)||!(st.stuckT>2.5||flipped||st.sink>.85);
     const wv0=0; const wv=own('winch')&&!st.done&&!st.rescue&&(Math.abs(sp)<1.5||st.winch); $('#winB').hidden=!wv; if(wv){ $('#winB').textContent=st.winch?(st.winch.pull?'Tiro…':'Tieni: tira il cavo'):'Verricello'; $('#winB').classList.toggle('on',!!(st.winch&&st.winch.pull)); }
     updFlipSeq(dt);
@@ -3842,7 +3848,7 @@ function ghostUpd(dt){ if(st.done) return; st.ghT+=dt; if(st.ghT>=.25){ st.ghT-=
   const gs=-ghostCar.position.z; st.ghGap=gs-st.s; }
 function startRun(){ garScene(false); $('#unlB').hidden=true; $('#goB').hidden=true; if(TRACKS[save.track]?.panoS&&typeof loadAmico==='function') ['purcello','costa','linus'].forEach(n=>loadAmico(n)); /* gli amici del punto panoramico si caricano subito */ st.daily=dailyGo; dailyGo=null; st.fog0=null; rtt.userData.lidP.rotation.x=0; rtt.userData.tela.scale.y=.001; cam.clearViewOffset(); shS=-1; if(cs) clearCamp(); setTimeout(()=>{ if(st.running&&!campMode&&save.musGuida!==false&&AC) { if(TRACK_MP3[save.track]) mp3Start(TRACK_MP3[save.track],.32); else musicStart(TRACK_SONG[save.track]||'rock',.2); } },600); WX=save.meteo; if(WX==='random'){ const ks=Object.keys(METEO).filter(k=>k!=='random'), w=ks.map(k=>k==='sereno'?3:k==='temporale'?1:1.6); let r=Math.random()*w.reduce((a,b)=>a+b,0), q=0; while(r>w[q]){ r-=w[q]; q++; } WX=ks[q]; st.wxRnd=true; setTimeout(()=>toast('🎲 Meteo a sorpresa',METEO[WX].ic+' '+METEO[WX].n+' · '+METEO[WX].txt),900); } else st.wxRnd=false; if(builtTrack!==save.track) buildWorld(save.track); else { scene.fog.near=TR.theme==='neve'?25:90; scene.fog.far=TR.theme==='neve'?150:TR.theme==='alpino'?760:640; } applyUpgrades(); pressure=save.pressure;
   $('#hud').hidden=false; $('#hud2').hidden=false; $('#ctl').hidden=false; $('#tb').hidden=false; $('#lowB').hidden=false;
-  clearSplats(); placeFriendCars(); for(const o of OBST){ o.said=false; o.cut=0; } st.camCut=null; st.snowSaid=false; st.dmgW={}; st.dmg0={...st.dmg}; st.ippoSaid=0; st.ristDone=0; st.ristSaid=0; st.ristMiss=0; st.ristW=0; st.lock=false; if(typeof updLockB==='function') updLockB(); st.flipSeq=null; pur.visible=false; strop.visible=false; TR._pudO=null; st.pudSaid=0; Object.assign(st,{chk:null,uprig:null,drone:null,droneDone:false,panoSaid:false,awd:true,progS:0,progT:0,running:true,done:false,rescue:null,time:0,dirt:save.dirt||0,water:0,sink:0,rescues:0,paused:false,gear:'alta',dmg:{...save.dmg}}); reset(4); campMode=false; ghostStart(); clearRuts(); skyNow=-1; setSky(TR.night?1:0); lightsUpd(); $('#hq').hidden=false; setTimeout(()=>{ if(!save.tutDone) tutStart(); else showHelp('guida'); },400); }
+  clearSplats(); placeFriendCars(); for(const o of OBST){ o.said=false; o.cut=0; } st.camCut=null; st.snowSaid=false; st.dmgW={}; st.dmg0={...st.dmg}; st.ippoSaid=0; st.cumSaid=0; st.cumWarn=0; st.chainsOn=false; st.chainsT=0; $('#chainB').hidden=true; st.ristDone=0; st.ristSaid=0; st.ristMiss=0; st.ristW=0; st.lock=false; if(typeof updLockB==='function') updLockB(); st.flipSeq=null; pur.visible=false; strop.visible=false; TR._pudO=null; st.pudSaid=0; Object.assign(st,{chk:null,uprig:null,drone:null,droneDone:false,panoSaid:false,awd:true,progS:0,progT:0,running:true,done:false,rescue:null,time:0,dirt:save.dirt||0,water:0,sink:0,rescues:0,paused:false,gear:'alta',dmg:{...save.dmg}}); reset(4); campMode=false; ghostStart(); clearRuts(); skyNow=-1; setSky(TR.night?1:0); lightsUpd(); $('#hq').hidden=false; setTimeout(()=>{ if(!save.tutDone) tutStart(); else showHelp('guida'); },400); }
 // pausa
 function sensUI(){ document.querySelectorAll('.sens:not(.sm):not(.cr):not(.vb):not(.ac) button').forEach(b=>b.classList.toggle('on',+b.dataset.v===(save.sens||1))); }
 function optUI(){ document.querySelectorAll('.sens.sm button').forEach(b=>b.classList.toggle('on',b.dataset.m===(save.steerMode||'tilt'))); document.querySelectorAll('.sens.cr button').forEach(b=>b.classList.toggle('on',(b.dataset.c==='1')===(save.crawl!==false))); document.querySelectorAll('.sens.vb button').forEach(b=>b.classList.toggle('on',(b.dataset.b==='1')===(save.vib!==false))); document.querySelectorAll('.sens.ac button').forEach(b=>b.classList.toggle('on',(b.dataset.a==='1')===(save.autoCam!==false))); }
@@ -3872,7 +3878,7 @@ const HELP={
  fangoProf:{ic:'🕳️',t:'Fango profondo',l:['Qui ci si pianta facile: <b>ridotte inserite</b> e slancio prima di entrare.','Se resti fermo compare <b>Chiama Purcello</b>: ti tira fuori con la strop.','Col verricello (garage) ti tiri fuori da solo.']},
  roccia:{ic:'🪨',t:'Pietraia',l:['<b>Piano!</b> Sopra i 15 km/h i sassi rompono gomme, coppa e semiassi.','Metti le <b>ridotte</b> e sali sui massi a passo d\'uomo.','Paracoppa e rialzo (garage) riducono i danni.']},
  acqua:{ic:'🌊',t:'Guado',l:['Entra piano, <b>sotto i 10 km/h</b>.','Se vai forte fai l\'onda: sale la barra <b>Acqua al filtro</b> e quando è piena il motore si annega.','Con lo snorkel passi tranquillo.']},
- neve:{ic:'❄️',t:'Neve',l:['Come il fango: slancio, gas dolce, niente ruote che girano a vuoto.','Le <b>catene</b> (garage) aumentano molto la presa.']},
+ neve:{ic:'❄️',t:'Neve',l:['Come il fango: slancio, gas dolce, niente ruote che girano a vuoto.','Nella <b>neve alta</b> senza catene ci si pianta: fermati e premi <b>⛓️ Monta le catene</b> (si comprano in garage), oppure verricello o Purcello.']},
  ghiaccio:{ic:'🧊',t:'Ghiaccio',l:['Si frena pochissimo e si sterza poco: <b>vai piano</b> e anticipa le curve.','In discesa metti le <b>ridotte</b>: frenano col motore.','Con le catene cambia tutto.']},
  sabbia:{ic:'🏜️',t:'Sabbia',l:['Se ti fermi affondi: tieni una velocità <b>costante</b>.','Gomme sgonfie (1,0 bar) galleggiano meglio.']},
  dossi:{ic:'〰️',t:'Dossi',l:['Prendili <b>piano e dritti</b>.','Se arrivi forte il mezzo salta e quando atterra rompi i semiassi.']},
@@ -3973,7 +3979,7 @@ const UPG={
   sliders:{cat:'mezzo',g:'Protezioni',name:'Protezioni sottoporta',price:350,desc:'Tubi d\'acciaio sotto le porte: alberi e massi rovinano molto meno la carrozzeria.',fx:'danni alla carrozzeria −50%'},
   snorkel:{cat:'mezzo',g:'Protezioni',name:'Snorkel',price:450,desc:'Presa d\'aria all\'altezza del tetto: nei guadi il motore non beve.',fx:'guadi quasi il doppio più profondi'},
   comp:{cat:'mezzo',g:'Accessori',name:'Compressore',price:250,desc:'Rigonfi le gomme sul tracciato quando torni sullo sterrato. Senza, puoi solo sgonfiare.',fx:'gomme su e giù da fermo'},
-  chains:{cat:'mezzo',g:'Accessori',name:'Catene da neve',price:250,desc:'Sul ghiaccio e sulla neve tengono come sullo sterrato. Le monti solo al Passo della Neve.',fx:'ghiaccio ×3 · neve ×1,5'},
+  chains:{cat:'mezzo',g:'Accessori',name:'Catene da neve',price:250,desc:'Sul ghiaccio e sulla neve tengono come sullo sterrato. Si montano da fermi col tasto ⛓️ prima della neve alta: senza, nei cumuli ci si pianta.',fx:'ghiaccio ×3 · neve ×1,5'},
   led:{cat:'mezzo',g:'Accessori',name:'Barra LED sul tetto',price:300,desc:'Di notte vedi molto più lontano e molto più largo.',fx:'luce lunga e larga di notte'},
   accendino:{cat:'campo',g:'Fuoco',name:'Accendino antivento',price:60,desc:'Il fuoco si accende senza sudare con l\'acciarino.',fx:'fuoco: zona buona più larga, 2 colpi'},
   accendifuoco:{cat:'campo',g:'Fuoco',name:'Accendifuoco',price:150,req:'accendino',desc:'Cubetti che prendono al primo colpo anche con la legna umida.',fx:'fuoco: un colpo e via'},
