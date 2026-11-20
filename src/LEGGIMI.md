@@ -29,3 +29,13 @@ Rivoli-Pinerolo Easy (`colle`), Mulino Val (`bassa`) e Cima Mares (`mares`) hann
 - Un percorso con `cx` non usa più `ph`/`amp`; il suo fantasma si salva con il suffisso `_gpx`.
 - La classifica online accetta `bandito` e `mares`, e scarta i tempi vecchi di `colle` e `bassa`, solo dopo aver ripubblicato `classifica/Codice.gs` come Apps Script.
 - `peak:1` su un percorso apre la vetta: ultimo tratto in cresta e campo su una cupola senza pareti di roccia intorno.
+
+## Vista abitacolo (dalla v157)
+
+L'interno è fatto di pezzi modellati con Higgsfield (foto di riferimento → Tripo H3.1, alleggeriti con gltf-transform: weld, simplify, texture 512/1024 jpeg, quantize):
+
+- `asset/plancia.glb`, `volante.glb`, `porta.glb`, `specchio.glb`, `montante.glb`, `aletta.glb`, `retrovisore.glb`, `inclinometro.glb`; porta, specchio, montante e aletta sono un lato solo, l'altro è specchiato (`both`).
+- `tex/abit_cielo.jpg`, `abit_moquette.jpg`, `abit_plastica.jpg`: texture ripetibili per le superfici piatte.
+- Si scaricano la prima volta che si entra in abitacolo (`ckpit.loadDash`). Se un file manca resta il pezzo di riserva costruito a codice (gruppi `userData.dash` 1–6 dentro `ckpit`).
+- Posizioni e scale dei modelli sono numeri in `loadDash`: se si rigenera un modello vanno rimisurati (contachilometri e contagiri veri sono dischi messi sopra quelli dipinti nella plancia).
+- In abitacolo la camera si inclina col mezzo (`cam.up` segue `st.q`); fango e tergicristalli sono allineati alla base del parabrezza al 60% dell'altezza dello schermo.
