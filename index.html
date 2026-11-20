@@ -708,6 +708,22 @@ body.incamp #toast small{font-family:var(--fc)}
  #over .brand .pie{font-size:24px!important;padding:4px 18px!important}
  #over .brand .sub{font-size:11px!important;margin-top:4px}
 }
+
+/* v153: menù chiaro per chi inizia - quattro voci con una riga di spiegazione, benvenuto al primo avvio, ritorno al menù dal garage */
+#over .ovNav .plate{min-height:58px!important;justify-content:flex-start!important;padding:8px 10px!important}
+#over .ovNav .plate span{display:flex!important;flex-direction:column;align-items:flex-start;gap:3px;white-space:normal!important;font-size:15px!important;line-height:1!important;text-align:left;min-width:0}
+#over .ovNav .plate small{font:600 10.5px/1.15 var(--fc)!important;letter-spacing:.01em;text-transform:none;opacity:.72}
+@media (orientation:landscape) and (max-height:520px){ #over .ovNav{grid-template-columns:repeat(4,1fr)!important;gap:6px!important} #over .ovNav .plate{flex-direction:column!important;justify-content:center!important;min-height:50px!important;padding:6px 3px!important;gap:3px!important} #over .ovNav .plate span{align-items:center;text-align:center;font-size:11px!important;letter-spacing:0} #over .ovNav .plate small{display:none} }
+#intro .inList{list-style:none;margin:2px 0;padding:0;display:grid;gap:8px;max-width:440px;text-align:left}
+#intro .inList li{display:flex;gap:10px;align-items:center;font-size:14px;line-height:1.25;opacity:.95}
+#intro .inList i{font-style:normal;font-size:22px;flex:none;width:30px;text-align:center}
+#intro .inList b{display:block;font-size:15px}
+#intro .inNote{font-size:13px;opacity:.75}
+@media (orientation:landscape) and (max-height:520px){ #intro{justify-content:flex-start;overflow:auto;gap:7px;padding:10px 18px} #intro .inIc{display:none} #intro .inList{grid-template-columns:1fr 1fr;max-width:660px;gap:6px 18px} #intro>p{font-size:13px} #intro button{padding:9px 16px} }
+#garMenu{position:absolute;left:max(10px,env(safe-area-inset-left,0px));top:max(8px,env(safe-area-inset-top,0px));z-index:6;width:auto!important;min-height:34px!important;padding:6px 12px!important;border-radius:10px;font:800 13px/1 var(--fc)!important;letter-spacing:.04em;text-transform:uppercase;background:rgba(12,13,15,.74)!important;color:#f1ece2!important;border:1px solid rgba(255,255,255,.24)!important;transform:none!important;box-shadow:none!important}
+#gar.det #garMenu{display:none}
+#gar .ghead{padding-top:32px} /* spazio per il tasto Menù sopra il logo */
+@media (orientation:portrait){ #over{padding-top:31vh!important} #over .brand img{width:min(27vw,125px)!important} #over .brand .sub{display:none!important} #over .card{gap:8px!important} } /* in verticale le quattro voci stanno tutte nello schermo senza scorrere */
 </style>
 
 <div id="app">
@@ -823,10 +839,11 @@ body.incamp #toast small{font-family:var(--fc)}
   </section>
   <div id="vdet" hidden></div>
   <section id="gar" class="screen" hidden>
+    <button id="garMenu" type="button">‹ Menù</button>
     <div class="show3d" id="show3d"><small>↔ trascina per girare il mezzo</small></div>
     <div class="wrap">
       <div class="ghead"><img id="garLogo" alt="4x4 Camp · Ridotte inserite"><div><p class="eyebrow">Garage</p><h2 id="garTr">Il tuo 4x4</h2></div><div class="money"><b id="garM">0 €</b><small>in cassa</small></div></div>
-      <div class="tabs" role="tablist"><button data-t="mezzo" class="on">Mezzo</button><button data-t="elabora">Elabora</button><button data-t="campo">Campo</button><button data-t="officina">Officina</button><button data-t="tracciati">Uscita</button></div>
+      <div class="tabs" role="tablist"><button data-t="mezzo" class="on">Mezzo</button><button data-t="elabora">Elabora</button><button data-t="campo">Campo</button><button data-t="officina">Officina</button><button data-t="tracciati">Percorsi</button></div>
       <div id="garList" style="display:flex;flex-direction:column;gap:10px"></div>
     </div>
     <button class="big" id="garGo">Parti<small id="garGoS"></small></button>
@@ -838,9 +855,9 @@ body.incamp #toast small{font-family:var(--fc)}
       <p id="ovTxt">Gas dolce e occhio alle ruote: in fondo al giro ti aspettano il campo, il fuoco e gli amici.</p>
       <div id="ovSave" hidden></div>
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button><button class="big" id="ovPlay" hidden>🏁 Parti<small id="ovPlayS"></small></button>
-      <div class="ovRow"><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo</span></button></div>
+      <div class="ovRow ovNav"><button class="ghost plate" id="ovTrk"><i>🗺️</i><span>Percorsi<small>scegli dove andare</small></span></button><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="ovHow"><i>🎓</i><span>Come si gioca<small>tutorial, si può saltare</small></span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo<small>subito al fuoco con gli amici</small></span></button></div>
       <div id="ovDaily" hidden></div>
-      <button id="ovAlb" type="button" hidden>📸 Album foto</button><button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv" hidden><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 152</small>
+      <button id="ovAlb" type="button" hidden>📸 Album foto</button><button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv" hidden><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 153</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -2481,10 +2498,11 @@ function attachWinch(){
 }
 function nextTree(){ const W=st.winch, C=st.winchC; if(!W||!C||C.length<2||W.pull) return; st.winchI=(st.winchI+1)%C.length; const b=C[st.winchI], t=b.t, a=new V(t.x,height(t.x,t.z)+.7,t.z), hk=HOOK.clone().applyQuaternion(st.q).add(st.pos), dn=hk.distanceTo(a); Object.assign(W,{anchor:a,len:dn,d:dn,tree:t,load:0}); strap.position.copy(a); strap.scale.setScalar((t.r+.06)/.32); toast(`🌲 Albero ${st.winchI+1} di ${C.length}`,`a ${Math.round(b.d)} m · tieni premuto Verricello per tirare`); auBurst(900,.2,.15,'bandpass',2); }
 /* ---- prova guidata del verricello: dopo l'acquisto ti mettiamo nella Pozza dell'Ippopotamo e ti spieghiamo come uscirne (si può saltare) ---- */
-/* primo avvio: 3 schede per capire il gioco, si può saltare */
-const INTRO=[['🚙','Guida','<b>GAS</b> a destra, <b>FRENO</b> a sinistra (tienilo premuto per la retro). Sterzi <b>inclinando il telefono</b> o con le frecce: lo scegli nelle Impostazioni.'],['⚙️','Ridotte e gomme','Sulle salite dure e nel fango metti le <b>RIDOTTE</b> (da fermo). Sui sassi e sulla neve <b>sgonfia le gomme</b>. Se resti piantato: <b>chiama Purcello</b> o usa il <b>verricello</b>.'],['🔥','Il campo in vetta','Arrivi in cima e parte la <b>festa al campo</b> con gli amici. Prendi soldi e stelle: in <b>Garage</b> elabori il mezzo e sblocchi nuovi percorsi.']];
-function introShow(i=0){ let E=$('#intro'); if(!E){ E=document.createElement('div'); E.id='intro'; E.className='pickSheet'; document.body.append(E); } const [ic,t,tx]=INTRO[i]; E.innerHTML=`<div class="inIc">${ic}</div><b>${t}</b><p>${tx}</p><div class="inDots">${INTRO.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')}</div><button data-n>${i<INTRO.length-1?'Avanti':'Si parte!'}</button><button class="ghost" data-s>Salta</button>`; E.hidden=false;
-  E.querySelector('[data-n]').onclick=()=>{ if(i<INTRO.length-1) introShow(i+1); else { E.hidden=true; save.introDone=1; persist(); } }; E.querySelector('[data-s]').onclick=()=>{ E.hidden=true; save.introDone=1; persist(); }; }
+/* primo avvio: una scheda sola che spiega il gioco e le voci del menù; il tutorial di guida si può fare o saltare. Si riapre da «Come si gioca» */
+function introShow(first=true){ let E=$('#intro'); if(!E){ E=document.createElement('div'); E.id='intro'; E.className='pickSheet'; document.body.append(E); } const res=!!save.resume;
+  E.innerHTML=`<div class="inIc">🚙</div><b>${first?'Benvenuto in 4x4 Camp':'Come si gioca'}</b><p>Porti il fuoristrada in vetta, monti il campo e fai festa con gli amici. Con soldi e stelle elabori il mezzo e sblocchi nuovi percorsi.</p><ul class="inList"><li><i>🏁</i><span><b>Parti</b>guidi subito sul percorso scelto</span></li><li><i>🗺️</i><span><b>Percorsi</b>scegli dove andare</span></li><li><i>🔧</i><span><b>Garage</b>mezzo, pezzi, attrezzatura da campo e officina</span></li><li><i>🔥</i><span><b>Festa al campo</b>vai dritto al fuoco, senza guidare</span></li></ul>${res?'<p class="inNote">Hai un giro in corso: il tutorial di guida lo rivedi dalla pausa (II).</p>':'<button data-t>🎓 Tutorial di guida · 1 minuto</button>'}<button class="ghost" data-s>${first?'Salta il tutorial, vado al menù':'Chiudi'}</button>`; E.hidden=false;
+  const bt=E.querySelector('[data-t]'); if(bt) bt.onclick=()=>{ E.hidden=true; save.introDone=1; save.tutDone=false; save.track=ORDER[0]; persist(); $('#ovPlay').click(); };
+  E.querySelector('[data-s]').onclick=()=>{ E.hidden=true; if(first){ save.introDone=1; save.tutDone=true; persist(); } }; }
 /* nell'app installata (Play Store o Home) si va a schermo intero: la barra del telefono non copre più il cruscotto */
 { const app=matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches||document.referrer.startsWith('android-app://'); const fs=()=>{ if(!app||document.fullscreenElement||!document.documentElement.requestFullscreen) return; document.documentElement.requestFullscreen({navigationUI:'hide'}).catch(()=>{}); }; addEventListener('pointerdown',fs,{passive:true}); }
 setTimeout(()=>{ const L=$('#loadP'); if(L){ L.classList.add('done'); setTimeout(()=>L.remove(),700); } },20000); /* rete lenta o errore: dopo 20 s il caricamento sparisce comunque */
@@ -4129,6 +4147,10 @@ $('#go').addEventListener('click',async()=>{
   auInit(); try{ if(typeof DeviceMotionEvent!=='undefined'&&DeviceMotionEvent.requestPermission) await DeviceMotionEvent.requestPermission(); }catch(e){} try{ if(typeof DeviceOrientationEvent!=='undefined'&&DeviceOrientationEvent.requestPermission) await DeviceOrientationEvent.requestPermission(); }catch(e){}
   calibrate(); $('#over').hidden=true; toGarage();
 });
+$('#go').addEventListener('click',e=>{ if(e.isTrusted) garTab='mezzo'; },true); /* dal menù: Garage apre sul mezzo, Percorsi sulla scelta del tracciato */
+$('#ovTrk').addEventListener('click',()=>{ if($('#go').disabled) return; garTab='tracciati'; $('#go').click(); });
+$('#ovHow').addEventListener('click',()=>{ if($('#go').disabled) return; introShow(false); });
+$('#garMenu').addEventListener('click',()=>{ if(st.running) return; garScene(false); $('#gar').hidden=true; $('#over').hidden=false; ovInfo(); }); /* dal garage si torna al menù */
 $('#qcB').addEventListener('click',()=>{ if($('#go').disabled) return; quickCamp(); });
 $('#ovPlay').addEventListener('click',async()=>{ if($('#go').disabled) return; auInit(); try{ if(typeof DeviceOrientationEvent!=='undefined'&&DeviceOrientationEvent.requestPermission) await DeviceOrientationEvent.requestPermission(); }catch(e){} calibrate(); ovRev(); ovMudFx(); await new Promise(r=>setTimeout(r,650)); $('#over').hidden=true; toGarage(); $('#garGo').click(); }); /* un tocco e si parte: il garage resta la seconda scelta */
 // ---- menù: scheda partita, sfida del giorno, musica, polvere che vola ----
@@ -4206,7 +4228,7 @@ if(window.top!==window&&!/github\.io$/.test(location.hostname)) $('#olk').hidden
 $('#over').style.setProperty('--hero',`url(${HERO})`); $('#ovLogo').src=LOGORI; /* foto e logo dentro la pagina: si vedono anche dove le immagini esterne non arrivano */ $('#ovLogo').onerror=()=>{ $('#ovLogo').src=LOGO4; }; $('#garLogo').src=LOGORI;
 buildWorld(TRACKS[save.track]&&!(TRACKS[save.track].locked&&TRACKS[save.track].locked())?save.track:'colle'); setSky(TR.night?1:0);
 reset(4);
-loadCar().then(()=>{ applyUpgrades(); $('#go').disabled=false; { const L=$('#loadP'); if(L){ L.classList.add('done'); setTimeout(()=>L.remove(),700); } } if(!save.introDone&&!save.done.colle) setTimeout(()=>{ if(!st.running&&!$("#over").hidden) introShow(); },400); $('#go span').textContent='Garage'; if(save.resume){ $('#goRes').hidden=false; } else $('#ovPlay').hidden=false; ovInfo(); }).catch(e=>{ $('#load').textContent='Errore nel caricare il fuoristrada: '+e.message; });
+loadCar().then(()=>{ applyUpgrades(); $('#go').disabled=false; { const L=$('#loadP'); if(L){ L.classList.add('done'); setTimeout(()=>L.remove(),700); } } if(!save.introDone&&!save.done.colle) setTimeout(()=>{ if(!st.running&&!$("#over").hidden) introShow(); },400); $('#go span').innerHTML='Garage<small>mezzo, pezzi e officina</small>'; if(save.resume){ $('#goRes').hidden=false; } else $('#ovPlay').hidden=false; ovInfo(); }).catch(e=>{ $('#load').textContent='Errore nel caricare il fuoristrada: '+e.message; });
 requestAnimationFrame(frame);
 window.__st=st; window.__car=()=>({car,curRoot,ckpit,THREE});
 // banco di prova: simula senza disegnare (usato solo per i test)
