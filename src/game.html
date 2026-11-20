@@ -843,7 +843,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button><button class="big" id="ovPlay" hidden>🏁 Parti<small id="ovPlayS"></small></button>
       <div class="ovRow ovNav"><button class="ghost plate" id="ovTrk"><i>🗺️</i><span>Percorsi<small>scegli dove andare</small></span></button><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="ovHow"><i>🎓</i><span>Come si gioca<small>tutorial, si può saltare</small></span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo<small>subito al fuoco con gli amici</small></span></button></div>
       <div id="ovDaily" hidden></div>
-      <button id="ovAlb" type="button" hidden>📸 Album foto</button><button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv" hidden><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 155</small>
+      <button id="ovAlb" type="button" hidden>📸 Album foto</button><button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv" hidden><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 156</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -2901,30 +2901,77 @@ function openMusic(){ sheet('Festa!','Si sfida chi fa più casino ballando: le m
 
 // gara di casino a ritmo
 let friendsDrink=false;
-function startParty(id){ const G=MUSIC.find(m=>m.id===id)||MUSIC[0]; if(G.mp3) partySong(G.mp3); else musicStart(id);
+function startParty(id){ const G=MUSIC.find(m=>m.id===id)||MUSIC[0]; setMoves(G.id); if(G.mp3) partySong(G.mp3); else musicStart(id);
   cs.party={t:0,dur:42,score:[0,0,0,0],next:0,hit:new Set(),cd:0,notes:[],dance:0,drinks:0,id,maxc:0,np:0,nok:0,nm:0}; document.body.classList.add('partyOn'); $('#ptRes').hidden=true; $('#party').classList.remove('fever'); $('#ptSc').textContent='0';
   $('#party').hidden=false; $('#ctl').hidden=true; $('#obj').hidden=true; if(cs.obj.mk) cs.obj.mk.visible=false;
   const B=$('#ptBoard'); B.innerHTML=''; ['Tu',...FRIENDS.map(f=>f.n)].forEach((n,i)=>{ const r=el('div','prow2'+(i?'':' me')); r.append(el('span','',n)); const b=el('i'); b.append(el('u')); r.append(b); B.append(r); });
-  document.querySelectorAll('.tutHand').forEach(x=>x.remove()); $('#ptBevi').hidden=true; cs.party.ch=[]; cs.party.tut={i:0,seq:[0,1,2,3,4],y:0,ok:0}; if((save.jdTut||0)>=1){ cs.party.tut.skip=1; } const L=$('#ptNotes'); L.innerHTML=''; const te=el('i','','🙌'); te.dataset.k=0; L.append(te); cs.party.tut.e=te; const hd=el('div','tutHand','👆'); $('#jdTrack').append(hd); cs.party.tut.h=hd; tutTxt();
+  document.querySelectorAll('.tutHand').forEach(x=>x.remove()); $('#ptBevi').hidden=true; cs.party.ch=[]; cs.party.tut={i:0,seq:[0,1,2,3,4],y:0,ok:0}; if((save.jdTut||0)>=1){ cs.party.tut.skip=1; } const L=$('#ptNotes'); L.innerHTML=''; const te=el('i','',MI(0)); te.dataset.k=0; L.append(te); cs.party.tut.e=te; const hd=el('div','tutHand','👆'); $('#jdTrack').append(hd); cs.party.tut.h=hd; tutTxt();
   const Q=[['Purcello','Chi perde paga la prossima cassa!','p_cassa'],['Linus','Mi sono bruciato col marshmallow. Classico','l_c1'],['Costa','Questa la ballavano anche le trote!','c_trote']][Math.random()*3|0]; toast(G.ic+' '+G.n,`«${Q[1]}» — ${Q[0]}`); setTimeout(()=>say(Q[0],'',Q[2]),600); }
-const LNAME=['ROSSA 🙌','BLU 🌀','GIALLA 👏','VERDE 🦵','dove vuoi 🍺'];
-function tutTxt(){ const T=cs.party.tut, H=$('#ptHelp'); H.classList.add('big'); H.style.opacity=1; const k=T.seq[T.i]; H.innerHTML=k===4?(T.y<1?`PROVA 5/5 · la <b>BIRRA</b> 🍺 scende larga su tutte le corsie: si beve così, niente tasto`:`ADESSO! Tocca <b>dove vuoi</b> per bere 🍺`):T.y<1?`PROVA ${T.i+1}/5 · guarda la mossa che scende nella corsia <b>${LNAME[k]}</b>…`:`ADESSO! È nel cerchio: <b>tocca la corsia ${LNAME[k]}</b>`; }
+// mosse della festa: ogni musica ha le sue quattro [icona, nome, posa]
+const MOVES={
+ v_rock:[['🤘','corna',0],['🎸','chitarra',4],['🥁','batteria',5],['🦶','pestone',6]],
+ v_folk:[['🙌','braccia su',0],['🌀','giro',1],['👏','battimani',2],['💃','saltello',7]],
+ v_country:[['🤠','cappello',8],['🐎','galoppo',7],['👏','battimani',2],['👢','tacco',3]],
+ v_dance:[['🕺','indice',9],['🙌','mani su',0],['🌀','giro',1],['🦵','calcio',3]],
+ punk:[['🤘','corna',0],['🤜','pogo',10],['🦘','salto',7],['🦵','calcio',3]],
+ polka:[['👏','battimani',2],['🌀','giro',1],['🍻','brindisi',8],['🦶','pestone',6]],
+ liscio:[['💃','casqué',11],['🌀','giro',1],['🙇','inchino',12],['👞','passo',6]],
+ balcan:[['🎺','tromba',8],['🙌','braccia su',0],['🦵','calcio',3],['🌀','giro',1]],
+ reggae:[['✌️','pace',9],['🌊','onda',13],['🙌','braccia su',0],['👣','passo',6]],
+ techno:[['👊','pugno',9],['🤖','robot',5],['🙌','mani su',0],['🦘','salto',7]]};
+let MV=MOVES.v_folk; const MI=k=>k===4?'🍺 BEVI 🍺':MV[k][0]; const COLF=['ROSSA','BLU','GIALLA','VERDE'], COLM=['rosso','blu','giallo','verde'];
+const LNAM=k=>k===4?'dove vuoi 🍺':COLF[k]+' '+MV[k][0];
+function setMoves(id){ MV=MOVES[id]||MOVES.v_folk; MV.forEach((m,k)=>{ const l=document.querySelector(`#jdTrack .ln[data-k="${k}"]`), u=document.querySelector(`#jdTrack .rcp u[data-k="${k}"]`), b=document.querySelector(`.jp[data-k="${k}"]`); if(l) l.dataset.n=m[1]; if(u) u.textContent=m[0]; if(b) b.innerHTML=m[0]+'<small>'+m[1]+'</small>'; }); }
+// posa di ballo sul manichino: a = 0..1..0 nel mezzo secondo della mossa
+function danceReset(U){ U.AL.rotation.set(0,0,0); U.AR.rotation.set(0,0,0); U.L.rotation.set(0,0,0); U.R.rotation.set(0,0,0); U.hips.rotation.x=0; }
+function dancePose(U,m,id,a,t,dt){ danceReset(U); const w=Math.sin(t*34); let j=.1;
+  if(id===0){ U.AL.rotation.x=U.AR.rotation.x=3*a; U.AL.rotation.z=-.4*a; U.AR.rotation.z=.4*a; }
+  else if(id===1){ m.rotation.y+=dt*12.5; U.AL.rotation.z=-1.3*a; U.AR.rotation.z=1.3*a; }
+  else if(id===2){ U.AL.rotation.x=U.AR.rotation.x=1.5*a; U.AL.rotation.z=.5*a; U.AR.rotation.z=-.5*a; }
+  else if(id===3){ U.R.rotation.x=-1.3*a; U.AL.rotation.z=-1*a; U.AR.rotation.z=1*a; }
+  else if(id===4){ U.AL.rotation.x=1.15*a; U.AL.rotation.z=-.7*a; U.AR.rotation.x=(.75+w*.3)*a; U.AR.rotation.z=-.45*a; U.L.rotation.x=.25*a; U.R.rotation.x=-.25*a; j=.04; }
+  else if(id===5){ U.AL.rotation.x=(1.5+w*.6)*a; U.AR.rotation.x=(1.5-w*.6)*a; j=.03; }
+  else if(id===6){ U.L.rotation.x=-1.05*a; U.AL.rotation.x=.6*a; U.AR.rotation.x=-.5*a; j=0; }
+  else if(id===7){ U.AL.rotation.x=U.AR.rotation.x=2.1*a; U.AL.rotation.z=-.7*a; U.AR.rotation.z=.7*a; U.L.rotation.x=.45*a; U.R.rotation.x=-.45*a; j=.34; }
+  else if(id===8){ U.AR.rotation.x=2.7*a; U.AR.rotation.z=.25*a; U.AL.rotation.z=-.45*a; U.AL.rotation.x=.3*a; j=.05; }
+  else if(id===9){ U.AR.rotation.x=2.6*a; U.AR.rotation.z=.95*a; U.AL.rotation.x=-.35*a; U.AL.rotation.z=-.35*a; U.L.rotation.x=.2*a; j=.06; }
+  else if(id===10){ U.AL.rotation.x=U.AR.rotation.x=(1.1+w*.5)*a; U.AL.rotation.z=.3*a; U.AR.rotation.z=-.3*a; U.hips.rotation.x=.25*a; j=.2+Math.abs(w)*.1; }
+  else if(id===11){ U.AR.rotation.x=2.5*a; U.AL.rotation.z=-1.45*a; U.L.rotation.x=.55*a; U.hips.rotation.x=-.22*a; j=.02; }
+  else if(id===12){ U.hips.rotation.x=.7*a; U.AL.rotation.z=-.9*a; U.AR.rotation.x=.9*a; j=0; }
+  else { const q=Math.sin(t*13); U.AL.rotation.z=-1.25*a; U.AR.rotation.z=1.25*a; U.AL.rotation.x=q*.7*a; U.AR.rotation.x=-q*.7*a; j=.05; }
+  return a*j; }
+function tutTxt(){ const T=cs.party.tut, H=$('#ptHelp'); H.classList.add('big'); H.style.opacity=1; const k=T.seq[T.i]; H.innerHTML=k===4?(T.y<1?`PROVA 5/5 · la <b>BIRRA</b> 🍺 scende larga su tutte le corsie: si beve così, niente tasto`:`ADESSO! Tocca <b>dove vuoi</b> per bere 🍺`):T.y<1?`PROVA ${T.i+1}/5 · guarda la mossa che scende nella corsia <b>${LNAM(k)}</b>…`:`ADESSO! È nel cerchio: <b>tocca la corsia ${LNAM(k)}</b>`; }
 function chartGo(){ const P=cs.party; if(MUS&&MUS.bt&&MUS.dur-(clk()-MUS.st)%MUS.dur<P.dur+6){ partyPlay(MUS,1); } const beat=MUS.beat; const skipped=P.tut&&P.tut.skip; if(P.tut){ if(P.tut.h) P.tut.h.remove(); if(P.tut.e) P.tut.e.remove(); } P.tut=null; if(!skipped){ save.jdTut=(save.jdTut||0)+1; persist(); } const H=$('#ptHelp'); H.innerHTML=skipped?'Pronti? Le mosse arrivano a tempo: tocca la corsia quando sono nel cerchio':'Perfetto, hai capito! Ora le mosse arrivano <b>a tempo di musica</b>: fai uguale'; setTimeout(()=>{ H.style.opacity=0; H.classList.remove('big'); },3200);
   const n0=Math.ceil(bN(clk()))+6, ch=[]; let c=0; const ev=b=>Math.max(1,Math.round(b/beat));
-  const MODES=[['scale','🎢 Scale su e giù'],['zig','⚡ Zig-zag'],['doppie','✌️ Mosse doppie'],['libero','🎲 Tutto a caso'],['eco','🔁 Eco: ripeti la frase']]; const MD=MODES[Math.random()*MODES.length|0]; P.mode=MD[0];
-  const soloA=P.dur*(.45+Math.random()*.15), soloB=soloA+6; P.solo=[soloA,soloB]; let last=-1, dir=1, ph=[];
-  const nextK=()=>{ let k; if(MD[0]==='scale'){ k=last<0?0:last+dir; if(k>3||k<0){ dir=-dir; k=last+dir; } } else if(MD[0]==='zig'){ k=last<0?0:(last<2?last+2:last-2+(Math.random()<.5?1:-1)); k=Math.max(0,Math.min(3,k)); if(k===last) k=(k+1)%4; } else if(MD[0]==='eco'){ if(!ph.length||ph.i>=8){ if(!ph.length||ph.rep){ ph=[]; for(let j=0;j<4;j++) ph.push(Math.random()*4|0); ph.rep=false; } else ph.rep=true; ph.i=0; } k=ph[ph.i%4]; ph.i++; } else { k=Math.random()*4|0; if(k===last) k=(k+1+Math.random()*3|0)%4; } last=k; return k; };
-  for(let n=n0;bT(n)-bT(n0)<P.dur-1.2;c++){ const tsec=bT(n)-bT(n0), tt=tsec/P.dur, solo=tsec>soloA&&tsec<soloB, step=ev(solo?.55:tt<.3?1.4:tt<.7?1.1:.85);
-    const beer=!solo&&c%7===3; const k=beer?4:nextK(); ch.push({n,t:bT(n),k,beer,gold:!beer&&(solo||c%16===15),hit:false,miss:false});
-    if(!beer&&!solo&&(MD[0]==='doppie'?c%2===1:c%9===5)){ let k2=(k+1+Math.random()*3|0)%4; ch.push({n,t:bT(n),k:k2,beer:false,gold:false,hit:false,miss:false}); }
+  // la serata è fatta di frasi da 6-10 mosse: ogni frase ha un disegno e un ritmo suoi, mai due uguali di fila, e nessuna serata parte come la precedente
+  const ri=m=>Math.random()*m|0, PAT=['scala','zig','eco','trillo','coppie','specchio','caso','martello'], MIR=[[0,3,1,2],[3,0,2,1],[1,2,0,3],[2,1,3,0]];
+  const soloA=P.dur*(.45+Math.random()*.15), soloB=soloA+6; P.solo=[soloA,soloB]; let last=-1, dir=1, ph=[], pat=save.jdPat||'', left=0, pi=0, a0=0, b0=1, rit=-1, dbl=false, mir=MIR[0], first=true;
+  const diff=()=>{ let k; do k=ri(4); while(k===last); return k; };
+  const newPhrase=tt=>{ let q; do q=PAT[ri(PAT.length)]; while(q===pat); pat=q; if(first){ first=false; save.jdPat=q; persist(); } left=6+ri(5); pi=0; dir=Math.random()<.5?1:-1; ph=[]; for(let j=0;j<4;j++){ let k; do k=ri(4); while(j&&k===ph[j-1]); ph.push(k); } a0=diff(); do b0=ri(4); while(b0===a0); mir=MIR[ri(4)]; let r; do r=ri(4); while(r===rit); rit=tt<.22?0:r; dbl=tt>.25&&Math.random()<.3; };
+  const nextK=tt=>{ if(left<=0) newPhrase(tt); left--; let k;
+    if(pat==='scala'){ k=last+dir; if(last<0) k=dir>0?0:3; if(k>3||k<0){ dir=-dir; k=last+dir; } }
+    else if(pat==='zig'){ k=last<0?ri(4):last<2?2+ri(2):ri(2); }
+    else if(pat==='eco'){ k=ph[pi%4]; }
+    else if(pat==='trillo'){ k=pi%2?b0:a0; }
+    else if(pat==='coppie'){ k=pi%2&&last>=0?last:diff(); }
+    else if(pat==='specchio'){ k=mir[pi%4]; }
+    else if(pat==='martello'){ k=pi%3||last<0?(last<0?ri(4):last):diff(); }
+    else k=diff();
+    pi++; last=k; return k; };
+  let beerIn=3, goldIn=9+ri(8);
+  for(let n=n0;bT(n)-bT(n0)<P.dur-1.2;c++){ const tsec=bT(n)-bT(n0), tt=tsec/P.dur, solo=tsec>soloA&&tsec<soloB; let step=ev(solo?.55:tt<.3?1.4:tt<.7?1.1:.85);
+    const beer=!solo&&beerIn--<=0; if(beer) beerIn=5+ri(4); const k=beer?4:nextK(tt); const gold=!beer&&(solo||goldIn--<=0); if(gold&&!solo) goldIn=9+ri(8);
+    ch.push({n,t:bT(n),k,beer,gold,hit:false,miss:false});
+    if(!beer&&!solo&&(dbl?pi%3===0:Math.random()<.07)){ let k2=(k+1+ri(3))%4; ch.push({n,t:bT(n),k:k2,beer:false,gold:false,hit:false,miss:false}); }
+    if(!solo&&!beer){ const sh=(step-1)*beat>=.6?step-1:step; if(rit===1) step=pi%2?sh:step+1; else if(rit===2) step=pi%4===0?step+2:sh; else if(rit===3&&left===0) step+=2; }
     n+=step+(beer?ev(.8):0); }
-  { const H2=$('#ptHelp'); setTimeout(()=>{ H2.innerHTML=`Stasera: <b>${MD[1]}</b>${MD[0]==='doppie'?' · tocca due corsie insieme':''}`; H2.style.opacity=1; setTimeout(()=>H2.style.opacity=0,2600); },3300);
+  { const H2=$('#ptHelp'); setTimeout(()=>{ H2.innerHTML='Si balla: '+MV.map(m=>m[0]+' <b>'+m[1]+'</b>').join(' · '); H2.style.opacity=1; setTimeout(()=>H2.style.opacity=0,2600); },3300);
     setTimeout(()=>{ if(cs&&cs.party===P&&!P.over){ H2.innerHTML='🎸 <b>ASSOLO!</b> mosse veloci, tutte ORO: punti doppi'; H2.style.opacity=1; setTimeout(()=>H2.style.opacity=0,3000); } },(bT(n0)-clk()+soloA-1.5)*1000); }
   P.ch=ch; if(ch.length) P.dur=Math.min(P.dur,ch.reduce((m,N)=>Math.max(m,N.t),0)-bT(n0)+.9); $('#ptBevi').hidden=true; P.t0=bT(n0); P.t=-(bT(n0)-clk()); const cnt=$('#ptCount'); [3,2,1,'VIA!'].forEach((t,i)=>setTimeout(()=>{ cnt.textContent=t; cnt.classList.remove('go'); void cnt.offsetWidth; cnt.classList.add('go'); },(bT(n0-4+i)-clk())*1000));
-  const L=$('#ptNotes'); for(const N of ch){ const e=el('i','',['🙌','🌀','👏','🦵','🍺 BEVI 🍺'][N.k]); e.dataset.k=N.k; if(N.gold) e.classList.add('gold'); if(N.beer) e.classList.add('beer'); N.e=e; L.append(e); } }
-function tutHit(k){ const T=cs.party.tut; if(T.y<.97){ ptFb('Aspetta: non è ancora nel cerchio','#f2d24b'); return; } if(T.seq[T.i]!==4&&k!==T.seq[T.i]){ ptFb('No! Tocca la corsia '+LNAME[T.seq[T.i]],'#f08a7c'); return; }
+  const L=$('#ptNotes'); for(const N of ch){ const e=el('i','',MI(N.k)); e.dataset.k=N.k; if(N.gold) e.classList.add('gold'); if(N.beer) e.classList.add('beer'); N.e=e; L.append(e); } }
+function tutHit(k){ const T=cs.party.tut; if(T.y<.97){ ptFb('Aspetta: non è ancora nel cerchio','#f2d24b'); return; } if(T.seq[T.i]!==4&&k!==T.seq[T.i]){ ptFb('No! Tocca la corsia '+LNAM(T.seq[T.i]),'#f08a7c'); return; }
   const u=document.querySelector(`#jdTrack .rcp u[data-k="${k}"]`); u.classList.add('hit'); setTimeout(()=>u.classList.remove('hit'),160); auBurst(2600,.15,.12,'bandpass',3); ptFb('PERFETTO! ✔','#c9f0a8'); T.i++; T.y=0;
-  if(T.i>=T.seq.length){ chartGo(); return; } const kk=T.seq[T.i]; T.e.textContent=['🙌','🌀','👏','🦵','🍺 BEVI 🍺'][kk]; T.e.dataset.k=kk; T.e.classList.toggle('beer',kk===4); tutTxt(); }
+  if(T.i>=T.seq.length){ chartGo(); return; } const kk=T.seq[T.i]; T.e.textContent=MI(kk); T.e.dataset.k=kk; T.e.classList.toggle('beer',kk===4); tutTxt(); }
 function updTut(dt){ const P=cs.party, T=P.tut, HH=$('#jdTrack').clientHeight||200; const was=T.y; T.y=Math.min(1,T.y+dt/1.3); const k=T.seq[T.i]; T.e.style.display=''; T.e.style.left=(k===4?50:12.5+k*25)+'%'; T.e.style.setProperty('top',(28+T.y*(HH-66))+'px','important'); T.h.style.left=(k===4?50:12.5+k*25)+'%'; T.h.style.display=T.y>=1?'':'none';
   document.querySelectorAll('#jdTrack .rcp u').forEach(u=>u.classList.toggle('now',T.y>=1&&(k===4||+u.dataset.k===k))); document.querySelectorAll('#jdTrack .ln').forEach(l=>l.classList.toggle('nx',k===4||+l.dataset.k===k)); if(was<1&&T.y>=1) tutTxt(); }
 const PACE=o=>{ const T={log:['🪵','Tronco di traverso','piano e dritto: prima le ruote davanti, poi dietro'],ditch:['〰️','Canale di scolo','prendilo in diagonale, una ruota alla volta'],step:o.big?['🪨','Scalino alto','ridotte, gas dolce, una ruota alla volta']:['🪨','Gradino di roccia','ridotte e gas dolce'],twist:['↯','Twist: buche alternate','piano: il mezzo si incrocia, una ruota va in aria'],camber:['⚠️','Contropendenza','piano! guarda l\'inclinometro: oltre 35° ti ribalti'],vg:['🕳️','Canale a V','a cavallo, ruote sui bordi: se ci cadi tocchi sotto'],pud:['🟤','Pozza profonda','ridotte, piano e costante: niente onda']}; const r=T[o.t]||['⚠️','Ostacolo','piano']; if(o.nm) return [r[0],o.nm,r[2]]; if(o.t==='pud'&&o.s!=null&&zoneAt(o.s+3).ippo) return ['🦛','Pozza dell\'Ippopotamo · HARD',own('winch')?'ci si pianta tutti: verricello sulla quercia dopo la pozza':'ci si pianta tutti: senza verricello chiami gli amici']; return r; }; /* al campo trial: numero e nome come sulla mappa del Trial Team */
@@ -2934,11 +2981,11 @@ function ptBurst(k,gold){ const u=document.querySelector(`#jdTrack .rcp u[data-k
   for(let i=0;i<(gold?12:8);i++){ const b=el('i','burst'), a=i/(gold?12:8)*Math.PI*2+Math.random()*.4, d=34+Math.random()*30; b.style.setProperty('--dx',Math.cos(a)*d+'px'); b.style.setProperty('--dy',Math.sin(a)*d-18+'px'); b.style.setProperty('--bc',c); u.append(b); setTimeout(()=>b.remove(),500); } }
 function laneMs(k){ const l=document.querySelector(`#jdTrack .ln[data-k="${k}"]`); if(!l) return; l.classList.add('ms'); setTimeout(()=>l.classList.remove('ms'),180); }
 function feverOff(P){ if(P.fever){ P.fever=false; $('#party').classList.remove('fever'); } }
-function padHit(k){ const P=cs.party; if(!P||P.over||!P.ch) return; if(P.tut){ tutHit(k); return; } const now=heard(); P.dance=1; P.pose={k,t:0};
+function padHit(k){ const P=cs.party; if(!P||P.over||!P.ch) return; if(P.tut){ tutHit(k); return; } const now=heard(); P.dance=1; P.pose={k,t:0,id:MV[k][2]};
   let best=null, bd=1e9; for(const N of P.ch){ if(N.hit||N.miss) continue; if(N.t-now>.5) break; if(N.k!==k&&!N.beer) continue; const d=Math.abs(now-N.t); if(d<bd){ bd=d; best=N; } }
-  if(!best||bd>.34){ let any=null; for(const N of P.ch){ if(!N.hit&&!N.miss&&Math.abs(now-N.t)<.34){ any=N; break; } } if(any){ laneMs(k); } if(any) ptFb('Corsia sbagliata: '+['rossa 🙌','blu 🌀','gialla 👏','verde 🦵'][any.k],'#f08a7c'); else ptFb('Aspetta che arrivi al cerchio','#f2d24b'); return; }
+  if(!best||bd>.34){ let any=null; for(const N of P.ch){ if(!N.hit&&!N.miss&&Math.abs(now-N.t)<.34){ any=N; break; } } if(any){ laneMs(k); } if(any) ptFb('Corsia sbagliata: '+COLF[any.k].toLowerCase()+' '+MV[any.k][0],'#f08a7c'); else ptFb('Aspetta che arrivi al cerchio','#f2d24b'); return; }
   if(best.beer){ best.hit=true; best.e.classList.add('ok'); P.cd=0; partyDrink(); P.combo=(P.combo||0)+1; P.nok++; ptBurst(0,true); ptBurst(3,true); return; }
-  if(best.k!==k){ P.combo=0; feverOff(P); laneMs(k); $('#ptCombo').classList.remove('on'); ptFb('Colore sbagliato: '+['rosso 🙌','blu 🌀','giallo 👏','verde 🦵'][best.k],'#f08a7c'); return; }
+  if(best.k!==k){ P.combo=0; feverOff(P); laneMs(k); $('#ptCombo').classList.remove('on'); ptFb('Colore sbagliato: '+COLM[best.k]+' '+MV[best.k][0],'#f08a7c'); return; }
   best.hit=true; best.e.classList.add('ok'); { const u=document.querySelector(`#jdTrack .rcp u[data-k="${k}"]`), l=document.querySelector(`#jdTrack .ln[data-k="${k}"]`); u.classList.add('hit'); l.classList.add('fl'); setTimeout(()=>{ u.classList.remove('hit'); l.classList.remove('fl'); },140); } const g=bd<.1?['PERFETTO!',4,'#c9f0a8']:bd<.2?['SUPER!',3,'#a8e07c']:['OK',2,'#93c46d']; P.combo=(P.combo||0)+1; P.maxc=Math.max(P.maxc,P.combo); if(bd<.1) P.np++; else P.nok++; ptBurst(k,best.gold||bd<.1); vib(bd<.1?18:10); if(P.combo===12&&!P.fever){ P.fever=true; $('#party').classList.add('fever'); const f=$('#ptFev'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); auBurst(3200,.3,.2,'bandpass',2); } { const c=$('#ptCombo'); c.textContent=P.combo>=3?'×'+P.combo:''; c.classList.remove('on'); void c.offsetWidth; c.classList.toggle('on',P.combo>=3); }
   const sb=1+Math.min(.75,(cs.drunk||0)*.6), pts=(g[1]+Math.min(3,Math.floor(P.combo/5)))*(best.gold?2:1)*sb*(own('cassa')?1.15:1)*(own('tendalino')?1.1:1)*(P.fever?1.5:1); P.score[0]+=pts; P.flash=1;
   ptFb((best.gold?'⭐ ORO! ':'')+g[0]+(P.combo>=5?` combo ${P.combo}`:'')+(sb>1.05?` · sbronza ×${sb.toFixed(1)}`:''),best.gold?'#ffd84a':g[2]); if(best.gold) auBurst(2600,.2,.12,'bandpass',3); if(P.combo===10||P.combo===20) gabbah('g_si',8); }
@@ -3038,19 +3085,15 @@ function updFriends0(dt,P,now){
     if(cs.sleeping){ f.m.visible=false; continue; }
     if(P||(MUS&&cs.step>=STEPS.findIndex(x=>x.id==='festa'))){ const bp=MUS?bN(now)%1:0, b=Math.sin(bp*Math.PI*2+i);
       f.m.position.copy(f.p).addScaledVector(cs.rt,.6*Math.sin(f.ph*.7+i)).add(new V(0,Math.abs(b)*.08,0)); f.m.position.y=height(f.m.position.x,f.m.position.z)+Math.abs(b)*.08;
-      U.hips.position.y=.95; U.L.rotation.x=b*.3; U.R.rotation.x=-b*.3; U.AL.rotation.x=2.6+b*.3; U.AR.rotation.x=(i%2?2.8:1.2)+b*.4; U.AL.rotation.z=-.2; U.AR.rotation.z=.2; f.m.rotation.y+=Math.sin(f.ph*2+i)*dt*.8; continue; }
+      U.hips.position.y=.95; U.L.rotation.x=b*.3; U.R.rotation.x=-b*.3; U.AL.rotation.x=2.6+b*.3; U.AR.rotation.x=(i%2?2.8:1.2)+b*.4; U.AL.rotation.z=-.2; U.AR.rotation.z=.2; f.m.rotation.y+=Math.sin(f.ph*2+i)*dt*.8; U.hips.rotation.x=0; if(P&&P.ch&&P.ch.length){ const hn=heard()-.06-i*.07; let N=null; for(const X of P.ch){ if(X.t>hn) break; if(!X.beer) N=X; } const pt=N?hn-N.t:9; if(pt<.5){ const a=Math.sin(pt/.5*Math.PI); f.m.position.y+=dancePose(U,f.m,MV[N.k][2],a,pt,dt); } } continue; }
     // seduti: ogni tanto un sorso
     f.m.position.copy(f.p); U.hips.position.y=.52; U.L.rotation.x=1.45; U.R.rotation.x=1.45; U.AL.rotation.x=.9; U.AL.rotation.z=0; U.AR.rotation.z=0;
     const sip=((f.ph+i*2.3)%6); U.AR.rotation.x=sip<1?lerp(1,2.6,Math.sin(sip*Math.PI)):1;
     { const tgt=(Math.floor(f.ph/4+i)%3===0)?man.position:cs.C; const want=Math.atan2(-(tgt.x-f.m.position.x),-(tgt.z-f.m.position.z)); let d=want-f.m.rotation.y; d=Math.atan2(Math.sin(d),Math.cos(d)); f.m.rotation.y+=d*Math.min(1,dt*2); }
     const lp=(f.ph*.37+i*1.9)%11; if(lp<1.2){ U.hips.position.y=.52+Math.abs(Math.sin(lp*14))*.04; U.AL.rotation.x=1.6+Math.sin(lp*10)*.3; }
     if(Math.floor(f.ph/23+i)%4===3&&((f.ph+i*5)%23)<2.4){ const k=Math.sin(((f.ph+i*5)%23)/2.4*Math.PI); U.AR.rotation.x=2.9*k+1*(1-k); U.AL.rotation.x=2.9*k+.9*(1-k); U.hips.position.y=.52+k*.38; U.L.rotation.x=U.R.rotation.x=1.45*(1-k); } }
-  if(P&&P.pose&&P.pose.t<.5){ const U=man.userData, k=P.pose.k, a=Math.sin(Math.min(1,P.pose.t/.5)*Math.PI); U.AL.rotation.set(0,0,0); U.AR.rotation.set(0,0,0); U.L.rotation.set(0,0,0); U.R.rotation.set(0,0,0);
-    if(k===0){ U.AL.rotation.x=U.AR.rotation.x=3*a; U.AL.rotation.z=-.4*a; U.AR.rotation.z=.4*a; }
-    else if(k===1){ man.rotation.y+=dt*12.5; U.AL.rotation.z=-1.3*a; U.AR.rotation.z=1.3*a; }
-    else if(k===2){ U.AL.rotation.x=U.AR.rotation.x=1.5*a; U.AL.rotation.z=.5*a; U.AR.rotation.z=-.5*a; }
-    else { U.R.rotation.x=-1.3*a; U.AL.rotation.z=-1*a; U.AR.rotation.z=1*a; }
-    man.position.y=height(man.position.x,man.position.z)+a*.1; }
+  if(P&&P.pose&&P.pose.t<.5){ const U=man.userData, a=Math.sin(Math.min(1,P.pose.t/.5)*Math.PI); man.position.y=height(man.position.x,man.position.z)+dancePose(U,man,P.pose.id,a,P.pose.t,dt); }
+  else if(P&&P.pose&&!P.pose.end){ P.pose.end=1; danceReset(man.userData); }
   else if(P&&P.dance>0){ const U=man.userData; U.AL.rotation.x=U.AR.rotation.x=2.8*P.dance+.4; man.position.y=height(man.position.x,man.position.z)+P.dance*.12; } }
 
 function startCamp(){ if(ghostCar){ ghostCar.visible=false; ghostData=null; } cam.clearViewOffset(); musicStop(); placeFriendCars();
