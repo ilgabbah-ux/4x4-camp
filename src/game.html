@@ -843,7 +843,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button><button class="big" id="ovPlay" hidden>🏁 Parti<small id="ovPlayS"></small></button>
       <div class="ovRow ovNav"><button class="ghost plate" id="ovTrk"><i>🗺️</i><span>Percorsi<small>scegli dove andare</small></span></button><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="ovHow"><i>🎓</i><span>Come si gioca<small>tutorial, si può saltare</small></span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo<small>subito al fuoco con gli amici</small></span></button></div>
       <div id="ovDaily" hidden></div>
-      <button id="ovAlb" type="button" hidden>📸 Album foto</button><button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv" hidden><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 154</small>
+      <button id="ovAlb" type="button" hidden>📸 Album foto</button><button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv" hidden><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 155</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -2998,7 +2998,7 @@ function placeFriendCars(){ while(fcars.children.length) fcars.remove(fcars.chil
   const src=pur.children[0]; if(!src) return; for(const n of ['pajero_sport','terrano_grigio']) if(!VMOD[n].root) loadVModel(n);
   const s0=LEN+16, O=new V(CX(s0),0,-s0), fh=new V((CX(s0+1)-CX(s0-1))/2,0,-1).normalize(), rtv=new V(-fh.z,0,fh.x);
   const at=(d,ds)=>{ const p=O.clone().addScaledVector(rtv,d).addScaledVector(fh,ds); p.y=height(p.x,p.z); return p; };
-  [[FRIENDS[0].car,at(-6.5,-4),.35,'pajero_sport'],[FRIENDS[1].car,at(12.8,-9.5),-.5,'terrano_grigio']].forEach(([col,p,rot,mn])=>{ const mc=modelCarClone(mn); const c=mc||src.clone(true); c.traverse(o=>{ if(o.isMesh&&o.material&&o.material.name==='MAT_body'){ o.material=o.material.clone(); o.material.color.set(col); } });
+  [[FRIENDS[0].car,at(-6.5,-4),.35,'pajero_sport'],[FRIENDS[1].car,at(12.8,-9.5),-.5,'terrano_grigio']].forEach(([col,p,rot,mn])=>{ const mc=modelCarClone(mn); if(!mc&&curRoot) return; /* modello dell'amico non ancora arrivato: meglio nessun mezzo che quattro ruote senza scocca (compare appena il modello è caricato) */ const c=mc||src.clone(true); c.traverse(o=>{ if(o.isMesh&&o.material&&o.material.name==='MAT_body'){ o.material=o.material.clone(); o.material.color.set(col); } });
     const g=new THREE.Group(); g.add(c); g.position.copy(p); const ry=Math.atan2(-fh.x,-fh.z)+rot, ff=new V(-Math.sin(ry),0,-Math.cos(ry)), rr=new V(-ff.z,0,ff.x);
     const hw=(a,b)=>{ const q=p.clone().addScaledVector(ff,a).addScaledVector(rr,b); return baseH(q.x,q.z); }, hFL=hw(1.3,-.8), hFR=hw(1.3,.8), hRL=hw(-1.2,-.8), hRR=hw(-1.2,.8);
     g.position.y=(hFL+hFR+hRL+hRR)/4+RW+LN-.198-MOUNTY; g.rotation.order='YXZ'; g.rotation.y=ry; g.rotation.x=Math.atan2((hFL+hFR)-(hRL+hRR),2*2.5); g.rotation.z=Math.atan2((hFR+hRR)-(hFL+hRL),2*1.6); fcars.add(g);
@@ -3524,13 +3524,13 @@ function frame(now){ UORG.value.copy(cam.position);
       const ord=['alta','media','bassa'], qi=ord.indexOf(save.q); if(qi<2){ save.q=ord[qi+1]; persist(); } toast('Grafica alleggerita','il telefono andava a scatti: ora è più fluido (puoi cambiarla in garage)'); } } } else if(frame.aq) frame.aq.l=now;
   if(helpOpen){ ren.render(scene,cam); requestAnimationFrame(frame); return; }
   worldAnim(dt); lightsUpd(); if(TR) weatherUpd(dt);
-  if(campMode&&cs){ if(!st.paused){ updCamp(dt); auCamp(dt); } campCamera(dt);
+  if(campMode&&cs){ ckRestore(); if(!st.paused){ updCamp(dt); auCamp(dt); } campCamera(dt);
     car.position.copy(st.pos); car.quaternion.copy(st.q);
     for(let i=0;i<4;i++){ const g=wheels[i]; if(!g) continue; const W=WH[i]; g.position.set(W.vx??W.x,MOUNTY-(LN-st.comp[i]),W.vz??W.z); g.rotation.set(0,0,0); g.userData.spin.rotation.x=-st.spin[i]; }
     sun.position.copy(man.position).addScaledVector(SUNDIR,50); sun.target.position.copy(man.position);
     if(performance.now()>toastT) $('#toast').classList.remove('show');
     ren.render(scene,cam); requestAnimationFrame(frame); return; }
-  if(!st.running&&!campMode&&(!$('#gar').hidden||!$('#over').hidden)&&carRoot){ showroom(dt); requestAnimationFrame(frame); return; }
+  if(!st.running&&!campMode&&(!$('#gar').hidden||!$('#over').hidden)&&carRoot){ try{ ckRestore(); }catch(e){} showroom(dt); requestAnimationFrame(frame); return; }
   if(st.running&&!st.paused){
     const inp=st.done||st.drone?{gas:0,brk:1,steer:0}:readInput(); const n=Math.ceil(dt/(rapOn()?1/120:1/240)); st.brkOn=!!inp.brk;
     if(st.uprig){ const U=st.uprig; U.t+=dt; const k=sstep(0,1.8,U.t), lift=Math.sin(Math.min(1,U.t/1.8)*Math.PI)*.9; st.pos.lerpVectors(U.p0,U.p1,k); st.pos.y+=lift; st.q.copy(U.q0).slerp(U.q1,k); st.vel.set(0,0,0); st.w.set(0,0,0);
@@ -3811,6 +3811,8 @@ $('#wipeB').addEventListener('click',wipe);
 let ckHidden=false;
 function ckHidePass(){ if(ckpit.G.visible){ const keep=curRoot||carRoot; car.traverse(o=>{ if(o===car||o.isLight) return; for(let p=o;p&&p!==car;p=p.parent) if(p===ckpit.G||(keep&&p===keep)) return; if(o.isMesh||o.isSprite||o.isPoints||o.isLine){ if(o.userData.ckV===undefined) o.userData.ckV=o.visible; o.visible=false; } }); ckHidden=true; }
   else if(ckHidden){ ckHidden=false; car.traverse(o=>{ if(o.userData.ckV!==undefined){ o.visible=o.userData.ckV; delete o.userData.ckV; } }); } }
+/* fuori dalla guida (campo, garage, menù) la vista abitacolo va spenta: prima ruote, accessori e mezza scocca restavano nascosti e il tasto Tergi restava a schermo */
+function ckRestore(){ if(ckpit.was||ckpit.G.visible||ckHidden){ cockpitUpd(0); ckHidePass(); } }
 function cockpitUpd(dt){ const on=camMode===4&&st.running&&!campMode&&!st.drone; $('#cockpit').hidden=!on;
   const show=!on; ckpit.G.visible=on; if(on!==ckpit.was){ ckpit.was=on; car.traverse(o=>{ if(!o.isMesh||!o.material||ckpit.G.getObjectById(o.id)) return; let w=false; for(let p=o;p;p=p.parent) if(wheels.includes(p)){ w=true; break; } if(w) return; const m=o.material; if(o.userData.glass||m.transparent||m.transmission>0){ if(o.userData.vis0===undefined) o.userData.vis0=o.visible; o.visible=on?false:o.userData.vis0; } else { if(o.userData.side0===undefined) o.userData.side0=m.side; m.side=on?THREE.FrontSide:o.userData.side0; m.clippingPlanes=on?[ckClip]:null; m.needsUpdate=true; } }); }
   if(on){ const P0=new V(0,0,-.88).applyQuaternion(st.q).add(st.pos); ckClip.normal.copy(fw).negate(); ckClip.constant=-ckClip.normal.dot(P0); ckClip.normal.negate(); ckClip.constant=-ckClip.constant; } if(curRoot) curRoot.visible=true; ckpit.hood.visible=!(curRoot||carRoot); for(const g of wheels) if(g) g.visible=show; ckpit.hood.material.color.set(VEH.col!=null?VEH.col:(VEH.hood||0x1d1e20)); rtt.visible=show&&own('maggiolina'); ledMesh.visible=show&&own('led')&&!curRoot; winchMesh.visible=show&&own('winch'); snorkMesh.visible=show&&own('snorkel')&&!curRoot;
