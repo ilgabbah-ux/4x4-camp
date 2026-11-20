@@ -9,5 +9,5 @@ Si gioca da telefono (inclina per sterzare) o da computer (frecce o WASD, R rido
 Gioca: https://ilgabbah-ux.github.io/4x4-camp/
 
 
-- sorgente del gioco: `camp3d/game.html` (fuori dal repo), costruito con build.py e pubblicato con pubblica3d.sh
+- sorgente del gioco: `src/game.html`; `python3 src/build.py` costruisce `index.html` (vedi `src/LEGGIMI.md`)
 - `classifica/Codice.gs`: Apps Script della classifica online

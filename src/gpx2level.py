@@ -58,7 +58,7 @@ def smooth(v, r):
     return out
 
 
-def lateral(f, D, L, win, amp, max_dx, max_ddx):
+def lateral(f, D, L, win, amp, max_dx, max_ddx, calm=()):
     """Scostamento laterale (m di gioco) ogni STEP metri, da 0 a L."""
     n = int(round(L / STEP)) + 1
     P = [f(D * i / (n - 1)) for i in range(n)]
@@ -87,6 +87,13 @@ def lateral(f, D, L, win, amp, max_dx, max_ddx):
     ss = lambda t: (lambda q: q * q * (3 - 2 * q))(min(1.0, max(0.0, t)))
     tab = [0.0] * int(PRE / STEP) + [x[i] * ss(i * STEP / 30.0) for i in range(n)]
     tab += [x[-1] * (1 - ss(j * STEP / 60.0)) for j in range(1, int(POST / STEP) + 1)]
+    # tratti da addolcire (es. una curva secca proprio su un dosso cieco): lista di [da, a] in metri di gioco
+    for s0, s1 in calm:
+        soft = smooth(smooth(tab, 7), 7)
+        for i in range(len(tab)):
+            s = i * STEP - PRE
+            k = ss((s - s0 + 16) / 16.0) * ss((s1 + 16 - s) / 16.0)
+            tab[i] += (soft[i] - tab[i]) * k
     for _ in range(200):
         ddx = max(abs(tab[i + 1] - 2 * tab[i] + tab[i - 1]) / STEP ** 2 for i in range(1, len(tab) - 1))
         dx = max(abs(tab[i + 1] - tab[i]) / STEP for i in range(len(tab) - 1))
@@ -128,7 +135,7 @@ def main():
     L = round(cfg['len'] * K)
     drive = cfg['zones'][-1]['a']                       # la traccia finisce dove comincia lo spiazzo del campo
     Lr = round(drive * K)
-    tab, dx, ddx = lateral(f, D, Lr, cfg.get('win', 110), cfg.get('amp', 9), cfg.get('max_dx', .55), cfg.get('max_ddx', .05))
+    tab, dx, ddx = lateral(f, D, Lr, cfg.get('win', 110), cfg.get('amp', 9), cfg.get('max_dx', .55), cfg.get('max_ddx', .05), cfg.get('calm', ()))
     sl, v, e0, e1, emin, emax = slopes(f, D, cfg['zones'], drive, cfg['max_sl'], cfg.get('ewin', 300))
     h = sum(s * (z['b'] - z['a']) * K for s, z in zip(sl, cfg['zones']))
     json.dump({'km': round(D / 1000, 1), 'compress': round(D / L, 1), 'slope_x': round(v * D / L, 1),
