@@ -859,7 +859,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button><button class="big" id="ovPlay" hidden>🏁 Parti<small id="ovPlayS"></small></button>
       <div class="ovRow ovNav"><button class="ghost plate" id="ovTrk"><i>🗺️</i><span>Percorsi<small>scegli dove andare</small></span></button><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="ovHow"><i>🎓</i><span>Come si gioca<small>tutorial, si può saltare</small></span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo<small>subito al fuoco con gli amici</small></span></button></div>
       <div id="ovDaily" hidden></div>
-      <button id="ovAlb" type="button" hidden>📸 Album foto</button><button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv" hidden><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 164</small>
+      <button id="ovAlb" type="button" hidden>📸 Album foto</button><button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv" hidden><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 165</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -1517,7 +1517,7 @@ function buildWorld(id){ try{ garScene(false); }catch(e){}
     { const RT2={value:tex('t_sassi')}, RT3={value:tex('t_parete')}; mat.onBeforeCompile=sh=>{ sh.uniforms.uRk=RT2; sh.uniforms.uRp=RT3; sh.uniforms.uO=UORG; sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform vec3 uO; varying vec3 vRP; varying vec3 vRN;').replace('#include <project_vertex>','#include <project_vertex>\n vRP=(modelMatrix*vec4(transformed,1.0)).xyz-floor(uO/1.6)*1.6; vRN=normalize(mat3(modelMatrix)*objectNormal);');
       sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform sampler2D uRk,uRp; varying vec3 vRP; varying vec3 vRN;').replace('#include <color_fragment>','#include <color_fragment>\n{ vec3 bw=pow(abs(vRN),vec3(4.)); bw/=bw.x+bw.y+bw.z; vec3 t=texture2D(uRp,vRP.zy/1.6).rgb*bw.x+texture2D(uRk,vRP.xz/1.6).rgb*bw.y+texture2D(uRp,vRP.xy/1.6).rgb*bw.z; float l=dot(t,vec3(.33)); diffuseColor.rgb*=mix(vec3(1.),t/max(.25,l)*.62+l*.55,.85)*1.25; }'); }; }
     const RR=rng(5);
-    const TONES=TR.theme==='militare'?[[.5,.44,.36],[.42,.38,.33]]:TR.theme==='castagni'?[[.62,.6,.57],[.5,.49,.47]]:[[.24,.23,.22],[.2,.2,.21],[.29,.25,.21],[.33,.31,.28]];
+    const TONES=TR.theme==='militare'?[[.5,.44,.36],[.42,.38,.33]]:TR.theme==='castagni'?[[.45,.44,.42],[.37,.365,.355],[.41,.39,.36]]:[[.24,.23,.22],[.2,.2,.21],[.29,.25,.21],[.33,.31,.28]];
     const rockGeo=r=>{ let g=new THREE.IcosahedronGeometry(r,r>.5?2:1); g.deleteAttribute('normal'); g.deleteAttribute('uv'); g=mergeVertices(g); const p=g.attributes.position, o1=RR()*50, o2=RR()*50, sq=.7+RR()*.35;
       for(let k=0;k<p.count;k++){ const x=p.getX(k), y=p.getY(k), z=p.getZ(k), L=Math.hypot(x,y,z)/r; const nx=x/(L*r), ny=y/(L*r), nz=z/(L*r);
         let f=.78+fbm(nx*1.6+o1,nz*1.6+ny*1.3+o2)*.5; const face=Math.floor((Math.atan2(nz,nx)+3.2)*1.4); f*=1-.06*(face%2);  // facce spaccate
@@ -1713,7 +1713,7 @@ function buildWorld(id){ try{ garScene(false); }catch(e){}
     const GN=QS[save.q].grass; const G=new THREE.InstancedMesh(gg,grassMat,Math.max(1,GN)); n=0;
     const dryG=TR.theme==='militare'||TR.theme==='alpino';
     for(let k=0;k<30000&&n<GN;k++){ const s=-20+RT()*(LEN+60), d=(RT()<.5?-1:1)*(HALF+.35+Math.pow(RT(),1.8)*24); if(inFord(s,3)&&Math.abs(d)<20) continue; { const zt0=zoneAt(s).t; if((zt0==='neve'||zt0==='ghiaccio')&&Math.abs(d)<HALF+3) continue; } if(TR.treeline&&s>LEN*.6&&RT()<.7) continue; if(zoneAt(s).t==='galleria') continue; const x=CX(s)+d, z=-s, sc=.6+RT()*.9;
-      M.compose(P.set(x,baseH(x,z)-.03,z),Q.setFromEuler(new THREE.Euler(0,RT()*6,0)),S.set(sc,sc*(.7+RT()*.6),sc)); G.setMatrixAt(n,M); col.setHSL(dryG?.13+RT()*.06:.2+RT()*.08,dryG?.26:.26+RT()*.16,.42+RT()*.2); G.setColorAt(n++,col); }
+      M.compose(P.set(x,baseH(x,z)-.03,z),Q.setFromEuler(new THREE.Euler(0,RT()*6,0)),S.set(sc,sc*(.7+RT()*.6),sc)); G.setMatrixAt(n,M); col.setHSL(dryG?.12+RT()*.07:.17+RT()*.13,dryG?.26:.24+RT()*.2,.4+RT()*.3); G.setColorAt(n++,col); }
     G.count=n; G.receiveShadow=true; world.add(G);
     if(GN>0){ const TN=Math.round(GN*.28), T2=new THREE.InstancedMesh(gg,grassMat,TN); let m=0;
       for(let k=0;k<TN*4&&m<TN;k++){ const s=20+RT()*(LEN-30), zt=zoneAt(s).t; if(!['terra','erba','fango','ghiaia'].includes(zt)) continue; if(inWet(s,4)) continue; const edge=RT()<.45, d=edge?(RT()<.5?-1:1)*(HALF-.3+RT()*.9):(RT()-.5)*.55; const x=CX(s)+d, z=-s, sc=.8+RT()*.7;
