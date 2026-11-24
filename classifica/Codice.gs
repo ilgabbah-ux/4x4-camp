@@ -5,8 +5,8 @@
 // Con &callback=nome risponde in JSONP (serve al gioco su GitHub Pages).
 // Nomi protetti: il primo telefono che usa un nome lo prenota col suo codice (si salva solo l'impronta).
 const SHEET_ID = '12tSdjeERZDV6F7AMwvkBH0At6aDu-ox54pbhGM0ENho';
-const TRACKS = ['colle', 'bassa', 'lombardore', 'bandito', 'mares', 'mombracco', 'neve', 'jafferau', 'sommelier'];
-const MIN_TIME = { colle: 40, bassa: 40, lombardore: 40, bandito: 45, mares: 45, mombracco: 40, neve: 45, jafferau: 45, sommelier: 50 };   // sotto questi secondi un giro non è credibile (gioco 3D)
+const TRACKS = ['colle', 'bassa', 'lombardore', 'bandito', 'mares', 'mombracco', 'neve', 'jafferau', 'sommelier', 'trial'];
+const MIN_TIME = { colle: 40, bassa: 40, lombardore: 40, bandito: 45, mares: 45, mombracco: 40, neve: 45, jafferau: 45, sommelier: 50, trial: 40 };   // sotto questi secondi un giro non è credibile (gioco 3D)
 const MAX_TIME = 3600;
 // Percorsi rifatti sulla traccia GPS vera il 20/11/2026 (v151): i tempi fatti prima non contano più in classifica.
 const SINCE = { colle: new Date('2026-11-20T11:30:00Z'), bassa: new Date('2026-11-20T11:30:00Z') };
