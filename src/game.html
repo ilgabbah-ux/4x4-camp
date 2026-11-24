@@ -844,7 +844,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button><button class="big" id="ovPlay" hidden>🏁 Parti<small id="ovPlayS"></small></button>
       <div class="ovRow ovNav"><button class="ghost plate" id="ovTrk"><i>🗺️</i><span>Percorsi<small>scegli dove andare</small></span></button><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="ovHow"><i>🎓</i><span>Come si gioca<small>tutorial, si può saltare</small></span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo<small>subito al fuoco con gli amici</small></span></button></div>
       <div id="ovDaily" hidden></div>
-      <button id="ovAlb" type="button" hidden>📸 Album foto</button><button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv" hidden><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 166</small>
+      <button id="ovAlb" type="button" hidden>📸 Album foto</button><button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv" hidden><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 167</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -4247,7 +4247,7 @@ function renderGarage(){
     L.append(el('p','sec',`Classifica · ${TRACKS[save.track].name}`));
     const bd=el('div','board'); bd.id='board'; L.append(bd);
     const nk=el('div','nick'); const inp=el('input'); inp.id='nick'; inp.maxLength=16; inp.placeholder='Il tuo nome in classifica'; inp.value=save.name||''; const sv=el('button','', 'Salva');
-    sv.addEventListener('click',()=>{ save.name=cleanNick(inp.value); persist(); inp.value=save.name; sv.textContent=save.name?'Salvato':'Tolto'; setTimeout(()=>sv.textContent='Salva',1200); renderBoard(); }); nk.append(inp,sv); L.append(nk);
+    sv.addEventListener('click',()=>{ save.name=cleanNick(inp.value); persist(); inp.value=save.name; sv.textContent=save.name?'Salvato':'Tolto'; setTimeout(()=>sv.textContent='Salva',1200); renderBoard(); flushScores(); }); nk.append(inp,sv); L.append(nk);
     renderBoard();
   }
 }
@@ -4272,8 +4272,12 @@ function renderBoard(){ const bd=$('#board'); if(!bd) return; const id=save.trac
   if(!BOARD_URL){ msg('La classifica si vede nella versione online del gioco (ilgabbah-ux.github.io/4x4-camp).'); return; }
   if(boardData) draw(); else msg('Carico la classifica…');
   jsonp({action:'top'}).then(d=>{ boardData=d; draw(); }).catch(()=>{ if(!boardData) msg('Classifica non raggiungibile in questo momento.'); }); }
-function submitScore(track,time,resc){ if(!BOARD_URL||!save.name) return;
-  jsonp({action:'add',name:save.name,track,time:time.toFixed(1),resc,k:CODE}).then(d=>{ if(d&&d.boards) boardData=d.boards; if(d&&d.taken){ const n=save.name; save.name=''; persist(); setTimeout(()=>toast('Nome già preso',`"${n}" lo usa un altro telefono: scegline un altro nel garage`),2500); } }).catch(()=>{}); }
+function submitScore(track,time,resc){ if(!BOARD_URL||track==='trial') return;
+  if(!save.name){ /* senza nome il tempo non va perso: resta in attesa e parte quando salvi il nome */ save.pend=save.pend||{}; if(!save.pend[track]||time<save.pend[track].t){ save.pend[track]={t:+time.toFixed(1),r:resc||0}; persist(); } setTimeout(()=>toast('Tempo non ancora in classifica','scrivi il tuo nome in Percorsi e premi Salva: te lo mando io',5200),3200); return; }
+  return jsonp({action:'add',name:save.name,track,time:time.toFixed(1),resc,k:CODE}).then(d=>{ if(d&&d.boards) boardData=d.boards; if(d&&!d.error&&!d.taken){ save.sent=save.sent||{}; if(!save.sent[track]||time<save.sent[track]) save.sent[track]=+time.toFixed(1); if(save.pend) delete save.pend[track]; persist(); } if(d&&d.taken){ const n=save.name; save.name=''; persist(); setTimeout(()=>toast('Nome già preso',`"${n}" lo usa un altro telefono: scegline un altro nel garage`),2500); } }).catch(()=>{}); }
+// manda in classifica i tempi rimasti fuori (fatti senza nome, o record di questo telefono mai inviati)
+function flushScores(){ if(!BOARD_URL||!save.name) return; const L=[]; for(const id of ORDER){ if(id==='trial') continue; const P=(save.pend||{})[id], b=(save.best||{})[id]; let c=null; if(P) c={t:P.t,r:P.r||0}; if(b&&(!c||b<c.t)) c={t:+(+b).toFixed(1),r:0}; if(!c) continue; if(save.sent&&save.sent[id]&&save.sent[id]<=c.t) continue; const mine=((boardData||{})[id]||[]).find(r=>r.n.toLowerCase()===save.name.toLowerCase()); if(mine&&mine.t<=c.t){ save.sent=save.sent||{}; save.sent[id]=mine.t; continue; } L.push([id,c]); }
+  persist(); if(!L.length) return; let ok=0; const nx=()=>{ const X=L.shift(); if(!X||!save.name){ if(ok){ toast('Tempi in classifica',ok===1?'ho mandato il tuo tempo':`ho mandato ${ok} tempi`,3200); renderBoard(); } return; } const pr=submitScore(X[0],X[1].t,X[1].r); if(pr&&pr.then) pr.then(()=>{ if(save.sent&&save.sent[X[0]]) ok++; nx(); }); else nx(); }; nx(); }
 
 /* ---------- Avvio ---------- */
 $('#go').addEventListener('click',async()=>{
