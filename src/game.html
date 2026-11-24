@@ -844,7 +844,7 @@ body.incamp #toast small{font-family:var(--fc)}
       <button class="big" id="goRes" hidden>Riprendi da dove eri</button><button class="big" id="ovPlay" hidden>🏁 Parti<small id="ovPlayS"></small></button>
       <div class="ovRow ovNav"><button class="ghost plate" id="ovTrk"><i>🗺️</i><span>Percorsi<small>scegli dove andare</small></span></button><button class="ghost plate" id="go" disabled><i>🔧</i><span>Caricamento…</span></button><button class="ghost plate" id="ovHow"><i>🎓</i><span>Come si gioca<small>tutorial, si può saltare</small></span></button><button class="ghost plate" id="qcB"><i>🔥</i><span>Festa al campo<small>subito al fuoco con gli amici</small></span></button></div>
       <div id="ovDaily" hidden></div>
-      <button id="ovAlb" type="button" hidden>📸 Album foto</button><button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv" hidden><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 165</small>
+      <button id="ovAlb" type="button" hidden>📸 Album foto</button><button id="ovSet" type="button">⚙️ Impostazioni</button><div class="ovMini" hidden><button class="inst" id="instB">📲 Metti nella Home</button><label class="inv" hidden><input type="checkbox" id="invS"> Inverti sterzo</label><button id="ovMus">🔊 Musica</button></div><small id="ovVer" style="opacity:.45;font:600 11px/1 var(--fc);margin-top:2px">versione 166</small>
       <div id="load"></div>
       <p id="olk" hidden>Dentro questa pagina il telefono non dà l'inclinazione: per sterzare inclinando apri <a class="olink" href="https://ilgabbah-ux.github.io/4x4-camp/" target="_blank" rel="noopener">ilgabbah-ux.github.io/4x4-camp</a></p>
     </div>
@@ -1660,9 +1660,9 @@ function buildWorld(id){ try{ garScene(false); }catch(e){}
   // pioppi ai bordi del campo militare
   if(TR.theme==='militare'){ const geo=leafGeometry(); const N=380; const im=new THREE.InstancedMesh(geo,new THREE.MeshStandardMaterial({vertexColors:true,roughness:.9,flatShading:true,envMapIntensity:.5}),N);
     const M=new THREE.Matrix4(), Q=new THREE.Quaternion(), S=new THREE.Vector3(), P=new THREE.Vector3(), col=new THREE.Color(); let n=0;
-    for(let k=0;k<N*3&&n<N;k++){ const s=-30+RT()*(LEN+100), d=(RT()<.5?-1:1)*(18+RT()*45); const x=CX(s)+d, z=-s, h=11+RT()*8;
-      M.compose(P.set(x,baseH(x,z)-.1,z),Q.setFromEuler(new THREE.Euler(0,RT()*6,0)),S.set(1.4,h,1.4)); im.setMatrixAt(n,M); col.setHSL(.22+RT()*.06,.35,.38+RT()*.1); im.setColorAt(n++,col); }
-    im.count=n; im.castShadow=true; world.add(im); }
+    for(let k=0;k<N*3&&n<N;k++){ const s=-30+RT()*(LEN+100), d=(RT()<.5?-1:1)*(18+RT()*45); const x=CX(s)+d, z=-s, h=8+RT()*7, w=h*(.36+RT()*.1); /* pioppi veri: alti e stretti ma con una chioma, non punte lisce */
+      M.compose(P.set(x,baseH(x,z)-.1,z),Q.setFromEuler(new THREE.Euler(0,RT()*6,0)),S.set(w,h,w)); im.setMatrixAt(n,M); col.setHSL(.22+RT()*.06,.35,.38+RT()*.1); im.setColorAt(n++,col); }
+    im.count=n; im.castShadow=true; world.add(im); swapToAsset(im,'latifoglia',1.9,[.92,1,.84]); /* stesse latifoglie in foto degli altri percorsi */ }
   addLandmarks();
   // cespugli ed erba
   if(!neve){
