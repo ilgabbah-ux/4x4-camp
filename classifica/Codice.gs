@@ -24,6 +24,7 @@ function sheet_(name, head) {
 }
 const times_ = () => sheet_('Tempi', ['Data', 'Nome', 'Tracciato', 'Tempo (s)', 'Spinte di Purcello']);
 const names_ = () => sheet_('Nomi', ['Nome', 'Impronta codice', 'Dal']);
+const ghosts_ = () => sheet_('Fantasmi', ['Tracciato', 'Nome', 'Tempo (s)', 'Mezzo', 'Passo (s)', 'Giro', 'Data']);   // un giro per percorso: quello del record
 function hash_(k) { return Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, 'ridotte|' + k)).slice(0, 24); }
 function clean_(t, n) { return String(t || '').replace(/[<>"'`\\]/g, '').replace(/\s+/g, ' ').trim().slice(0, n); }
 
@@ -75,8 +76,43 @@ function doGet(e) {
       } finally { lock.releaseLock(); }
       return reply_(p, { ok: true, boards: boards_() });
     }
+    if (p.action === 'ghost') {   // GET ?action=ghost&track=..  → il giro del record su quel percorso
+      const s = ghosts_(), last = s.getLastRow(), track = String(p.track || '');
+      const rows = last > 1 ? s.getRange(2, 1, last - 1, 6).getValues() : [];
+      const r = rows.find(x => String(x[0]) === track);
+      if (!r) return reply_(p, { none: true });
+      return reply_(p, { n: String(r[1]), t: Number(r[2]), veh: String(r[3]), dt: Number(r[4]) || .5, f: String(r[5]).slice(1) });
+    }
     return reply_(p, boards_());
   } catch (err) {
     return reply_(p, { error: String(err) });
+  }
+}
+
+// POST {action:'ghost', name, k, track, time, veh, dt, f}: il giro di chi fa il record (troppo lungo per un GET).
+// Si accetta solo se il nome è di quel telefono, il tempo c'è davvero tra i tempi di quel nome ed è il migliore sul percorso.
+function doPost(e) {
+  try {
+    const p = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+    if (p.action !== 'ghost') return reply_({}, { error: 'azione sconosciuta' });
+    const name = clean_(p.name, 16), track = String(p.track || ''), time = Math.round(Number(p.time) * 10) / 10;
+    const veh = clean_(p.veh, 40), dt = Number(p.dt) === 1 ? 1 : .5, f = String(p.f || '');
+    if (!name || TRACKS.indexOf(track) < 0 || !(time >= MIN_TIME[track] && time <= MAX_TIME) || f.length < 40 || f.length > 48000 || !/^[-0-9,;]+$/.test(f)) return reply_({}, { error: 'dati non validi' });
+    const lock = LockService.getScriptLock(); lock.waitLock(10000);
+    try {
+      if (!claim_(name, String(p.k || ''))) return reply_({}, { error: 'nome già usato' });
+      const tr = times_(), tl = tr.getLastRow(), key = name.toLowerCase();
+      const trs = tl > 1 ? tr.getRange(2, 1, tl - 1, 5).getValues() : [];
+      if (!trs.some(r => String(r[1]).toLowerCase() === key && String(r[2]) === track && Math.abs(Number(r[3]) - time) < .06)) return reply_({}, { error: 'tempo non trovato' });
+      const s = ghosts_(), last = s.getLastRow();
+      const rows = last > 1 ? s.getRange(2, 1, last - 1, 3).getValues() : [];
+      const i = rows.findIndex(r => String(r[0]) === track);
+      if (i >= 0 && Number(rows[i][2]) <= time) return reply_({}, { ok: false, slower: true });
+      const row = [track, name, time, veh, dt, 'g' + f, new Date()];   // 'g' davanti: il foglio non lo scambia per un numero o una formula
+      if (i >= 0) s.getRange(i + 2, 1, 1, 7).setValues([row]); else s.appendRow(row);
+    } finally { lock.releaseLock(); }
+    return reply_({}, { ok: true });
+  } catch (err) {
+    return reply_({}, { error: String(err) });
   }
 }
